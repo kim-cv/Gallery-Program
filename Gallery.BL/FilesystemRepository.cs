@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -45,7 +46,9 @@ namespace Gallery.BL
             return fileInfos.Select(tmpFileInfo =>
             {
                 byte[] imageBytes = File.ReadAllBytes(tmpFileInfo.FullName);
-                Image img = ImageController.BytesToImage(imageBytes);
+                Image img = ImageController
+                .BytesToImage(imageBytes)
+                .GetThumbnailImage(100, 100, () => false, IntPtr.Zero);
                 return img;
             }).ToList();
         }

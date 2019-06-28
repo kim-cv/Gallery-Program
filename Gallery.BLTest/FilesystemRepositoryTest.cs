@@ -12,21 +12,28 @@ namespace Gallery.BLTest
     {
         public FilesystemRepository provider { get; private set; }
         public readonly string imagesFolder = "./testFolder";
-        public readonly string imageName = "testImage.jpg";
+        public readonly IList<string> imageNames = new List<string>();
 
         public FilesystemRepositoryFixture()
         {
             // Create test folder
             Directory.CreateDirectory(imagesFolder);
 
-            // Create test image
-            byte[] imgBytes = CreateGridImage(10, 10, 9, 9, 30);
-
-            // Save test image
-            string imgPath = Path.Combine(imagesFolder, imageName);
-            using (FileStream fileStream = new FileStream(imgPath, FileMode.Create, FileAccess.Write))
+            // Create test images
+            for (int i = 0; i < 3; i++)
             {
-                fileStream.Write(imgBytes);
+                string imageName = "testImage" + i.ToString() + ".jpg";
+                imageNames.Add(imageName);
+
+                // Create test image
+                byte[] imgBytes = CreateGridImage(10, 10, 0, i, 30);
+
+                // Save test image
+                string imgPath = Path.Combine(imagesFolder, imageName);
+                using (FileStream fileStream = new FileStream(imgPath, FileMode.Create, FileAccess.Write))
+                {
+                    fileStream.Write(imgBytes);
+                }
             }
 
             // Create provider
@@ -51,12 +58,12 @@ namespace Gallery.BLTest
                     };
 
                     //Draw red rectangle to go behind cross
-                    Rectangle rect = new Rectangle(boxSize * (cellXPosition - 1), boxSize * (cellYPosition - 1), boxSize, boxSize);
+                    Rectangle rect = new Rectangle(boxSize * cellXPosition, boxSize * cellYPosition, boxSize, boxSize);
                     g.FillRectangle(new SolidBrush(Color.Red), rect);
 
                     //Draw cross
-                    g.DrawLine(pen, boxSize * (cellXPosition - 1), boxSize * (cellYPosition - 1), boxSize * cellXPosition, boxSize * cellYPosition);
-                    g.DrawLine(pen, boxSize * (cellXPosition - 1), boxSize * cellYPosition, boxSize * cellXPosition, boxSize * (cellYPosition - 1));
+                    g.DrawLine(pen, boxSize * cellXPosition, boxSize * cellYPosition, boxSize * cellXPosition, boxSize * cellYPosition);
+                    g.DrawLine(pen, boxSize * cellXPosition, boxSize * cellYPosition, boxSize * cellXPosition, boxSize * cellYPosition);
 
                     //Draw horizontal lines
                     for (int i = 0; i <= maxXCells; i++)
@@ -81,8 +88,11 @@ namespace Gallery.BLTest
 
         public void Dispose()
         {
-            string imgPath = Path.Combine(imagesFolder, imageName);
-            File.Delete(imgPath);
+            foreach (string imageName in imageNames)
+            {
+                string imgPath = Path.Combine(imagesFolder, imageName);
+                File.Delete(imgPath);
+            }
             Directory.Delete(imagesFolder);
         }
     }
@@ -118,8 +128,7 @@ namespace Gallery.BLTest
 
             //Assert
             Assert.NotNull(images);
-            Assert.Equal(1, images.Count);
-            Assert.NotNull(images[0]);
+            Assert.True(images.Count > 0);
         }
         #endregion
 
@@ -130,7 +139,7 @@ namespace Gallery.BLTest
             // Arrange
 
             // Act
-            Image image = fixture.provider.RetrieveImage(fixture.imageName);
+            Image image = fixture.provider.RetrieveImage(fixture.imageNames[0]);
 
             //Assert
             Assert.NotNull(image);
