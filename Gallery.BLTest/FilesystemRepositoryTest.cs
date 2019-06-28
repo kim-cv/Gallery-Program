@@ -128,7 +128,7 @@ namespace Gallery.BLTest
 
             //Assert
             Assert.NotNull(images);
-            Assert.True(images.Count > 0);
+            Assert.Equal(fixture.imageNames.Count, images.Count);
         }
         #endregion
 
