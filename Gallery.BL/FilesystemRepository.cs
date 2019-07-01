@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows.Media.Imaging;
 
 namespace Gallery.BL
 {
@@ -41,19 +40,19 @@ namespace Gallery.BL
             fileInfos = mappedToFileInfos.ToArray();
         }
 
-        public IList<Image> RetrieveImagesAsThumbs()
+        public IList<BitmapSource> RetrieveImagesAsThumbs()
         {
             return fileInfos.Select(tmpFileInfo =>
             {
                 byte[] imageBytes = File.ReadAllBytes(tmpFileInfo.FullName);
-                Image img = ImageController
-                .BytesToImage(imageBytes)
-                .GetThumbnailImage(100, 100, () => false, IntPtr.Zero);
+                BitmapSource img = ImageController
+                .BytesToImage(imageBytes);
+                img = ImageController.ConvertToThumb(img, 100, 100);
                 return img;
             }).ToList();
         }
 
-        public Image RetrieveImage(string imageName)
+        public BitmapSource RetrieveImage(string imageName)
         {
             bool imageNameExist = DoesFileInfoExistWithFileName(imageName);
             if (imageNameExist == false)
