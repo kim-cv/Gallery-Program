@@ -59,6 +59,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Pages\Gallery\GalleryPage.xaml.cs">
+      <DependentUpon>GalleryPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Gallery\GalleryViewmodel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -71,6 +75,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Pages\Gallery\GalleryPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -101,7 +109,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gallery.BL\Gallery.BL.csproj">
-      <Project>{6E72C06C-7507-49F9-9961-5ABDCF951D4D}</Project>
+      <Project>{a610d63e-bde6-47eb-9836-44636bef5714}</Project>
       <Name>Gallery.BL</Name>
     </ProjectReference>
   </ItemGroup>
