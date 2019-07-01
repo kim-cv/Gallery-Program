@@ -1,20 +1,22 @@
 using Gallery.BL;
-using System;
 using System.Collections.Generic;
+using System.IO;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
-using Xunit;
+using System.Windows.Media.Imaging;
 
 namespace Gallery.BLTest
 {
-    public class FilesystemRepositoryFixture : IDisposable
+    [TestClass]
+    public class FilesystemRepositoryTest
     {
-        public FilesystemRepository provider { get; private set; }
+        #region Init & Clean
+        public FilesystemRepository filesystemRepository { get; private set; }
         public readonly string imagesFolder = "./testFolder";
         public readonly IList<string> imageNames = new List<string>();
 
-        public FilesystemRepositoryFixture()
+        public FilesystemRepositoryTest()
         {
             // Create test folder
             Directory.CreateDirectory(imagesFolder);
@@ -32,20 +34,31 @@ namespace Gallery.BLTest
                 string imgPath = Path.Combine(imagesFolder, imageName);
                 using (FileStream fileStream = new FileStream(imgPath, FileMode.Create, FileAccess.Write))
                 {
-                    fileStream.Write(imgBytes);
+                    fileStream.Write(imgBytes, 0, imgBytes.Length);
                 }
             }
 
-            // Create provider
-            provider = new FilesystemRepository(imagesFolder);
+            // Create repository
+            filesystemRepository = new FilesystemRepository(imagesFolder);
+        }
+
+        [ClassCleanup]
+        public static void Cleanup()
+        {
+            //foreach (string imageName in imageNames)
+            //{
+            //    string imgPath = Path.Combine(imagesFolder, imageName);
+            //    File.Delete(imgPath);
+            //}
+            //Directory.Delete(imagesFolder);
         }
 
         private byte[] CreateGridImage(
-                int maxXCells,
-                int maxYCells,
-                int cellXPosition,
-                int cellYPosition,
-                int boxSize)
+        int maxXCells,
+        int maxYCells,
+        int cellXPosition,
+        int cellYPosition,
+        int boxSize)
         {
             using (var bitmap = new Bitmap(maxXCells * boxSize + 1, maxYCells * boxSize + 1))
             {
@@ -85,76 +98,58 @@ namespace Gallery.BLTest
                 }
             }
         }
+        #endregion  
 
-        public void Dispose()
-        {
-            foreach (string imageName in imageNames)
-            {
-                string imgPath = Path.Combine(imagesFolder, imageName);
-                File.Delete(imgPath);
-            }
-            Directory.Delete(imagesFolder);
-        }
-    }
-
-    public class FilesystemRepositoryTest : IClassFixture<FilesystemRepositoryFixture>
-    {
-        FilesystemRepositoryFixture fixture;
-
-        public FilesystemRepositoryTest(FilesystemRepositoryFixture fixture)
-        {
-            this.fixture = fixture;
-        }
-
-        [Fact]
+        [TestMethod]
+        [ExpectedException(typeof(DirectoryNotFoundException))]
         public void Ctor_invalid_directory_path()
         {
             // Arrange
 
             // Act
+            new FilesystemRepository("./unknownFolder");
 
             //Assert
-            Assert.Throws<DirectoryNotFoundException>(() => new FilesystemRepository("./unknownFolder"));
         }
 
         #region RetrieveImagesAsThumbs()
-        [Fact]
+        [TestMethod]
         public void RetrieveImagesAsThumbs()
         {
             // Arrange
 
             // Act
-            IList<Image> images = fixture.provider.RetrieveImagesAsThumbs();
+            IList<BitmapSource> images = filesystemRepository.RetrieveImagesAsThumbs();
 
             //Assert
-            Assert.NotNull(images);
-            Assert.Equal(fixture.imageNames.Count, images.Count);
+            Assert.IsNotNull(images);
+            Assert.AreEqual(imageNames.Count, images.Count);
         }
         #endregion
 
         #region RetrieveImage()
-        [Fact]
+        [TestMethod]
         public void RetrieveImage()
         {
             // Arrange
 
             // Act
-            Image image = fixture.provider.RetrieveImage(fixture.imageNames[0]);
+            BitmapSource image = filesystemRepository.RetrieveImage(imageNames[0]);
 
             //Assert
-            Assert.NotNull(image);
+            Assert.IsNotNull(image);
         }
 
-        [Fact]
+        [TestMethod]
         public void RetrieveImage_unknown_image()
         {
             // Arrange
 
             // Act
-            Image image = fixture.provider.RetrieveImage("unknownImage.jpg");
+            BitmapSource image = filesystemRepository.RetrieveImage("unknownImage.jpg");
 
             //Assert
-            Assert.Null(image);
+            Assert.IsNull(image);
         }
         #endregion
     }

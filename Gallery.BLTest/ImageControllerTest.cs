@@ -1,6 +1,4 @@
-﻿using Xunit;
-
-namespace Gallery.BLTest
+﻿namespace Gallery.BLTest
 {
     public class ImageControllerTest
     {
