@@ -1,13 +1,11 @@
-﻿using Gallery.WPF.Views.Gallery;
+﻿using Gallery.BL;
+using Gallery.WPF.Views.Gallery;
 using System;
 using System.IO;
 using System.Windows;
 
 namespace Gallery.WPF
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
@@ -16,8 +14,13 @@ namespace Gallery.WPF
 
             VerifyApplicationDataRoamingFolderExist();
 
-            GalleryPage galleryPage = new GalleryPage();
-            galleryPage.DataContext = new GalleryViewmodel();
+            // Construct gallery page with dependency injection
+            string imagesFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+            FilesystemRepository filesystemRepository = new FilesystemRepository(imagesFolder);
+            GalleryViewmodel galleryViewmodel = new GalleryViewmodel(filesystemRepository);
+            GalleryPage galleryPage = new GalleryPage(galleryViewmodel);
+
+            // Show page
             Content = galleryPage;
         }
 

@@ -9,15 +9,16 @@ namespace Gallery.WPF.Views.Gallery
     public class GalleryViewmodel
     {
         public ObservableCollection<BitmapSource> Images { get; set; }
+        private readonly FilesystemRepository filesystemRepository;
 
-        public GalleryViewmodel()
+        public GalleryViewmodel(FilesystemRepository _filesystemRepository)
         {
             if (DesignerProperties.GetIsInDesignMode(new System.Windows.DependencyObject()))
             {
                 return;
             }
 
-            FilesystemRepository filesystemRepository = new FilesystemRepository();
+            filesystemRepository = _filesystemRepository;
             IList<BitmapSource> tmpImages = filesystemRepository.RetrieveImagesAsThumbs();
 
             Images = new ObservableCollection<BitmapSource>(tmpImages);
