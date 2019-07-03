@@ -4,9 +4,10 @@ namespace Gallery.WPF.Pages.GalleryLocations
 {
     public partial class GalleryLocationsPage : Page
     {
-        public GalleryLocationsPage()
+        public GalleryLocationsPage(GalleryLocationsViewmodel viewModel)
         {
             InitializeComponent();
+            DataContext = viewModel;
         }
     }
 }

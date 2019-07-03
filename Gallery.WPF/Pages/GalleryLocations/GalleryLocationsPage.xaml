@@ -8,7 +8,24 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="GalleryLocationsPage">
 
-    <Grid>
-        
-    </Grid>
+    <ListView
+              Name="listview_locations"
+              ItemsSource="{Binding GalleryLocations}"
+              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+
+        <ListView.ItemsPanel>
+            <ItemsPanelTemplate>
+                <WrapPanel Orientation="Horizontal"></WrapPanel>
+            </ItemsPanelTemplate>
+        </ListView.ItemsPanel>
+
+        <ListView.ItemTemplate>
+            <DataTemplate>
+                <WrapPanel>
+                    <Image Width="100" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="None"/>
+                    <TextBlock Text="{Binding Name}"></TextBlock>
+                </WrapPanel>
+            </DataTemplate>
+        </ListView.ItemTemplate>
+    </ListView>
 </Page>
