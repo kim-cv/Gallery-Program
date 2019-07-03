@@ -46,6 +46,7 @@
     <Reference Include="System.Drawing.Common, Version=4.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Drawing.Common.4.5.1\lib\net461\System.Drawing.Common.dll</HintPath>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -64,6 +65,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Pages\AddGalleryLocation\AddGalleryLocationPage.xaml.cs">
+      <DependentUpon>AddGalleryLocationPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\AddGalleryLocation\AddGalleryLocationViewmodel.cs" />
     <Compile Include="Pages\GalleryLocations\GalleryLocationsPage.xaml.cs">
       <DependentUpon>GalleryLocationsPage.xaml</DependentUpon>
     </Compile>
@@ -72,6 +77,7 @@
       <DependentUpon>GalleryPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Gallery\GalleryViewmodel.cs" />
+    <Compile Include="RelayCommand.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -84,6 +90,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Pages\AddGalleryLocation\AddGalleryLocationPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\GalleryLocations\GalleryLocationsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
