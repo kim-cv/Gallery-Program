@@ -24,7 +24,7 @@ namespace Gallery.WPF
             GalleryPage galleryPage = new GalleryPage(galleryViewmodel);
 
             // Show page
-            Content = galleryPage;
+            _mainFrame.Content = galleryPage;
         }
 
         private void VerifyApplicationDataRoamingFolderExist()

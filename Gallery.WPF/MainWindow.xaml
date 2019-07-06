@@ -6,4 +6,5 @@
         xmlns:local="clr-namespace:Gallery.WPF"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <Frame x:Name="_mainFrame"></Frame>
 </Window>
