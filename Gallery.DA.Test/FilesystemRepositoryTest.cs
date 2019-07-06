@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Windows.Media.Imaging;
 using System.Linq;
+using Gallery.TestUtils;
 
 namespace Gallery.DA.Text
 {
@@ -13,33 +11,15 @@ namespace Gallery.DA.Text
     {
         #region Init & Clean
         public FilesystemRepository filesystemRepository { get; private set; }
-        public readonly string imagesFolder = "./testFolder";
-        public readonly IList<string> imageNames = new List<string>();
+        private readonly ImageUtils UnitTestImageUtils = new ImageUtils();
 
         public FilesystemRepositoryTest()
         {
-            // Create test folder
-            Directory.CreateDirectory(imagesFolder);
-
-            // Create test images
-            for (int i = 0; i < 3; i++)
-            {
-                string imageName = "testImage" + i.ToString() + ".jpg";
-                imageNames.Add(imageName);
-
-                // Create test image
-                byte[] imgBytes = CreateGridImage(10, 10, 0, i, 30);
-
-                // Save test image
-                string imgPath = Path.Combine(imagesFolder, imageName);
-                using (FileStream fileStream = new FileStream(imgPath, FileMode.Create, FileAccess.Write))
-                {
-                    fileStream.Write(imgBytes, 0, imgBytes.Length);
-                }
-            }
+            // Create test folder and test images
+            UnitTestImageUtils.CreateTestImages("./testFolder", 3);
 
             // Create repository
-            filesystemRepository = new FilesystemRepository(imagesFolder);
+            filesystemRepository = new FilesystemRepository(UnitTestImageUtils.imagesFolder);
         }
 
         [ClassCleanup]
@@ -47,56 +27,10 @@ namespace Gallery.DA.Text
         {
             //foreach (string imageName in imageNames)
             //{
-            //    string imgPath = Path.Combine(imagesFolder, imageName);
+            //    string imgPath = Path.Combine(UnitTestImageUtils.imagesFolder, imageName);
             //    File.Delete(imgPath);
             //}
-            //Directory.Delete(imagesFolder);
-        }
-
-        private byte[] CreateGridImage(
-        int maxXCells,
-        int maxYCells,
-        int cellXPosition,
-        int cellYPosition,
-        int boxSize)
-        {
-            using (var bitmap = new Bitmap(maxXCells * boxSize + 1, maxYCells * boxSize + 1))
-            {
-                using (Graphics g = Graphics.FromImage(bitmap))
-                {
-                    g.Clear(Color.Yellow);
-                    Pen pen = new Pen(Color.Black)
-                    {
-                        Width = 1
-                    };
-
-                    //Draw red rectangle to go behind cross
-                    Rectangle rect = new Rectangle(boxSize * cellXPosition, boxSize * cellYPosition, boxSize, boxSize);
-                    g.FillRectangle(new SolidBrush(Color.Red), rect);
-
-                    //Draw cross
-                    g.DrawLine(pen, boxSize * cellXPosition, boxSize * cellYPosition, boxSize * cellXPosition, boxSize * cellYPosition);
-                    g.DrawLine(pen, boxSize * cellXPosition, boxSize * cellYPosition, boxSize * cellXPosition, boxSize * cellYPosition);
-
-                    //Draw horizontal lines
-                    for (int i = 0; i <= maxXCells; i++)
-                    {
-                        g.DrawLine(pen, (i * boxSize), 0, i * boxSize, boxSize * maxYCells);
-                    }
-
-                    //Draw vertical lines            
-                    for (int i = 0; i <= maxYCells; i++)
-                    {
-                        g.DrawLine(pen, 0, (i * boxSize), boxSize * maxXCells, i * boxSize);
-                    }
-                }
-
-                using (var stream = new MemoryStream())
-                {
-                    bitmap.Save(stream, ImageFormat.Jpeg);
-                    return stream.ToArray();
-                }
-            }
+            //Directory.Delete(UnitTestImageUtils.imagesFolder);
         }
         #endregion  
 
@@ -124,7 +58,7 @@ namespace Gallery.DA.Text
             //Assert
             Assert.IsNotNull(imagesBytes);
             // Assert we return the same number of test images that we created for this test
-            Assert.AreEqual(imageNames.Count, imagesBytes.Count);
+            Assert.AreEqual(UnitTestImageUtils.imageNames.Count, imagesBytes.Count);
         }
         #endregion
 
@@ -135,7 +69,7 @@ namespace Gallery.DA.Text
             // Arrange
 
             // Act
-            byte[] imageBytes = filesystemRepository.RetrieveImage(imageNames[0]);
+            byte[] imageBytes = filesystemRepository.RetrieveImage(UnitTestImageUtils.imageNames[0]);
 
             //Assert
             Assert.IsNotNull(imageBytes);
