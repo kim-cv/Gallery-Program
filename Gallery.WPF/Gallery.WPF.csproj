@@ -135,6 +135,14 @@
       <Project>{a610d63e-bde6-47eb-9836-44636bef5714}</Project>
       <Name>Gallery.BL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Gallery.Core\Gallery.Core.csproj">
+      <Project>{1925A165-08B9-4623-AD43-628FAC4429EB}</Project>
+      <Name>Gallery.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gallery.DA\Gallery.DA.csproj">
+      <Project>{7E758F31-EB02-4ABC-963A-35813DDBF8E0}</Project>
+      <Name>Gallery.DA</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.111.0\build\net46\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.111.0\build\net46\System.Data.SQLite.Core.targets')" />

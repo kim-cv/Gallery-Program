@@ -8,6 +8,7 @@ using System.Windows.Media.Imaging;
 
 namespace Gallery.BLTest
 {
+    /*
     [TestClass]
     public class FilesystemRepositoryTest
     {
@@ -153,4 +154,5 @@ namespace Gallery.BLTest
         }
         #endregion
     }
+    */
 }

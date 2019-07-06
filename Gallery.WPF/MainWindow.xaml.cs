@@ -1,4 +1,6 @@
 ﻿using Gallery.BL;
+using Gallery.Core.Interfaces;
+using Gallery.DA;
 using Gallery.WPF.Views.Gallery;
 using System;
 using System.IO;
@@ -14,10 +16,11 @@ namespace Gallery.WPF
 
             VerifyApplicationDataRoamingFolderExist();
 
-            // Construct gallery page with dependency injection
+            // Construct gallery page with constructor dependency injection
             string imagesFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
             FilesystemRepository filesystemRepository = new FilesystemRepository(imagesFolder);
-            GalleryViewmodel galleryViewmodel = new GalleryViewmodel(filesystemRepository);
+            IImageRepository imageRepositoryMediator = new ImageRepositoryMediator(filesystemRepository);
+            GalleryViewmodel galleryViewmodel = new GalleryViewmodel(imageRepositoryMediator);
             GalleryPage galleryPage = new GalleryPage(galleryViewmodel);
 
             // Show page

@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using Gallery.Core.Interfaces;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows.Media.Imaging;
 
-namespace Gallery.BL
+namespace Gallery.DA
 {
-    public class FilesystemRepository
+    public class FilesystemRepository : IImageFileRepository
     {
         public readonly string directoryUrl;
         private readonly FileInfo[] fileInfos;
@@ -31,28 +31,18 @@ namespace Gallery.BL
 
             // Map to fileinfo
             IEnumerable<FileInfo> mappedToFileInfos = filteredFilenamesWithPath
-                .Select(tmpFilenameWithPath =>
-                {
-                    return new FileInfo(tmpFilenameWithPath);
-                });
+                .Select(tmpFilenameWithPath => new FileInfo(tmpFilenameWithPath));
 
             // Set filenames
             fileInfos = mappedToFileInfos.ToArray();
         }
 
-        public IList<BitmapSource> RetrieveImagesAsThumbs()
+        public IEnumerable<byte[]> RetrieveImages()
         {
-            return fileInfos.Select(tmpFileInfo =>
-            {
-                byte[] imageBytes = File.ReadAllBytes(tmpFileInfo.FullName);
-                BitmapSource img = ImageController
-                .BytesToImage(imageBytes);
-                img = ImageController.ConvertToThumb(img, 100, 100);
-                return img;
-            }).ToList();
+            return fileInfos.Select(tmpFileInfo => File.ReadAllBytes(tmpFileInfo.FullName));
         }
 
-        public BitmapSource RetrieveImage(string imageName)
+        public byte[] RetrieveImage(string imageName)
         {
             bool imageNameExist = DoesFileInfoExistWithFileName(imageName);
             if (imageNameExist == false)
@@ -66,8 +56,7 @@ namespace Gallery.BL
                 return null;
             }
 
-            byte[] imageBytes = File.ReadAllBytes(fileInfo.FullName);
-            return ImageController.BytesToImage(imageBytes);
+            return File.ReadAllBytes(fileInfo.FullName);
         }
 
         private FileInfo RetrieveFileInfoFromFilename(string imageName)
