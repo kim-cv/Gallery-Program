@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E391B077
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gallery.BL", "Gallery.BL\Gallery.BL.csproj", "{A610D63E-BDE6-47EB-9836-44636BEF5714}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gallery.BLTest", "Gallery.BLTest\Gallery.BLTest.csproj", "{2AD0C333-4A5E-406A-ABD5-F82FAC6C5512}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gallery.BL.Test", "Gallery.BLTest\Gallery.BL.Test.csproj", "{2AD0C333-4A5E-406A-ABD5-F82FAC6C5512}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gallery.DA", "Gallery.DA\Gallery.DA.csproj", "{7E758F31-EB02-4ABC-963A-35813DDBF8E0}"
 EndProject
