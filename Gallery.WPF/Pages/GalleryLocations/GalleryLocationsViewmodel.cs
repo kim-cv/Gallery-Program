@@ -8,6 +8,7 @@ namespace Gallery.WPF.Pages.GalleryLocations
     public class GalleryLocationsViewmodel
     {
         // Events & Commands
+        public ICommand btnCmdChooseGallery { get; set; }
         public ICommand btnCmdAddGalleryLocation { get; set; }
         public delegate void NavigateToPageEventHandler(AVAILABLE_PAGES page);
         public event NavigateToPageEventHandler OnNavigateToNewPage;
@@ -23,6 +24,11 @@ namespace Gallery.WPF.Pages.GalleryLocations
                 return;
             }
 
+            btnCmdChooseGallery = new RelayCommand<GalleryLocation>(tmpGallery =>
+            {
+                cmdChooseGallery(tmpGallery);
+            });
+
             galleryDataSQLiteRepository = _galleryDataSQLiteRepository;
             GalleryLocations = new ObservableCollection<GalleryLocation>(galleryDataSQLiteRepository.RetrieveGalleryLocations());
 
@@ -32,6 +38,10 @@ namespace Gallery.WPF.Pages.GalleryLocations
         private void NavigateToAddNewGalleryLocation()
         {
             OnNavigateToNewPage?.Invoke(AVAILABLE_PAGES.AddGalleryLocation);
+        }
+
+        private void cmdChooseGallery(GalleryLocation gallery)
+        {
         }
     }
 }
