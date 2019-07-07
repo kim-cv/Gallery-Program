@@ -5,6 +5,7 @@ using Gallery.WPF.Views.Gallery;
 using System;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace Gallery.WPF
 {
@@ -16,15 +17,11 @@ namespace Gallery.WPF
 
             VerifyApplicationDataRoamingFolderExist();
 
-            // Construct gallery page with constructor dependency injection
-            string imagesFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-            FilesystemRepository filesystemRepository = new FilesystemRepository(imagesFolder);
-            IImageRepository imageRepositoryMediator = new ImageRepositoryMediator(filesystemRepository);
-            GalleryViewmodel galleryViewmodel = new GalleryViewmodel(imageRepositoryMediator);
-            GalleryPage galleryPage = new GalleryPage(galleryViewmodel);
+            // Construct first page
+            Page page = PageFactory.ConstructPage(AVAILABLE_PAGES.Gallery);
 
             // Show page
-            _mainFrame.Content = galleryPage;
+            _mainFrame.Navigate(page);
         }
 
         private void VerifyApplicationDataRoamingFolderExist()
