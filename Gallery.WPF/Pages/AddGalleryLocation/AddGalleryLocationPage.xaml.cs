@@ -8,6 +8,14 @@ namespace Gallery.WPF.Pages.AddGalleryLocation
         {
             InitializeComponent();
             DataContext = viewModel;
+
+            viewModel.OnNavigateToNewPage += NavigateToPage;
+        }
+
+        private void NavigateToPage(AVAILABLE_PAGES pageType)
+        {
+            Page page = PageFactory.ConstructPage(pageType);
+            NavigationService.Navigate(page);
         }
     }
 }
