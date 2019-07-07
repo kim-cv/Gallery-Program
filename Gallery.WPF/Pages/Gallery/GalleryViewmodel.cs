@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Media.Imaging;
 using System.Windows.Input;
-using System.Windows.Forms;
 
 namespace Gallery.WPF.Views.Gallery
 {
@@ -12,6 +11,8 @@ namespace Gallery.WPF.Views.Gallery
     {
         // Events & Commands
         public ICommand btnCmdChooseImage { get; set; }
+        public delegate void NavigateToPageEventHandler(AVAILABLE_PAGES page);
+        public event NavigateToPageEventHandler OnNavigateToNewPage;
 
         public ObservableCollection<BitmapSource> Images { get; set; }
         private readonly IImageRepository imageRepositoryMediator;
@@ -36,7 +37,7 @@ namespace Gallery.WPF.Views.Gallery
 
         private void cmdChooseImage(BitmapSource image)
         {
-            MessageBox.Show("Clicked Image");
+            OnNavigateToNewPage?.Invoke(AVAILABLE_PAGES.AddGalleryLocation);
         }
     }
 }
