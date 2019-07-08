@@ -5,13 +5,13 @@ using System.ComponentModel;
 using System.Windows.Media.Imaging;
 using System.Windows.Input;
 
-namespace Gallery.WPF.Views.Gallery
+namespace Gallery.WPF.Pages.Gallery
 {
     public class GalleryViewmodel
     {
         // Events & Commands
         public ICommand btnCmdChooseImage { get; set; }
-        public delegate void NavigateToPageEventHandler(AVAILABLE_PAGES page);
+        public delegate void NavigateToPageEventHandler(AVAILABLE_PAGES page, object pageData);
         public event NavigateToPageEventHandler OnNavigateToNewPage;
 
         public ObservableCollection<BitmapSource> Images { get; set; }
@@ -37,7 +37,7 @@ namespace Gallery.WPF.Views.Gallery
 
         private void cmdChooseImage(BitmapSource image)
         {
-            OnNavigateToNewPage?.Invoke(AVAILABLE_PAGES.AddGalleryLocation);
+            OnNavigateToNewPage?.Invoke(AVAILABLE_PAGES.AddGalleryLocation, null);
         }
     }
 }

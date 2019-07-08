@@ -1,8 +1,4 @@
-﻿using Gallery.BL;
-using Gallery.Core.Interfaces;
-using Gallery.DA;
-using Gallery.WPF.Views.Gallery;
-using System;
+﻿using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;

@@ -2,8 +2,8 @@
 using Gallery.Core.Interfaces;
 using Gallery.DA;
 using Gallery.WPF.Pages.AddGalleryLocation;
+using Gallery.WPF.Pages.Gallery;
 using Gallery.WPF.Pages.GalleryLocations;
-using Gallery.WPF.Views.Gallery;
 using System;
 using System.IO;
 using System.Windows.Controls;

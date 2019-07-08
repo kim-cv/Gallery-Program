@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace Gallery.WPF.Views.Gallery
+namespace Gallery.WPF.Pages.Gallery
 {
     public partial class GalleryPage : Page
     {
