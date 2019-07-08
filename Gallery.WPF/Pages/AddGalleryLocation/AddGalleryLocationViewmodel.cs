@@ -1,18 +1,18 @@
 ﻿using Gallery.BL;
+using Gallery.WPF.Interfaces;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Windows.Input;
 
 namespace Gallery.WPF.Pages.AddGalleryLocation
 {
-    public class AddGalleryLocationViewmodel : INotifyPropertyChanged
+    public class AddGalleryLocationViewmodel : INotifyPropertyChanged, IViewmodel
     {
         // Events & Commands
         public event PropertyChangedEventHandler PropertyChanged;
         public ICommand btnCmdChooseLocationPath { get; set; }
         public ICommand btnCmdSave { get; set; }
-        public delegate void NavigateToPageEventHandler(AVAILABLE_PAGES page);
-        public event NavigateToPageEventHandler OnNavigateToNewPage;
+        public event EventHandlers.NavigateToPageEventHandler OnNavigateToNewPage;
 
 
         public string selectedPath { get; set; }
@@ -40,7 +40,7 @@ namespace Gallery.WPF.Pages.AddGalleryLocation
         private void SaveGalleryLocation()
         {
             galleryDataSQLiteRepository.AddGalleryLocation(galleryName, selectedPath);
-            OnNavigateToNewPage?.Invoke(AVAILABLE_PAGES.GalleryLocations);
+            OnNavigateToNewPage?.Invoke(AVAILABLE_PAGES.GalleryLocations, null);
         }
 
         private void OpenFolderDialog()

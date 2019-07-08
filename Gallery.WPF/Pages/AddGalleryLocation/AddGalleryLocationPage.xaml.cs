@@ -12,9 +12,9 @@ namespace Gallery.WPF.Pages.AddGalleryLocation
             viewModel.OnNavigateToNewPage += NavigateToPage;
         }
 
-        private void NavigateToPage(AVAILABLE_PAGES pageType)
+        private void NavigateToPage(AVAILABLE_PAGES pageType, object pageData)
         {
-            Page page = PageFactory.ConstructPage(pageType, null);
+            Page page = PageFactory.ConstructPage(pageType, pageData);
             NavigationService.Navigate(page);
         }
     }

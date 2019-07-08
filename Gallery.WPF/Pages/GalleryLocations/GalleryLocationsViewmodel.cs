@@ -1,17 +1,17 @@
 ﻿using Gallery.BL;
+using Gallery.WPF.Interfaces;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
 
 namespace Gallery.WPF.Pages.GalleryLocations
 {
-    public class GalleryLocationsViewmodel
+    public class GalleryLocationsViewmodel : IViewmodel
     {
         // Events & Commands
         public ICommand btnCmdChooseGallery { get; set; }
         public ICommand btnCmdAddGalleryLocation { get; set; }
-        public delegate void NavigateToPageEventHandler(AVAILABLE_PAGES page, object pageData);
-        public event NavigateToPageEventHandler OnNavigateToNewPage;
+        public event EventHandlers.NavigateToPageEventHandler OnNavigateToNewPage;
 
         public ObservableCollection<GalleryLocation> GalleryLocations
         { get; set; }

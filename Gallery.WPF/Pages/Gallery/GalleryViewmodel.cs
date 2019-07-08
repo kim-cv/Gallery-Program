@@ -4,15 +4,15 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Media.Imaging;
 using System.Windows.Input;
+using Gallery.WPF.Interfaces;
 
 namespace Gallery.WPF.Pages.Gallery
 {
-    public class GalleryViewmodel
+    public class GalleryViewmodel : IViewmodel
     {
         // Events & Commands
         public ICommand btnCmdChooseImage { get; set; }
-        public delegate void NavigateToPageEventHandler(AVAILABLE_PAGES page, object pageData);
-        public event NavigateToPageEventHandler OnNavigateToNewPage;
+        public event EventHandlers.NavigateToPageEventHandler OnNavigateToNewPage;
 
         public ObservableCollection<BitmapSource> Images { get; set; }
         private readonly IImageRepository imageRepositoryMediator;

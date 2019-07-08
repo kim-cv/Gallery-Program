@@ -72,6 +72,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AVAILABLE_PAGES.cs" />
+    <Compile Include="EventHandlers\NavigateToPageEventHandler.cs" />
+    <Compile Include="Interfaces\IViewmodel.cs" />
     <Compile Include="PageFactory.cs" />
     <Compile Include="Pages\AddGalleryLocation\AddGalleryLocationPage.xaml.cs">
       <DependentUpon>AddGalleryLocationPage.xaml</DependentUpon>
