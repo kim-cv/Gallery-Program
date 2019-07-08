@@ -14,7 +14,7 @@ namespace Gallery.WPF.Pages.AddGalleryLocation
 
         private void NavigateToPage(AVAILABLE_PAGES pageType)
         {
-            Page page = PageFactory.ConstructPage(pageType);
+            Page page = PageFactory.ConstructPage(pageType, null);
             NavigationService.Navigate(page);
         }
     }

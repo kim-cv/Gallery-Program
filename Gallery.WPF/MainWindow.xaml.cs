@@ -18,7 +18,7 @@ namespace Gallery.WPF
             VerifyApplicationDataRoamingFolderExist();
 
             // Construct first page
-            Page page = PageFactory.ConstructPage(AVAILABLE_PAGES.GalleryLocations);
+            Page page = PageFactory.ConstructPage(AVAILABLE_PAGES.GalleryLocations, null);
 
             // Show page
             _mainFrame.Navigate(page);

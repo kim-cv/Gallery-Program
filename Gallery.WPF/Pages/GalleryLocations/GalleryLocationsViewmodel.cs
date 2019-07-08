@@ -10,7 +10,7 @@ namespace Gallery.WPF.Pages.GalleryLocations
         // Events & Commands
         public ICommand btnCmdChooseGallery { get; set; }
         public ICommand btnCmdAddGalleryLocation { get; set; }
-        public delegate void NavigateToPageEventHandler(AVAILABLE_PAGES page);
+        public delegate void NavigateToPageEventHandler(AVAILABLE_PAGES page, object pageData);
         public event NavigateToPageEventHandler OnNavigateToNewPage;
 
         public ObservableCollection<GalleryLocation> GalleryLocations
@@ -37,11 +37,12 @@ namespace Gallery.WPF.Pages.GalleryLocations
 
         private void NavigateToAddNewGalleryLocation()
         {
-            OnNavigateToNewPage?.Invoke(AVAILABLE_PAGES.AddGalleryLocation);
+            OnNavigateToNewPage?.Invoke(AVAILABLE_PAGES.AddGalleryLocation, null);
         }
 
         private void cmdChooseGallery(GalleryLocation gallery)
         {
+            OnNavigateToNewPage?.Invoke(AVAILABLE_PAGES.Gallery, gallery);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Gallery.WPF
 {
     public static class PageFactory
     {
-        public static Page ConstructPage(AVAILABLE_PAGES pageType)
+        public static Page ConstructPage(AVAILABLE_PAGES pageType, object pageData)
         {
             string program_name = Properties.Resources.program_name;
             string applicationRoamingDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -22,7 +22,7 @@ namespace Gallery.WPF
             switch (pageType)
             {
                 case AVAILABLE_PAGES.Gallery:
-                    return CreatePageGallery();
+                    return CreatePageGallery(pageData);
                 case AVAILABLE_PAGES.GalleryLocations:
                     return CreatePageGalleryLocations(applicationRoamingDataPath);
                 case AVAILABLE_PAGES.AddGalleryLocation:
@@ -32,9 +32,15 @@ namespace Gallery.WPF
             }
         }
 
-        private static Page CreatePageGallery()
+        private static Page CreatePageGallery(object pageData)
         {
-            string imagesFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+            if (pageData == null || pageData.GetType() != typeof(GalleryLocation))
+            {
+                throw new InvalidDataException("Page data was invalid");
+            }
+
+            GalleryLocation galleryLocation = (GalleryLocation)pageData;
+            string imagesFolder = galleryLocation.Path;
             FilesystemRepository filesystemRepository = new FilesystemRepository(imagesFolder);
             IImageRepository imageRepositoryMediator = new ImageRepositoryMediator(filesystemRepository);
             GalleryViewmodel galleryViewmodel = new GalleryViewmodel(imageRepositoryMediator);

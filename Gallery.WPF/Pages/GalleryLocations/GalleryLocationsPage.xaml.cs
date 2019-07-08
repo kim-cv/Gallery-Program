@@ -1,8 +1,8 @@
-﻿using System.Windows.Controls;
+﻿using Gallery.WPF.Abstracts;
 
 namespace Gallery.WPF.Pages.GalleryLocations
 {
-    public partial class GalleryLocationsPage : Page
+    public partial class GalleryLocationsPage : NavigablePageBase
     {
         public GalleryLocationsPage(GalleryLocationsViewmodel viewModel)
         {
@@ -10,12 +10,6 @@ namespace Gallery.WPF.Pages.GalleryLocations
             DataContext = viewModel;
 
             viewModel.OnNavigateToNewPage += NavigateToPage;
-        }
-
-        private void NavigateToPage(AVAILABLE_PAGES pageType)
-        {
-            Page page = PageFactory.ConstructPage(pageType);
-            NavigationService.Navigate(page);
         }
     }
 }
