@@ -71,7 +71,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Abstracts\NavigablePageBase.cs" />
     <Compile Include="AVAILABLE_PAGES.cs" />
     <Compile Include="PageFactory.cs" />
     <Compile Include="Pages\AddGalleryLocation\AddGalleryLocationPage.xaml.cs">
