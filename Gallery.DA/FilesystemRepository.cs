@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Gallery.DA
 {
@@ -37,9 +38,21 @@ namespace Gallery.DA
             fileInfos = mappedToFileInfos.ToArray();
         }
 
-        public IEnumerable<byte[]> RetrieveImages()
+        public async Task<IEnumerable<byte[]>> RetrieveImages()
         {
-            return fileInfos.Select(tmpFileInfo => File.ReadAllBytes(tmpFileInfo.FullName));
+            IList<byte[]> imageByteArray = new List<byte[]>(fileInfos.Length);
+
+            foreach (FileInfo tmpFileInfo in fileInfos)
+            {
+                using (FileStream stream = File.Open(tmpFileInfo.FullName, FileMode.Open))
+                {
+                    byte[] imageBytes = new byte[stream.Length];
+                    await stream.ReadAsync(imageBytes, 0, (int)stream.Length);
+                    imageByteArray.Add(imageBytes);
+                }
+            }
+
+            return imageByteArray;
         }
 
         public byte[] RetrieveImage(string imageName)

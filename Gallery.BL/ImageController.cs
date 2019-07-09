@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -7,36 +8,43 @@ namespace Gallery.BL
 {
     public static class ImageController
     {
-        public static BitmapSource BytesToImage(byte[] imageBytes)
+        public static async Task<BitmapSource> BytesToImage(byte[] imageBytes)
         {
-            using (MemoryStream memoryStream = new MemoryStream(imageBytes))
+            return await Task.Run(() =>
             {
-                var image = new BitmapImage();
-                image.BeginInit();
-                image.StreamSource = memoryStream;
-                image.CacheOption = BitmapCacheOption.OnLoad;
-                image.EndInit();
-                image.Freeze();
-                return image;
-            }
+                using (MemoryStream memoryStream = new MemoryStream(imageBytes))
+                {
+                    var image = new BitmapImage();
+                    image.BeginInit();
+                    image.StreamSource = memoryStream;
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.EndInit();
+                    image.Freeze();
+                    return image;
+                }
+            });
         }
 
-        public static BitmapSource ConvertToThumb(BitmapSource bitmapSource, int maxWidth, int maxHeight)
+        public static Task<TransformedBitmap> ConvertToThumb(BitmapSource bitmapSource, int maxWidth, int maxHeight)
         {
-            Tuple<double, double> aspectScale = AspectRatio(bitmapSource.Width, bitmapSource.Height, maxWidth, maxHeight);
+            return Task.Run(() =>
+            {
+                Tuple<double, double> aspectScale = AspectRatio(bitmapSource.Width, bitmapSource.Height, maxWidth, maxHeight);
 
-            var scale = new ScaleTransform(
-                aspectScale.Item1 / bitmapSource.Width,
-                aspectScale.Item2 / bitmapSource.Height
-            );
+                var scale = new ScaleTransform(
+                    aspectScale.Item1 / bitmapSource.Width,
+                    aspectScale.Item2 / bitmapSource.Height
+                );
 
-            TransformedBitmap bitmapSourceThumb = new TransformedBitmap();
-            bitmapSourceThumb.BeginInit();
-            bitmapSourceThumb.Source = bitmapSource;
-            bitmapSourceThumb.Transform = scale;
-            bitmapSourceThumb.EndInit();
+                TransformedBitmap bitmapSourceThumb = new TransformedBitmap();
+                bitmapSourceThumb.BeginInit();
+                bitmapSourceThumb.Source = bitmapSource;
+                bitmapSourceThumb.Transform = scale;
+                bitmapSourceThumb.EndInit();
+                bitmapSourceThumb.Freeze();
 
-            return bitmapSourceThumb;
+                return bitmapSourceThumb;
+            });
         }
 
         public static Tuple<double, double> AspectRatio(double currentWidth, double currentHeight, double maxWidth, double maxHeight)
