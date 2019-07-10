@@ -42,6 +42,11 @@ namespace Gallery.WPF.Pages.GalleryLocations
 
         private void cmdChooseGallery(GalleryLocation gallery)
         {
+            if (gallery == null)
+            {
+                return;
+            }
+
             OnNavigateToNewPage?.Invoke(AVAILABLE_PAGES.Gallery, gallery);
         }
     }

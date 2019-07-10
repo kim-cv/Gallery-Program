@@ -21,7 +21,7 @@ namespace Gallery.WPF.Pages.Gallery
 
         public GalleryViewmodel(IImageRepository _imageRepositoryMediator)
         {
-            if (DesignerProperties.GetIsInDesignMode(new System.Windows.DependencyObject()))
+            if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
             {
                 return;
             }
