@@ -4,9 +4,11 @@ using Gallery.DA;
 using Gallery.WPF.Pages.AddGalleryLocation;
 using Gallery.WPF.Pages.Gallery;
 using Gallery.WPF.Pages.GalleryLocations;
+using Gallery.WPF.Pages.ViewImage;
 using System;
 using System.IO;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 namespace Gallery.WPF
 {
@@ -27,9 +29,23 @@ namespace Gallery.WPF
                     return CreatePageGalleryLocations(applicationRoamingDataPath);
                 case AVAILABLE_PAGES.AddGalleryLocation:
                     return CreatePageAddGalleryLocation(applicationRoamingDataPath);
+                case AVAILABLE_PAGES.ViewImage:
+                    return CreatePageViewImage(pageData);
                 default:
                     return null;
             }
+        }
+
+        private static Page CreatePageViewImage(object pageData)
+        {
+            //if (pageData == null || pageData.GetType() != typeof(BitmapSource))
+            //{
+            //    throw new InvalidDataException("Page data was invalid");
+            //}
+
+            BitmapSource bitmapSource = (BitmapSource)pageData;
+            ViewImageViewmodel viewImageViewmodel = new ViewImageViewmodel(bitmapSource);
+            return new ViewImagePage(viewImageViewmodel);
         }
 
         private static Page CreatePageGallery(object pageData)
