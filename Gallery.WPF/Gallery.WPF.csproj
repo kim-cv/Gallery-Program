@@ -87,6 +87,10 @@
       <DependentUpon>GalleryPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Gallery\GalleryViewmodel.cs" />
+    <Compile Include="Pages\ViewImage\ViewImagePage.xaml.cs">
+      <DependentUpon>ViewImagePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ViewImage\ViewImageViewmodel.cs" />
     <Compile Include="RelayCommand.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -109,6 +113,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\Gallery\GalleryPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ViewImage\ViewImagePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
