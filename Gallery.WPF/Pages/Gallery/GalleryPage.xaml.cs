@@ -14,7 +14,7 @@ namespace Gallery.WPF.Pages.Gallery
 
         private void NavigateToPage(AVAILABLE_PAGES pageType, object pageData)
         {
-            Page page = PageFactory.ConstructPage(pageType, null);
+            Page page = PageFactory.ConstructPage(pageType, pageData);
             NavigationService.Navigate(page);
         }
     }

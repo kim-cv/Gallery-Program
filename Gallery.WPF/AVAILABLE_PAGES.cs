@@ -4,6 +4,7 @@
     {
         Gallery,
         GalleryLocations,
-        AddGalleryLocation
+        AddGalleryLocation,
+        ViewImage
     };
 }

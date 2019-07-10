@@ -56,7 +56,7 @@ namespace Gallery.WPF.Pages.Gallery
 
         private void cmdChooseImage(BitmapSource image)
         {
-            OnNavigateToNewPage?.Invoke(AVAILABLE_PAGES.AddGalleryLocation, null);
+            OnNavigateToNewPage?.Invoke(AVAILABLE_PAGES.ViewImage, image);
         }
     }
 }
