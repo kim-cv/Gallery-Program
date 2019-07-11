@@ -20,7 +20,7 @@
 
         <ListView.ItemsPanel>
             <ItemsPanelTemplate>
-                <WrapPanel Orientation="Horizontal"></WrapPanel>
+                <WrapPanel/>
             </ItemsPanelTemplate>
         </ListView.ItemsPanel>
 
@@ -31,12 +31,10 @@
                         CommandParameter="{Binding ElementName=listview_images, Path=SelectedItem}"/>
             </i:EventTrigger>
         </i:Interaction.Triggers>
-        
+
         <ListView.ItemTemplate>
             <DataTemplate>
-                <WrapPanel>
-                    <Image Source="{Binding}" Width="100" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="None"/>
-                </WrapPanel>
+                <Image Source="{Binding thumb}" Width="100" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="None"/>
             </DataTemplate>
         </ListView.ItemTemplate>
     </ListView>

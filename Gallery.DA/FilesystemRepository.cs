@@ -1,14 +1,15 @@
 ﻿using Gallery.Core.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Gallery.DA
 {
     public class FilesystemRepository : IImageFileRepository
     {
-        public readonly string directoryUrl;
+        public string uid { get; }
+        public string directoryUrl { get; }
         private readonly FileInfo[] fileInfos;
 
         public FilesystemRepository(string directoryUrl)
@@ -18,6 +19,9 @@ namespace Gallery.DA
             {
                 throw new DirectoryNotFoundException();
             }
+
+            // Generate random string uid
+            uid = Guid.NewGuid().ToString("n");
 
             // Set directory url
             this.directoryUrl = directoryUrl;
@@ -38,24 +42,31 @@ namespace Gallery.DA
             fileInfos = mappedToFileInfos.ToArray();
         }
 
-        public async Task<IEnumerable<byte[]>> RetrieveImages()
+        //public async Task<IEnumerable<FileInfo[]>> RetrieveImages()
+        //{
+        //    IList<byte[]> imageByteArray = new List<byte[]>(fileInfos.Length);
+
+        //    foreach (FileInfo tmpFileInfo in fileInfos)
+        //    {
+        //        byte[] imageBytes;
+        //        using (FileStream stream = File.Open(tmpFileInfo.FullName, FileMode.Open))
+        //        {
+        //            imageBytes = new byte[stream.Length];
+        //            await stream.ReadAsync(imageBytes, 0, (int)stream.Length);
+        //            imageByteArray.Add(imageBytes);
+        //        }
+        //    }
+
+        //    return imageByteArray;
+        //}
+
+        public FileInfo[] RetrieveImages()
         {
-            IList<byte[]> imageByteArray = new List<byte[]>(fileInfos.Length);
-
-            foreach (FileInfo tmpFileInfo in fileInfos)
-            {
-                using (FileStream stream = File.Open(tmpFileInfo.FullName, FileMode.Open))
-                {
-                    byte[] imageBytes = new byte[stream.Length];
-                    await stream.ReadAsync(imageBytes, 0, (int)stream.Length);
-                    imageByteArray.Add(imageBytes);
-                }
-            }
-
-            return imageByteArray;
+            return fileInfos;
         }
 
-        public byte[] RetrieveImage(string imageName)
+        //public byte[] RetrieveImage(string imageName)
+        public FileInfo RetrieveImage(string imageName)
         {
             bool imageNameExist = DoesFileInfoExistWithFileName(imageName);
             if (imageNameExist == false)
@@ -69,7 +80,8 @@ namespace Gallery.DA
                 return null;
             }
 
-            return File.ReadAllBytes(fileInfo.FullName);
+            // return File.ReadAllBytes(fileInfo.FullName);
+            return fileInfo;
         }
 
         private FileInfo RetrieveFileInfoFromFilename(string imageName)

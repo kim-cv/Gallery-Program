@@ -1,11 +1,20 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.IO;
 
 namespace Gallery.Core.Interfaces
 {
     public interface IImageFileRepository
     {
-        Task<IEnumerable<byte[]>> RetrieveImages();
-        byte[] RetrieveImage(string imageName);
+        string uid
+        {
+            get;
+        }
+        string directoryUrl
+        {
+            get;
+        }
+        //Task<IEnumerable<byte[]>> RetrieveImages();
+        //byte[] RetrieveImage(string imageName);
+        FileInfo[] RetrieveImages();
+        FileInfo RetrieveImage(string imageName);
     }
 }

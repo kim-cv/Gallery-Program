@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="GalleryLocation.cs" />
     <Compile Include="ImageController.cs" />
+    <Compile Include="ImageInformation.cs" />
     <Compile Include="ImageRepositoryMediator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GalleryDataSQLiteRepository.cs" />

@@ -1,11 +1,11 @@
-﻿using Gallery.Core.Interfaces;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Media.Imaging;
 using System.Windows.Input;
 using Gallery.WPF.Interfaces;
 using System.Windows;
 using System;
+using Gallery.Core.Interfaces;
 
 namespace Gallery.WPF.Pages.Gallery
 {
@@ -16,8 +16,9 @@ namespace Gallery.WPF.Pages.Gallery
         public ICommand btnCmdChooseImage { get; set; }
         public event EventHandlers.NavigateToPageEventHandler OnNavigateToNewPage;
 
-        public ObservableCollection<BitmapSource> Images { get; set; } = new ObservableCollection<BitmapSource>();
+        public ObservableCollection<IImageInformation> Images { get; set; } = new ObservableCollection<IImageInformation>();
         private readonly IImageRepository imageRepositoryMediator;
+
 
         public GalleryViewmodel(IImageRepository _imageRepositoryMediator)
         {
@@ -42,15 +43,17 @@ namespace Gallery.WPF.Pages.Gallery
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
         }
 
-        private void OnNewImage(BitmapSource bitmapSource)
+        private async void OnNewImage(IImageInformation imageInformation)
         {
+            await imageInformation.RetrieveThumb();
+
             // Force this to run on UI thread because this method is called from events working on other threads
-            Application
+            await Application
                 .Current
                 .Dispatcher
                 .BeginInvoke(new Action(() =>
             {
-                Images.Add(bitmapSource);
+                Images.Add(imageInformation);
             }));
         }
 

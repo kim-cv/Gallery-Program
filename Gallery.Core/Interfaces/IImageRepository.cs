@@ -1,13 +1,11 @@
-﻿using System.Windows.Media.Imaging;
-
-namespace Gallery.Core.Interfaces
+﻿namespace Gallery.Core.Interfaces
 {
-    public delegate void NewImageEventHandler(BitmapSource bitmapSource);
+    public delegate void NewImageEventHandler(IImageInformation imageInformation);
 
     public interface IImageRepository
     {
         void RetrieveImagesAsThumbs();
-        BitmapSource RetrieveImage(string imageName);
+        IImageInformation RetrieveImage(string imageName);
         event NewImageEventHandler OnNewImage;
     }
 }

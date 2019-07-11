@@ -42,8 +42,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Interfaces\IImageRepository.cs" />
     <Compile Include="Interfaces\IImageFileRepository.cs" />
+    <Compile Include="Interfaces\IImageInformation.cs" />
+    <Compile Include="Interfaces\IImageRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

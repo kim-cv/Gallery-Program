@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Media;
@@ -8,22 +10,61 @@ namespace Gallery.BL
 {
     public static class ImageController
     {
-        public static async Task<BitmapSource> BytesToImage(byte[] imageBytes)
+        public static async Task<BitmapSource> FileInfoToThumbnail(FileInfo fileinfo)
         {
             return await Task.Run(() =>
             {
-                using (MemoryStream memoryStream = new MemoryStream(imageBytes))
+                BitmapImage image = new BitmapImage();
+
+                using (MemoryStream memoryStream = new MemoryStream())
+                using (Image thumbnail = Image.FromStream(fileinfo.OpenRead()).GetThumbnailImage(100, 100, null, new IntPtr()))
                 {
-                    var image = new BitmapImage();
+                    thumbnail.Save(memoryStream, ImageFormat.Png);
+
                     image.BeginInit();
                     image.StreamSource = memoryStream;
                     image.CacheOption = BitmapCacheOption.OnLoad;
                     image.EndInit();
                     image.Freeze();
-                    return image;
                 }
+
+                return image;
             });
         }
+
+        public static async Task<BitmapSource> FileInfoToBitmapSource(FileInfo fileinfo)
+        {
+            return await Task.Run(() =>
+            {
+                BitmapImage image = new BitmapImage();
+                using (FileStream memoryStream = fileinfo.OpenRead())
+                {
+                    image.BeginInit();
+                    image.StreamSource = memoryStream;
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.EndInit();
+                    image.Freeze();
+                }
+                return image;
+            });
+        }
+
+        //public static async Task<BitmapSource> BytesToImage(byte[] imageBytes)
+        //{
+        //    return await Task.Run(() =>
+        //    {
+        //        var image = new BitmapImage();
+        //        using (MemoryStream memoryStream = new MemoryStream(imageBytes))
+        //        {
+        //            image.BeginInit();
+        //            image.StreamSource = memoryStream;
+        //            image.CacheOption = BitmapCacheOption.OnLoad;
+        //            image.EndInit();
+        //            image.Freeze();
+        //        }
+        //        return image;
+        //    });
+        //}
 
         public static Task<TransformedBitmap> ConvertToThumb(BitmapSource bitmapSource, int maxWidth, int maxHeight)
         {
