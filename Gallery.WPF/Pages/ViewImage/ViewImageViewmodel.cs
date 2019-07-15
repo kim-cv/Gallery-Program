@@ -1,4 +1,5 @@
-﻿using Gallery.WPF.Interfaces;
+﻿using Gallery.Core.Interfaces;
+using Gallery.WPF.Interfaces;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -11,9 +12,9 @@ namespace Gallery.WPF.Pages.ViewImage
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandlers.NavigateToPageEventHandler OnNavigateToNewPage;
 
-        public BitmapSource image { get; }
+        public IImageInformation image { get; }
 
-        public ViewImageViewmodel(BitmapSource _image)
+        public ViewImageViewmodel(IImageInformation _image)
         {
             if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
             {

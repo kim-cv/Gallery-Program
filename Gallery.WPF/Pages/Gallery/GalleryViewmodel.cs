@@ -27,7 +27,7 @@ namespace Gallery.WPF.Pages.Gallery
                 return;
             }
 
-            btnCmdChooseImage = new RelayCommand<BitmapSource>(tmpImage =>
+            btnCmdChooseImage = new RelayCommand<IImageInformation>(tmpImage =>
             {
                 cmdChooseImage(tmpImage);
             });
@@ -57,7 +57,7 @@ namespace Gallery.WPF.Pages.Gallery
             }));
         }
 
-        private void cmdChooseImage(BitmapSource image)
+        private void cmdChooseImage(IImageInformation image)
         {
             OnNavigateToNewPage?.Invoke(AVAILABLE_PAGES.ViewImage, image);
         }

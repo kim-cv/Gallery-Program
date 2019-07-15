@@ -43,8 +43,8 @@ namespace Gallery.WPF
             //    throw new InvalidDataException("Page data was invalid");
             //}
 
-            BitmapSource bitmapSource = (BitmapSource)pageData;
-            ViewImageViewmodel viewImageViewmodel = new ViewImageViewmodel(bitmapSource);
+            IImageInformation imageInformation = (IImageInformation)pageData;
+            ViewImageViewmodel viewImageViewmodel = new ViewImageViewmodel(imageInformation);
             return new ViewImagePage(viewImageViewmodel);
         }
 

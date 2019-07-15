@@ -10,6 +10,6 @@
 
 
     <StackPanel>
-        <Image Source="{Binding image}" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="None"/>
+        <Image Source="{Binding image.thumb}" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="None"/>
     </StackPanel>
 </Page>
