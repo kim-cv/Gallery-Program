@@ -14,6 +14,7 @@ namespace Gallery.BL
         public FileInfo fileInfo { get; set; }
         public string repositoryUid { get; set; }
         public BitmapSource thumb { get; set; }
+        public BitmapSource fullImage { get; set; }
 
         public ImageInformation(string _repositoryUid, FileInfo _fileInfo)
         {
@@ -30,6 +31,12 @@ namespace Gallery.BL
         {
             thumb = await ImageController.FileInfoToThumbnail(fileInfo);
             NotifyPropertyChanged("thumb");
+        }
+
+        public async Task RetrieveFullImage()
+        {
+            fullImage = await ImageController.FileInfoToBitmapSource(fileInfo);
+            NotifyPropertyChanged("fullImage");
         }
     }
 }

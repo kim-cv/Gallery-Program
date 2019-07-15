@@ -11,5 +11,6 @@ namespace Gallery.Core.Interfaces
         BitmapSource thumb { get; set; }
 
         Task RetrieveThumb();
+        Task RetrieveFullImage();
     }
 }

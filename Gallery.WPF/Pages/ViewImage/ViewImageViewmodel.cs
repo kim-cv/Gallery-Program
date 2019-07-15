@@ -22,6 +22,7 @@ namespace Gallery.WPF.Pages.ViewImage
             }
 
             image = _image;
+            image.RetrieveFullImage();
         }
 
         protected void NotifyPropertyChanged(string info)

@@ -9,7 +9,6 @@
       Title="ViewImage">
 
 
-    <StackPanel>
-        <Image Source="{Binding image.thumb}" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="None"/>
-    </StackPanel>
+    <Image Source="{Binding image.fullImage}" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" StretchDirection="Both"/>
+
 </Page>
