@@ -8,7 +8,29 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="ViewImage">
 
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="50px"></RowDefinition>
+        </Grid.RowDefinitions>
 
-    <Image Source="{Binding image.fullImage}" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" StretchDirection="Both"/>
+        <Image 
+            Grid.Column="0"
+            Grid.Row="0"
+            Source="{Binding image.fullImage}" 
+            HorizontalAlignment="Center" 
+            VerticalAlignment="Center" 
+            Stretch="Uniform" 
+            StretchDirection="Both"/>
 
+        <StackPanel
+            Grid.Column="0"
+            Grid.Row="1"
+            Orientation="Horizontal">
+
+            <Button Command="{Binding btnCmdPreviousImage}">Previous</Button>
+            <Button Command="{Binding btnCmdNextImage}">Next</Button>
+            
+        </StackPanel>
+    </Grid>
 </Page>
