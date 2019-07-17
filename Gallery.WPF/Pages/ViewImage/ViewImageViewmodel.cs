@@ -14,16 +14,18 @@ namespace Gallery.WPF.Pages.ViewImage
         public ICommand btnCmdPreviousImage { get; set; }
         public ICommand btnCmdNextImage { get; set; }
 
-        public IImageInformation image { get; }
+        public IImageInformation image { get; set; }
+        private IImageRepository imageRepository { get; }
 
-        public ViewImageViewmodel(IImageInformation _image)
+        public ViewImageViewmodel(IImageRepository _imageRepository)
         {
             if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
             {
                 return;
             }
 
-            image = _image;
+            imageRepository = _imageRepository;
+            image = imageRepository.CurrentLargeImage;
             image.RetrieveFullImage();
 
             btnCmdPreviousImage = new RelayCommand(cmdPreviousImage);
@@ -37,12 +39,22 @@ namespace Gallery.WPF.Pages.ViewImage
 
         private void cmdPreviousImage()
         {
-
+            image = imageRepository.PreviousImage();
+            if (image != null)
+            {
+                image.RetrieveFullImage();
+                NotifyPropertyChanged("image");
+            }
         }
 
         private void cmdNextImage()
         {
-
+            image = imageRepository.NextImage();
+            if (image != null)
+            {
+                image.RetrieveFullImage();
+                NotifyPropertyChanged("image");
+            }
         }
     }
 }

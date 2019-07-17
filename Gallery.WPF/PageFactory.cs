@@ -43,8 +43,9 @@ namespace Gallery.WPF
             //    throw new InvalidDataException("Page data was invalid");
             //}
 
-            IImageInformation imageInformation = (IImageInformation)pageData;
-            ViewImageViewmodel viewImageViewmodel = new ViewImageViewmodel(imageInformation);
+            //IImageInformation imageInformation = (IImageInformation)pageData;
+            IImageRepository imageRepository = (IImageRepository)pageData;
+            ViewImageViewmodel viewImageViewmodel = new ViewImageViewmodel(imageRepository);
             return new ViewImagePage(viewImageViewmodel);
         }
 

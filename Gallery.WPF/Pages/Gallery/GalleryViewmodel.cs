@@ -1,10 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Windows.Media.Imaging;
 using System.Windows.Input;
 using Gallery.WPF.Interfaces;
 using System.Windows;
-using System;
 using Gallery.Core.Interfaces;
 
 namespace Gallery.WPF.Pages.Gallery
@@ -47,19 +45,21 @@ namespace Gallery.WPF.Pages.Gallery
         {
             await imageInformation.RetrieveThumb();
 
+            Images.Add(imageInformation);
             // Force this to run on UI thread because this method is called from events working on other threads
-            await Application
-                .Current
-                .Dispatcher
-                .BeginInvoke(new Action(() =>
-            {
-                Images.Add(imageInformation);
-            }));
+            //await Application
+            //    .Current
+            //    ?.Dispatcher
+            //    ?.BeginInvoke(new Action(() =>
+            //{
+            //    Images.Add(imageInformation);
+            //}));
         }
 
         private void cmdChooseImage(IImageInformation image)
         {
-            OnNavigateToNewPage?.Invoke(AVAILABLE_PAGES.ViewImage, image);
+            imageRepositoryMediator.CurrentLargeImage = image;
+            OnNavigateToNewPage?.Invoke(AVAILABLE_PAGES.ViewImage, imageRepositoryMediator);
         }
     }
 }

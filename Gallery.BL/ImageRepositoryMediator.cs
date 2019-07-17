@@ -11,15 +11,34 @@ namespace Gallery.BL
         public event NewImageEventHandler OnNewImage;
 
         private readonly List<IImageFileRepository> imageRepositories = new List<IImageFileRepository>();
+        private readonly List<FileInfo> fileInfos = new List<FileInfo>();
 
         public ImageRepositoryMediator(IImageFileRepository _imageRepository)
         {
             imageRepositories.Add(_imageRepository);
+            IEnumerable<FileInfo[]> tmpFileInfos = RetrieveAllFileInfos();
+            MergeFileInfos(tmpFileInfos);
         }
 
         public ImageRepositoryMediator(IList<IImageFileRepository> _imageRepositories)
         {
             imageRepositories.AddRange(_imageRepositories);
+            IEnumerable<FileInfo[]> tmpFileInfos = RetrieveAllFileInfos();
+            MergeFileInfos(tmpFileInfos);
+        }
+
+        private IEnumerable<FileInfo[]> RetrieveAllFileInfos()
+        {
+            // Get FileInfos from each repository
+            return imageRepositories.Select(tmpImageRepository => tmpImageRepository.RetrieveImages());
+        }
+        private void MergeFileInfos(IEnumerable<FileInfo[]> repositoryFileInfos)
+        {
+            // Merge all FileInfo arrays into a single list
+            foreach (FileInfo[] tmpFileInfos in repositoryFileInfos)
+            {
+                fileInfos.AddRange(tmpFileInfos);
+            }
         }
 
         //public async void RetrieveImagesAsThumbs()
@@ -40,23 +59,75 @@ namespace Gallery.BL
 
         public void RetrieveImagesAsThumbs()
         {
-            // Retrieve images as byte arrays
-            FileInfo[] fileInfos = imageRepositories[0].RetrieveImages();
-            string repositoryUid = imageRepositories[0].uid;
+            //string repositoryUid = imageRepositories[0].uid;
 
-            // Using parallel convert all byte arrays to thumbnail bitmapsource and invoke event
-            fileInfos
-                .AsParallel()
-                .ForAll(tmpFileInfo =>
-                {
-                    var image = new ImageInformation(repositoryUid, tmpFileInfo);
-                    OnNewImage?.Invoke(image);
-                });
+            //// Using parallel convert all byte arrays to thumbnail bitmapsource and invoke event
+            //fileInfos
+            //    .AsParallel()
+            //    .ForAll(tmpFileInfo =>
+            //    {
+            //        var image = new ImageInformation(repositoryUid, tmpFileInfo);
+            //        OnNewImage?.Invoke(image);
+            //    });
+
+            foreach (var tmpFileInfo in fileInfos)
+            {
+                OnNewImage?.Invoke(new ImageInformation("testUid", tmpFileInfo));
+            }
         }
 
         public IImageInformation RetrieveImage(string imageName)
         {
             throw new NotImplementedException();
+        }
+
+        public IImageInformation CurrentLargeImage { get; set; }
+        public IImageInformation NextImage()
+        {
+            int currentIndex = fileInfos.FindIndex(tmpFileInfo => tmpFileInfo == CurrentLargeImage.fileInfo);
+            if (currentIndex == -1)
+            {
+                return null;
+            }
+
+            int nextIndex = currentIndex += 1;
+            FileInfo nextFileInfo;
+            try
+            {
+                nextFileInfo = fileInfos[nextIndex];
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                return null;
+            }
+
+            IImageInformation nextImage = new ImageInformation("testUid", nextFileInfo);
+            CurrentLargeImage = nextImage;
+            return nextImage;
+        }
+
+        public IImageInformation PreviousImage()
+        {
+            int currentIndex = fileInfos.FindIndex(tmpFileInfo => tmpFileInfo == CurrentLargeImage.fileInfo);
+            if (currentIndex == -1)
+            {
+                return null;
+            }
+
+            int previousIndex = currentIndex -= 1;
+            FileInfo previousFileInfo;
+            try
+            {
+                previousFileInfo = fileInfos[previousIndex];
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                return null;
+            }
+
+            IImageInformation previousImage = new ImageInformation("testUid", previousFileInfo);
+            CurrentLargeImage = previousImage;
+            return previousImage;
         }
     }
 }

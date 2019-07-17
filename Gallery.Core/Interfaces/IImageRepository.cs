@@ -7,5 +7,8 @@
         void RetrieveImagesAsThumbs();
         IImageInformation RetrieveImage(string imageName);
         event NewImageEventHandler OnNewImage;
+        IImageInformation CurrentLargeImage { get; set; }
+        IImageInformation NextImage();
+        IImageInformation PreviousImage();
     }
 }

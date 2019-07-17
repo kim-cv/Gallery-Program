@@ -16,6 +16,7 @@
     <ListView
               Name="listview_images"
               ItemsSource="{Binding Images}"
+              VirtualizingPanel.VirtualizationMode="Recycling"
               ScrollViewer.HorizontalScrollBarVisibility="Disabled">
 
         <ListView.ItemsPanel>
