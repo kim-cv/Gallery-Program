@@ -57,23 +57,30 @@ namespace Gallery.BL
         //        });
         //}
 
-        public void RetrieveImagesAsThumbs()
+        //public void RetrieveImagesAsThumbs()
+        //{
+        //    //string repositoryUid = imageRepositories[0].uid;
+
+        //    //// Using parallel convert all byte arrays to thumbnail bitmapsource and invoke event
+        //    //fileInfos
+        //    //    .AsParallel()
+        //    //    .ForAll(tmpFileInfo =>
+        //    //    {
+        //    //        var image = new ImageInformation(repositoryUid, tmpFileInfo);
+        //    //        OnNewImage?.Invoke(image);
+        //    //    });
+
+        //    foreach (var tmpFileInfo in fileInfos)
+        //    {
+        //        OnNewImage?.Invoke(new ImageInformation("testUid", tmpFileInfo));
+        //    }
+        //}
+
+        public IEnumerable<IImageInformation> RetrieveImages(int from, int to)
         {
-            //string repositoryUid = imageRepositories[0].uid;
-
-            //// Using parallel convert all byte arrays to thumbnail bitmapsource and invoke event
-            //fileInfos
-            //    .AsParallel()
-            //    .ForAll(tmpFileInfo =>
-            //    {
-            //        var image = new ImageInformation(repositoryUid, tmpFileInfo);
-            //        OnNewImage?.Invoke(image);
-            //    });
-
-            foreach (var tmpFileInfo in fileInfos)
-            {
-                OnNewImage?.Invoke(new ImageInformation("testUid", tmpFileInfo));
-            }
+            IEnumerable<FileInfo> tmpFileInfos = fileInfos.Skip(from).Take(to);
+            IEnumerable<IImageInformation> tmpImageInformations = tmpFileInfos.Select(tmpFileInfo => new ImageInformation("testUid", tmpFileInfo));
+            return tmpImageInformations;
         }
 
         public IImageInformation RetrieveImage(string imageName)
