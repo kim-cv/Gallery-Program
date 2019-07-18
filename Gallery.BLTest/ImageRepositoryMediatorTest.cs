@@ -1,7 +1,6 @@
 using Gallery.BL;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Windows.Media.Imaging;
 using Gallery.Core.Interfaces;
 using Gallery.TestUtils;
 using Gallery.DA;
@@ -13,10 +12,11 @@ namespace Gallery.BLTest
     public class ImageRepositoryMediatorTest
     {
         #region Init & Clean
-        public ImageRepositoryMediator imageRepositoryMediator { get; private set; }
-        private readonly ImageUtils UnitTestImageUtils = new ImageUtils();
+        public static ImageRepositoryMediator imageRepositoryMediator { get; private set; }
+        private static readonly ImageUtils UnitTestImageUtils = new ImageUtils();
 
-        public ImageRepositoryMediatorTest()
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext context)
         {
             // Create test folder and test images
             UnitTestImageUtils.CreateTestImages("./testFolder", 3);
@@ -26,24 +26,25 @@ namespace Gallery.BLTest
         }
 
         [ClassCleanup]
-        public static void Cleanup()
+        public static void ClassCleanup()
         {
+            UnitTestImageUtils.CleanUp();
         }
         #endregion
 
-        #region RetrieveImagesAsThumbs()
+        #region RetrieveImages()
         [TestMethod]
-        public void RetrieveImagesAsThumbs()
+        public void RetrieveImages()
         {
             // Arrange
 
             // Act
-            IList<BitmapSource> images = imageRepositoryMediator.RetrieveImagesAsThumbs().ToList();
+            IEnumerable<IImageInformation> imageInformations = imageRepositoryMediator.RetrieveImages(0, 3);
 
             //Assert
-            Assert.IsNotNull(images);
+            Assert.IsNotNull(imageInformations);
             // Assert we return the same number of test images that we created for this test
-            Assert.AreEqual(UnitTestImageUtils.imageNames.Count, images.Count);
+            Assert.AreEqual(UnitTestImageUtils.imageNames.Count, imageInformations.Count());
         }
         #endregion
 
@@ -54,10 +55,10 @@ namespace Gallery.BLTest
             // Arrange
 
             // Act
-            BitmapSource image = imageRepositoryMediator.RetrieveImage(UnitTestImageUtils.imageNames[0]);
+            IImageInformation imageInformation = imageRepositoryMediator.RetrieveImage(UnitTestImageUtils.imageNames[0]);
 
             //Assert
-            Assert.IsNotNull(image);
+            Assert.IsNotNull(imageInformation);
         }
 
         [TestMethod]
@@ -66,10 +67,10 @@ namespace Gallery.BLTest
             // Arrange
 
             // Act
-            BitmapSource image = imageRepositoryMediator.RetrieveImage("unknownImage.jpg");
+            IImageInformation imageInformation = imageRepositoryMediator.RetrieveImage("unknownImage.jpg");
 
             //Assert
-            Assert.IsNull(image);
+            Assert.IsNull(imageInformation);
         }
         #endregion
     }

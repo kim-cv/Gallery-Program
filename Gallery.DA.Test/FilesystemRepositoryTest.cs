@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
 using Gallery.TestUtils;
 
 namespace Gallery.DA.Text
@@ -10,10 +8,11 @@ namespace Gallery.DA.Text
     public class FilesystemRepositoryTest
     {
         #region Init & Clean
-        public FilesystemRepository filesystemRepository { get; private set; }
-        private readonly ImageUtils UnitTestImageUtils = new ImageUtils();
+        public static FilesystemRepository filesystemRepository { get; private set; }
+        private static readonly ImageUtils UnitTestImageUtils = new ImageUtils();
 
-        public FilesystemRepositoryTest()
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext context)
         {
             // Create test folder and test images
             UnitTestImageUtils.CreateTestImages("./testFolder", 3);
@@ -23,14 +22,9 @@ namespace Gallery.DA.Text
         }
 
         [ClassCleanup]
-        public static void Cleanup()
+        public static void ClassCleanup()
         {
-            //foreach (string imageName in imageNames)
-            //{
-            //    string imgPath = Path.Combine(UnitTestImageUtils.imagesFolder, imageName);
-            //    File.Delete(imgPath);
-            //}
-            //Directory.Delete(UnitTestImageUtils.imagesFolder);
+            UnitTestImageUtils.CleanUp();
         }
         #endregion  
 
@@ -53,12 +47,12 @@ namespace Gallery.DA.Text
             // Arrange
 
             // Act
-            IList<byte[]> imagesBytes = filesystemRepository.RetrieveImages().ToList();
+            FileInfo[] fileInfos = filesystemRepository.RetrieveImages();
 
             //Assert
-            Assert.IsNotNull(imagesBytes);
+            Assert.IsNotNull(fileInfos);
             // Assert we return the same number of test images that we created for this test
-            Assert.AreEqual(UnitTestImageUtils.imageNames.Count, imagesBytes.Count);
+            Assert.AreEqual(UnitTestImageUtils.imageNames.Count, fileInfos.Length);
         }
         #endregion
 
@@ -69,11 +63,10 @@ namespace Gallery.DA.Text
             // Arrange
 
             // Act
-            byte[] imageBytes = filesystemRepository.RetrieveImage(UnitTestImageUtils.imageNames[0]);
+            FileInfo fileInfo = filesystemRepository.RetrieveImage(UnitTestImageUtils.imageNames[0]);
 
             //Assert
-            Assert.IsNotNull(imageBytes);
-            Assert.IsTrue(imageBytes.Length > 0);
+            Assert.IsNotNull(fileInfo);
         }
 
         [TestMethod]
@@ -82,10 +75,10 @@ namespace Gallery.DA.Text
             // Arrange
 
             // Act
-            byte[] imageBytes = filesystemRepository.RetrieveImage("unknownImage.jpg");
+            FileInfo fileInfo = filesystemRepository.RetrieveImage("unknownImage.jpg");
 
             //Assert
-            Assert.IsNull(imageBytes);
+            Assert.IsNull(fileInfo);
         }
         #endregion
     }

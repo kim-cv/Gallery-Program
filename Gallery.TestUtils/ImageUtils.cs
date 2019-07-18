@@ -16,6 +16,26 @@ namespace Gallery.TestUtils
             CreateTestImageFiles();
         }
 
+        public void CleanUp()
+        {
+            DeleteAllImages();
+            DeleteFolder();
+        }
+
+        private void DeleteAllImages()
+        {
+            foreach (string imageName in imageNames)
+            {
+                string imgPath = Path.Combine(imagesFolder, imageName);
+                File.Delete(imgPath);
+            }
+        }
+
+        private void DeleteFolder()
+        {
+            Directory.Delete(imagesFolder);
+        }
+
         private void CreateImagesTestFolder(string testFolderPath, int numberOfImages)
         {
             imageNames = new List<string>(numberOfImages);

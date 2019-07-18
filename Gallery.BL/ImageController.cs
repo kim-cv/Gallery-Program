@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Threading.Tasks;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace Gallery.BL
@@ -14,21 +13,37 @@ namespace Gallery.BL
         {
             return await Task.Run(() =>
             {
-                BitmapImage image = new BitmapImage();
+                //BitmapImage image = new BitmapImage();
 
+                //using (MemoryStream memoryStream = new MemoryStream())
+                //using (Image thumbnail = Image.FromStream(fileinfo.OpenRead()).GetThumbnailImage(100, 100, null, new IntPtr()))
+                //{
+                //    thumbnail.Save(memoryStream, ImageFormat.Png);
+
+                //    image.BeginInit();
+                //    image.StreamSource = memoryStream;
+                //    image.CacheOption = BitmapCacheOption.OnLoad;
+                //    image.EndInit();
+                //    image.Freeze();
+                //}
+
+                BitmapImage bitmapImage = new BitmapImage();
+
+                using (FileStream fileStream = fileinfo.OpenRead())
+                using (Image image = Image.FromStream(fileStream))
                 using (MemoryStream memoryStream = new MemoryStream())
-                using (Image thumbnail = Image.FromStream(fileinfo.OpenRead()).GetThumbnailImage(100, 100, null, new IntPtr()))
                 {
+                    Image thumbnail = image.GetThumbnailImage(100, 100, null, new IntPtr());
                     thumbnail.Save(memoryStream, ImageFormat.Png);
 
-                    image.BeginInit();
-                    image.StreamSource = memoryStream;
-                    image.CacheOption = BitmapCacheOption.OnLoad;
-                    image.EndInit();
-                    image.Freeze();
+                    bitmapImage.BeginInit();
+                    bitmapImage.StreamSource = memoryStream;
+                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmapImage.EndInit();
+                    bitmapImage.Freeze();
                 }
 
-                return image;
+                return bitmapImage;
             });
         }
 
@@ -66,47 +81,47 @@ namespace Gallery.BL
         //    });
         //}
 
-        public static Task<TransformedBitmap> ConvertToThumb(BitmapSource bitmapSource, int maxWidth, int maxHeight)
-        {
-            return Task.Run(() =>
-            {
-                Tuple<double, double> aspectScale = AspectRatio(bitmapSource.Width, bitmapSource.Height, maxWidth, maxHeight);
+        //public static Task<TransformedBitmap> ConvertToThumb(BitmapSource bitmapSource, int maxWidth, int maxHeight)
+        //{
+        //    return Task.Run(() =>
+        //    {
+        //        Tuple<double, double> aspectScale = AspectRatio(bitmapSource.Width, bitmapSource.Height, maxWidth, maxHeight);
 
-                var scale = new ScaleTransform(
-                    aspectScale.Item1 / bitmapSource.Width,
-                    aspectScale.Item2 / bitmapSource.Height
-                );
+        //        var scale = new ScaleTransform(
+        //            aspectScale.Item1 / bitmapSource.Width,
+        //            aspectScale.Item2 / bitmapSource.Height
+        //        );
 
-                TransformedBitmap bitmapSourceThumb = new TransformedBitmap();
-                bitmapSourceThumb.BeginInit();
-                bitmapSourceThumb.Source = bitmapSource;
-                bitmapSourceThumb.Transform = scale;
-                bitmapSourceThumb.EndInit();
-                bitmapSourceThumb.Freeze();
+        //        TransformedBitmap bitmapSourceThumb = new TransformedBitmap();
+        //        bitmapSourceThumb.BeginInit();
+        //        bitmapSourceThumb.Source = bitmapSource;
+        //        bitmapSourceThumb.Transform = scale;
+        //        bitmapSourceThumb.EndInit();
+        //        bitmapSourceThumb.Freeze();
 
-                return bitmapSourceThumb;
-            });
-        }
+        //        return bitmapSourceThumb;
+        //    });
+        //}
 
-        public static Tuple<double, double> AspectRatio(double currentWidth, double currentHeight, double maxWidth, double maxHeight)
-        {
-            // Used for aspect ratio
-            double ratio = Math.Min(maxWidth / currentWidth, maxHeight / currentHeight);
+        //public static Tuple<double, double> AspectRatio(double currentWidth, double currentHeight, double maxWidth, double maxHeight)
+        //{
+        //    // Used for aspect ratio
+        //    double ratio = Math.Min(maxWidth / currentWidth, maxHeight / currentHeight);
 
-            double finalWidth = maxWidth;
-            double finalHeight = maxHeight;
+        //    double finalWidth = maxWidth;
+        //    double finalHeight = maxHeight;
 
-            if (currentWidth > maxWidth)
-            {
-                finalHeight = currentHeight * ratio;
-            }
+        //    if (currentWidth > maxWidth)
+        //    {
+        //        finalHeight = currentHeight * ratio;
+        //    }
 
-            if (currentHeight > maxHeight)
-            {
-                finalWidth = currentWidth * ratio;
-            }
+        //    if (currentHeight > maxHeight)
+        //    {
+        //        finalWidth = currentWidth * ratio;
+        //    }
 
-            return new Tuple<double, double>(finalWidth, finalHeight);
-        }
+        //    return new Tuple<double, double>(finalWidth, finalHeight);
+        //}
     }
 }
