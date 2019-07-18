@@ -32,6 +32,29 @@ namespace Gallery.BLTest
         }
         #endregion
 
+        #region CurrentLargeImage
+        [TestMethod]
+        public void CurrentLargeImage()
+        {
+            // Setup
+            Assert.IsNull(imageRepositoryMediator.CurrentLargeImage);
+
+            // Arrange
+            IImageInformation[] imageInformations = imageRepositoryMediator.RetrieveImages(0, 3).ToArray();
+
+            // Act
+            imageRepositoryMediator.CurrentLargeImage = imageInformations[0];
+
+            //Assert
+            Assert.IsNotNull(imageRepositoryMediator.CurrentLargeImage);
+            Assert.AreEqual(imageRepositoryMediator.CurrentLargeImage.fileInfo, imageInformations[0].fileInfo);
+
+            // Cleanup
+            imageRepositoryMediator.CurrentLargeImage = null;
+            Assert.IsNull(imageRepositoryMediator.CurrentLargeImage);
+        }
+        #endregion
+
         #region RetrieveImages()
         [TestMethod]
         public void RetrieveImages()
