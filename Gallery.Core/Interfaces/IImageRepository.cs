@@ -6,7 +6,6 @@ namespace Gallery.Core.Interfaces
 
     public interface IImageRepository
     {
-        IImageInformation RetrieveImage(string imageName);
         event NewImageEventHandler OnNewImage;
         IImageInformation CurrentLargeImage { get; set; }
         IImageInformation NextImage();

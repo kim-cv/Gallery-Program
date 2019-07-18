@@ -48,29 +48,63 @@ namespace Gallery.BLTest
         }
         #endregion
 
-        #region RetrieveImage()
+        #region NextImage()
         [TestMethod]
-        public void RetrieveImage()
+        public void NextImage()
         {
             // Arrange
+            IImageInformation[] imageInformations = imageRepositoryMediator.RetrieveImages(0, 3).ToArray();
+            imageRepositoryMediator.CurrentLargeImage = imageInformations[1];
 
             // Act
-            IImageInformation imageInformation = imageRepositoryMediator.RetrieveImage(UnitTestImageUtils.imageNames[0]);
+            IImageInformation nextImage = imageRepositoryMediator.NextImage();
 
             //Assert
-            Assert.IsNotNull(imageInformation);
+            Assert.IsNotNull(nextImage);
+            Assert.AreEqual(nextImage.fileInfo, imageInformations[2].fileInfo);
         }
-
         [TestMethod]
-        public void RetrieveImage_unknown_image()
+        public void NextImage_null()
         {
             // Arrange
+            IImageInformation[] imageInformations = imageRepositoryMediator.RetrieveImages(0, 3).ToArray();
+            imageRepositoryMediator.CurrentLargeImage = imageInformations[2];
 
             // Act
-            IImageInformation imageInformation = imageRepositoryMediator.RetrieveImage("unknownImage.jpg");
+            IImageInformation nullImage = imageRepositoryMediator.NextImage();
 
             //Assert
-            Assert.IsNull(imageInformation);
+            Assert.IsNull(nullImage);
+        }
+        #endregion
+
+        #region PreviousImage()
+        [TestMethod]
+        public void PreviousImage()
+        {
+            // Arrange
+            IImageInformation[] imageInformations = imageRepositoryMediator.RetrieveImages(0, 3).ToArray();
+            imageRepositoryMediator.CurrentLargeImage = imageInformations[1];
+
+            // Act
+            IImageInformation previousImage = imageRepositoryMediator.PreviousImage();
+
+            //Assert
+            Assert.IsNotNull(previousImage);
+            Assert.AreEqual(previousImage.fileInfo, imageInformations[0].fileInfo);
+        }
+        [TestMethod]
+        public void PreviousImage_null()
+        {
+            // Arrange
+            IImageInformation[] imageInformations = imageRepositoryMediator.RetrieveImages(0, 3).ToArray();
+            imageRepositoryMediator.CurrentLargeImage = imageInformations[0];
+
+            // Act
+            IImageInformation nullImage = imageRepositoryMediator.PreviousImage();
+
+            //Assert
+            Assert.IsNull(nullImage);
         }
         #endregion
     }

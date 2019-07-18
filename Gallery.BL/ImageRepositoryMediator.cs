@@ -83,11 +83,6 @@ namespace Gallery.BL
             return tmpImageInformations;
         }
 
-        public IImageInformation RetrieveImage(string imageName)
-        {
-            throw new NotImplementedException();
-        }
-
         public IImageInformation CurrentLargeImage { get; set; }
         public IImageInformation NextImage()
         {
