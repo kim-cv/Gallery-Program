@@ -33,7 +33,10 @@ namespace Gallery.BL
                 using (Image image = Image.FromStream(fileStream))
                 using (MemoryStream memoryStream = new MemoryStream())
                 {
-                    Image thumbnail = image.GetThumbnailImage(100, 100, null, new IntPtr());
+                    // Calculate thumb width and height with respect to aspect ratio
+                    (int ThumbWidth, int ThumbHeight) = AspectRatio(image.Width, image.Height, 100, 100);
+
+                    Image thumbnail = image.GetThumbnailImage(ThumbWidth, ThumbHeight, null, new IntPtr());
                     thumbnail.Save(memoryStream, ImageFormat.Png);
 
                     bitmapImage.BeginInit();
@@ -103,25 +106,28 @@ namespace Gallery.BL
         //    });
         //}
 
-        //public static Tuple<double, double> AspectRatio(double currentWidth, double currentHeight, double maxWidth, double maxHeight)
-        //{
-        //    // Used for aspect ratio
-        //    double ratio = Math.Min(maxWidth / currentWidth, maxHeight / currentHeight);
+        public static (int ThumbWidth, int ThumbHeight) AspectRatio(double currentWidth, double currentHeight, double maxWidth, double maxHeight)
+        {
+            // Used for aspect ratio
+            double ratio = Math.Min(maxWidth / currentWidth, maxHeight / currentHeight);
 
-        //    double finalWidth = maxWidth;
-        //    double finalHeight = maxHeight;
+            double calculatedWidth = maxWidth;
+            double calculatedHeight = maxHeight;
 
-        //    if (currentWidth > maxWidth)
-        //    {
-        //        finalHeight = currentHeight * ratio;
-        //    }
+            if (currentWidth > maxWidth)
+            {
+                calculatedHeight = currentHeight * ratio;
+            }
 
-        //    if (currentHeight > maxHeight)
-        //    {
-        //        finalWidth = currentWidth * ratio;
-        //    }
+            if (currentHeight > maxHeight)
+            {
+                calculatedWidth = currentWidth * ratio;
+            }
 
-        //    return new Tuple<double, double>(finalWidth, finalHeight);
-        //}
+            int finalWidth = Convert.ToInt32(calculatedWidth);
+            int finalHeight = Convert.ToInt32(calculatedHeight);
+
+            return (ThumbWidth: finalWidth, ThumbHeight: finalHeight);
+        }
     }
 }
