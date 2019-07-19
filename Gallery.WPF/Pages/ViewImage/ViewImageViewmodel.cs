@@ -11,6 +11,7 @@ namespace Gallery.WPF.Pages.ViewImage
         // Events & Commands
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandlers.NavigateToPageEventHandler OnNavigateToNewPage;
+        public ICommand btnCmdBackToGallery { get; set; }
         public ICommand btnCmdPreviousImage { get; set; }
         public ICommand btnCmdNextImage { get; set; }
 
@@ -28,6 +29,7 @@ namespace Gallery.WPF.Pages.ViewImage
             image = imageRepository.CurrentLargeImage;
             image.RetrieveFullImage();
 
+            btnCmdBackToGallery = new RelayCommand(cmdBackToGallery);
             btnCmdPreviousImage = new RelayCommand(cmdPreviousImage);
             btnCmdNextImage = new RelayCommand(cmdNextImage);
         }
@@ -35,6 +37,11 @@ namespace Gallery.WPF.Pages.ViewImage
         protected void NotifyPropertyChanged(string info)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
+        }
+
+        private void cmdBackToGallery()
+        {
+            OnNavigateToNewPage?.Invoke(AVAILABLE_PAGES.Gallery, imageRepository);
         }
 
         private void cmdPreviousImage()

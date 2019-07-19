@@ -8,5 +8,6 @@
         Title="MainWindow" Height="450" Width="800">
     <Frame 
         x:Name="_mainFrame"
-        NavigationUIVisibility="Hidden"/>
+        NavigationUIVisibility="Hidden"
+        Background="#121212"/>
 </Window>

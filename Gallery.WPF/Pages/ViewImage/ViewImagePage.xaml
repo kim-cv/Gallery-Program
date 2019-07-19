@@ -28,6 +28,7 @@
             Grid.Row="1"
             Orientation="Horizontal">
 
+            <Button Command="{Binding btnCmdBackToGallery}">Back To Gallery</Button>
             <Button Command="{Binding btnCmdPreviousImage}">Previous</Button>
             <Button Command="{Binding btnCmdNextImage}">Next</Button>
             

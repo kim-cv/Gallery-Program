@@ -18,7 +18,8 @@
               ItemsSource="{Binding Images}"
               VirtualizingPanel.VirtualizationMode="Recycling"
               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-              ScrollViewer.ScrollChanged="listview_images_ScrollChanged">
+              ScrollViewer.ScrollChanged="listview_images_ScrollChanged"
+              Background="#121212">
 
         <ListView.ItemsPanel>
             <ItemsPanelTemplate>

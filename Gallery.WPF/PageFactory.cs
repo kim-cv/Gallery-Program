@@ -51,17 +51,29 @@ namespace Gallery.WPF
 
         private static Page CreatePageGallery(object pageData)
         {
-            if (pageData == null || pageData.GetType() != typeof(GalleryLocation))
+            if (pageData == null)
             {
                 throw new InvalidDataException("Page data was invalid");
             }
 
-            GalleryLocation galleryLocation = (GalleryLocation)pageData;
-            string imagesFolder = galleryLocation.Path;
-            FilesystemRepository filesystemRepository = new FilesystemRepository(imagesFolder);
-            IImageRepository imageRepositoryMediator = new ImageRepositoryMediator(filesystemRepository);
-            GalleryViewmodel galleryViewmodel = new GalleryViewmodel(imageRepositoryMediator);
-            return new GalleryPage(galleryViewmodel);
+            if (pageData.GetType() == typeof(GalleryLocation))
+            {
+                GalleryLocation galleryLocation = (GalleryLocation)pageData;
+                string imagesFolder = galleryLocation.Path;
+                FilesystemRepository filesystemRepository = new FilesystemRepository(imagesFolder);
+                IImageRepository imageRepositoryMediator = new ImageRepositoryMediator(filesystemRepository);
+                GalleryViewmodel galleryViewmodel = new GalleryViewmodel(imageRepositoryMediator);
+                return new GalleryPage(galleryViewmodel);
+            }
+
+            if (pageData is IImageRepository)
+            {
+                IImageRepository imageRepositoryMediator = (IImageRepository)pageData;
+                GalleryViewmodel galleryViewmodel = new GalleryViewmodel(imageRepositoryMediator);
+                return new GalleryPage(galleryViewmodel);
+            }
+
+            throw new InvalidDataException("Page data was invalid");
         }
 
         private static Page CreatePageGalleryLocations(string appRoamingDataPath)
