@@ -81,11 +81,26 @@ namespace Gallery.API.Test
 
         #region GetGallery
         [TestMethod]
-        public async Task GetGallery_exist()
+        public async Task GetGallery_mine_and_it_exist()
         {
             // Arrange
             var controller = new GalleryController(galleryRepository.Object);
             var retrieveThisGalleryItem = galleryItems[0];
+            var claims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.Name, users[0].Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+
+            var context = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = claimsPrincipal
+                }
+            };
+            controller.ControllerContext = context;
 
             // Act
             ActionResult<GalleryDTO> response = await controller.GetGallery(retrieveThisGalleryItem.Id);
@@ -101,10 +116,63 @@ namespace Gallery.API.Test
         }
 
         [TestMethod]
+        public async Task GetGallery_not_mine_and_it_exist()
+        {
+            //
+            GalleryEntity newGallery = await galleryRepository.Object.PostGallery(new GalleryEntity()
+            {
+                Id = Guid.NewGuid(),
+                fk_owner = users[1].Id,
+                Name = "TestName",
+                owner = users[1]
+            });
+
+            // Arrange
+            var controller = new GalleryController(galleryRepository.Object);
+            var claims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.Name, users[0].Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+
+            var context = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = claimsPrincipal
+                }
+            };
+            controller.ControllerContext = context;
+
+            // Act
+            ActionResult<GalleryDTO> response = await controller.GetGallery(newGallery.Id);
+            var result = response.Result as UnauthorizedResult;
+
+            // Assert
+            Assert.AreEqual(401, result.StatusCode);
+        }
+
+        [TestMethod]
         public async Task GetGallery_not_exist()
         {
             // Arrange
             var controller = new GalleryController(galleryRepository.Object);
+            var claims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.Name, users[0].Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+
+            var context = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = claimsPrincipal
+                }
+            };
+            controller.ControllerContext = context;
 
             // Act
             ActionResult<GalleryDTO> response = await controller.GetGallery(Guid.NewGuid());
@@ -191,7 +259,7 @@ namespace Gallery.API.Test
         }
 
         [TestMethod]
-        public async Task CreateGallery_incorrect_ownerId()
+        public async Task CreateGallery_claim_not_match_ownerId()
         {
             // Arrange
             var controller = new GalleryController(galleryRepository.Object);

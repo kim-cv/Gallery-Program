@@ -9,6 +9,8 @@ using Gallery.API.Controllers;
 using Gallery.API.Entities;
 using Gallery.API.Interfaces;
 using Gallery.API.Models;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace Gallery.API.Test
 {
@@ -46,11 +48,26 @@ namespace Gallery.API.Test
 
         #region GetUser
         [TestMethod]
-        public async Task GetUser_exist()
+        public async Task GetUser_get_self()
         {
             // Arrange
             var controller = new UserController(userRepository.Object);
-            var retrieveThisUserItem = users[0];
+            UserEntity retrieveThisUserItem = users[0];
+            var claims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.Name, users[0].Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+
+            var context = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = claimsPrincipal
+                }
+            };
+            controller.ControllerContext = context;
 
             // Act
             ActionResult<UserDTO> response = await controller.GetUser(retrieveThisUserItem.Id);
@@ -66,13 +83,63 @@ namespace Gallery.API.Test
         }
 
         [TestMethod]
-        public async Task GetUser_not_exist()
+        public async Task GetUser_not_allow_get_another_users_data()
+        {
+            /**
+             * Return 401 Unauthorized if trying to retrieve another users data
+             * This unittest tries to access users[0] by setting users[1] as claim
+             */
+
+            // Arrange
+            var controller = new UserController(userRepository.Object);
+            var claims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.Name, users[1].Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+
+            var context = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = claimsPrincipal
+                }
+            };
+            controller.ControllerContext = context;
+
+            // Act
+            ActionResult<UserDTO> response = await controller.GetUser(users[0].Id);
+            var result = response.Result as UnauthorizedResult;
+
+            // Assert
+            Assert.AreEqual(401, result.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task GetUser_get_self_not_exist()
         {
             // Arrange
             var controller = new UserController(userRepository.Object);
+            var randomGuid = Guid.NewGuid();
+            var claims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.Name, randomGuid.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+
+            var context = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = claimsPrincipal
+                }
+            };
+            controller.ControllerContext = context;
 
             // Act
-            ActionResult<UserDTO> response = await controller.GetUser(Guid.NewGuid());
+            ActionResult<UserDTO> response = await controller.GetUser(randomGuid);
             var result = response.Result as NotFoundResult;
 
             // Assert

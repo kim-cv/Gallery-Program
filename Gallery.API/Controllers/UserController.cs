@@ -23,6 +23,13 @@ namespace Gallery.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<UserDTO>> GetUser(Guid id)
         {
+            Guid userId = new Guid(HttpContext.User.Identity.Name);
+
+            if (id != userId)
+            {
+                return Unauthorized();
+            }
+
             UserEntity item = await _userRepository.GetUser(id);
 
             if (item == null)

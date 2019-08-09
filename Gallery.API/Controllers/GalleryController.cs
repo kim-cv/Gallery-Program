@@ -38,11 +38,17 @@ namespace Gallery.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<GalleryDTO>> GetGallery(Guid id)
         {
+            Guid userId = new Guid(HttpContext.User.Identity.Name);
             GalleryEntity item = await _galleryRepository.GetGallery(id);
 
             if (item == null)
             {
                 return NotFound();
+            }
+
+            if (userId != item.fk_owner)
+            {
+                return Unauthorized();
             }
 
             GalleryDTO dto = item.ToGalleryDto();
