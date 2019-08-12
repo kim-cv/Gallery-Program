@@ -11,6 +11,7 @@ using Gallery.API.Controllers;
 using Gallery.API.Entities;
 using Gallery.API.Interfaces;
 using Gallery.API.Models;
+using Gallery.TestUtils;
 
 namespace Gallery.API.Test
 {
@@ -87,21 +88,7 @@ namespace Gallery.API.Test
             // Arrange
             var controller = new GalleryController(galleryRepository.Object);
             var retrieveThisGalleryItem = galleryItems[0];
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Name, users[0].Id.ToString())
-            };
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            var claimsPrincipal = new ClaimsPrincipal(identity);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = claimsPrincipal
-                }
-            };
-            controller.ControllerContext = context;
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
             // Act
             ActionResult<GalleryDTO> response = await controller.GetGallery(retrieveThisGalleryItem.Id);
@@ -130,21 +117,7 @@ namespace Gallery.API.Test
 
             // Arrange
             var controller = new GalleryController(galleryRepository.Object);
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Name, users[0].Id.ToString())
-            };
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            var claimsPrincipal = new ClaimsPrincipal(identity);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = claimsPrincipal
-                }
-            };
-            controller.ControllerContext = context;
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
             // Act
             ActionResult<GalleryDTO> response = await controller.GetGallery(newGallery.Id);
@@ -159,21 +132,7 @@ namespace Gallery.API.Test
         {
             // Arrange
             var controller = new GalleryController(galleryRepository.Object);
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Name, users[0].Id.ToString())
-            };
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            var claimsPrincipal = new ClaimsPrincipal(identity);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = claimsPrincipal
-                }
-            };
-            controller.ControllerContext = context;
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
             // Act
             ActionResult<GalleryDTO> response = await controller.GetGallery(Guid.NewGuid());
@@ -190,21 +149,7 @@ namespace Gallery.API.Test
         {
             // Arrange
             var controller = new GalleryController(galleryRepository.Object);
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Name, users[0].Id.ToString())
-            };
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            var claimsPrincipal = new ClaimsPrincipal(identity);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = claimsPrincipal
-                }
-            };
-            controller.ControllerContext = context;
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
             // Act
             ActionResult<IEnumerable<GalleryDTO>> response = await controller.GetGalleries();
@@ -225,21 +170,7 @@ namespace Gallery.API.Test
         {
             // Arrange
             var controller = new GalleryController(galleryRepository.Object);
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Name, users[1].Id.ToString())
-            };
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            var claimsPrincipal = new ClaimsPrincipal(identity);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = claimsPrincipal
-                }
-            };
-            controller.ControllerContext = context;
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[1].Id.ToString());
 
             GalleryCreationDTO newGalleryItem = new GalleryCreationDTO()
             {
@@ -264,21 +195,7 @@ namespace Gallery.API.Test
         {
             // Arrange
             var controller = new GalleryController(galleryRepository.Object);
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Name, users[1].Id.ToString())
-            };
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            var claimsPrincipal = new ClaimsPrincipal(identity);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = claimsPrincipal
-                }
-            };
-            controller.ControllerContext = context;
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[1].Id.ToString());
 
             GalleryCreationDTO newGalleryItem = new GalleryCreationDTO()
             {
@@ -301,21 +218,7 @@ namespace Gallery.API.Test
         {
             // Arrange
             var controller = new GalleryController(galleryRepository.Object);
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Name, users[0].Id.ToString())
-            };
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            var claimsPrincipal = new ClaimsPrincipal(identity);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = claimsPrincipal
-                }
-            };
-            controller.ControllerContext = context;
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
             // Act
             ActionResult response = await controller.DeleteGallery(galleryItems[0].Id);
@@ -340,21 +243,7 @@ namespace Gallery.API.Test
 
             // Arrange
             var controller = new GalleryController(galleryRepository.Object);
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Name, users[0].Id.ToString())
-            };
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            var claimsPrincipal = new ClaimsPrincipal(identity);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = claimsPrincipal
-                }
-            };
-            controller.ControllerContext = context;
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
             // Act
             ActionResult response = await controller.DeleteGallery(newGallery.Id);
@@ -369,21 +258,7 @@ namespace Gallery.API.Test
         {
             // Arrange
             var controller = new GalleryController(galleryRepository.Object);
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Name, users[0].Id.ToString())
-            };
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            var claimsPrincipal = new ClaimsPrincipal(identity);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = claimsPrincipal
-                }
-            };
-            controller.ControllerContext = context;
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
             // Act
             ActionResult response = await controller.DeleteGallery(Guid.NewGuid());
