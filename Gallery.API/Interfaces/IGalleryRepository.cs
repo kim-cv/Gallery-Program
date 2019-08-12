@@ -10,6 +10,7 @@ namespace Gallery.API.Interfaces
         Task<IEnumerable<GalleryEntity>> GetGalleries();
         Task<GalleryEntity> GetGallery(Guid galleryId);
         Task<GalleryEntity> PostGallery(GalleryEntity galleryEntity);
+        Task DeleteGallery(Guid galleryId);
         bool Save();
     }
 }

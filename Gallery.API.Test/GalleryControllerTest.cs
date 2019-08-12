@@ -69,6 +69,7 @@ namespace Gallery.API.Test
                     galleryItems.Add(galleryEntity);
                     return galleryEntity;
                 });
+            galleryRepository.Setup(repo => repo.DeleteGallery(It.IsAny<Guid>()));
             galleryRepository.Setup(repo => repo.Save())
                 .Returns(() =>
                 {
@@ -291,6 +292,105 @@ namespace Gallery.API.Test
 
             // Assert            
             Assert.AreEqual(400, result.StatusCode);
+        }
+        #endregion
+
+        #region DeleteGallery
+        [TestMethod]
+        public async Task DeleteGallery_mine_and_it_exist()
+        {
+            // Arrange
+            var controller = new GalleryController(galleryRepository.Object);
+            var claims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.Name, users[0].Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+
+            var context = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = claimsPrincipal
+                }
+            };
+            controller.ControllerContext = context;
+
+            // Act
+            ActionResult response = await controller.DeleteGallery(galleryItems[0].Id);
+            var result = response as NoContentResult;
+
+            // Assert
+            Assert.AreEqual(204, result.StatusCode);
+            galleryRepository.Verify(repo => repo.DeleteGallery(It.IsAny<Guid>()), Times.Once());
+        }
+
+        [TestMethod]
+        public async Task DeleteGallery_not_mine_and_it_exist()
+        {
+            //
+            GalleryEntity newGallery = await galleryRepository.Object.PostGallery(new GalleryEntity()
+            {
+                Id = Guid.NewGuid(),
+                fk_owner = users[1].Id,
+                Name = "TestName",
+                owner = users[1]
+            });
+
+            // Arrange
+            var controller = new GalleryController(galleryRepository.Object);
+            var claims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.Name, users[0].Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+
+            var context = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = claimsPrincipal
+                }
+            };
+            controller.ControllerContext = context;
+
+            // Act
+            ActionResult response = await controller.DeleteGallery(newGallery.Id);
+            var result = response as UnauthorizedResult;
+
+            // Assert
+            Assert.AreEqual(401, result.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task DeleteGallery_not_exist()
+        {
+            // Arrange
+            var controller = new GalleryController(galleryRepository.Object);
+            var claims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.Name, users[0].Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+
+            var context = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = claimsPrincipal
+                }
+            };
+            controller.ControllerContext = context;
+
+            // Act
+            ActionResult response = await controller.DeleteGallery(Guid.NewGuid());
+            var result = response as NotFoundResult;
+
+            // Assert
+            Assert.AreEqual(404, result.StatusCode);
         }
         #endregion
     }

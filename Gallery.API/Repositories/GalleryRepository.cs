@@ -32,6 +32,20 @@ namespace Gallery.API.Repositories
             return changeTracking.Entity;
         }
 
+        public async Task DeleteGallery(Guid galleryId)
+        {
+            var galleryEntity = await GetGallery(galleryId);
+
+            if (galleryEntity == null)
+            {
+                return;
+            }
+
+            _context.GalleryItems.Remove(galleryEntity);
+
+            return;
+        }
+
         public bool Save()
         {
             try
