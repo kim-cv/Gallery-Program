@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Gallery.API\Gallery.API.csproj" />
+    <ProjectReference Include="..\Gallery.TestUtils\Gallery.TestUtils.csproj" />
   </ItemGroup>
 
 </Project>
