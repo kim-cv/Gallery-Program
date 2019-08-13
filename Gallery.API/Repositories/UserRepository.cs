@@ -8,9 +8,9 @@ namespace Gallery.API.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        public readonly UserContext _context;
+        public readonly GalleryDBContext _context;
 
-        public UserRepository(UserContext context)
+        public UserRepository(GalleryDBContext context)
         {
             _context = context;
         }

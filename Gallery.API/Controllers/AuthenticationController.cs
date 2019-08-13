@@ -30,7 +30,7 @@ namespace Gallery.API.Controllers
             }
 
             string token = _authService.GenerateTokenForUser(userEntity.Id);
-            return Ok(token);
+            return Ok(new { token });
         }
     }
 }

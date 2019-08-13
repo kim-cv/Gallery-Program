@@ -28,9 +28,9 @@ namespace Gallery.API.Controllers
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
 
-            var items = await _galleryRepository.GetGalleries();
+            var items = await _galleryRepository.GetGalleriesFromOwner(userId);
 
-            IEnumerable<GalleryDTO> dtos = items.Where(tmpEntity => tmpEntity.fk_owner == userId).Select(tmpEntity => tmpEntity.ToGalleryDto());
+            IEnumerable<GalleryDTO> dtos = items.Select(tmpEntity => tmpEntity.ToGalleryDto());
 
             return Ok(dtos);
         }

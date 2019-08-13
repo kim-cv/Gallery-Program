@@ -57,10 +57,10 @@ namespace Gallery.API.Test
                 {
                     return galleryItems.FirstOrDefault(tmpGallery => tmpGallery.Id == galleryId);
                 });
-            galleryRepository.Setup(repo => repo.GetGalleries())
-                .ReturnsAsync(() =>
+            galleryRepository.Setup(repo => repo.GetGalleriesFromOwner(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid ownerId) =>
                 {
-                    return galleryItems;
+                    return galleryItems.Where(tmpGallery => tmpGallery.fk_owner == ownerId);
                 });
             galleryRepository.Setup(repo => repo.PostGallery(It.IsAny<GalleryEntity>()))
                 .ReturnsAsync((GalleryEntity galleryEntity) =>

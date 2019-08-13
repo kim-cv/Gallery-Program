@@ -58,12 +58,14 @@ namespace Gallery.API
             services.AddScoped<IAuthenticateService, TokenAuthenticationService>();
             services.AddScoped<IUserManagementService, UserManagementService>();
 
+            // Database
+            services.AddDbContext<GalleryDBContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("GalleryDBContext")));
+            //services.AddDbContext<GalleryDBContext>(opt => opt.UseInMemoryDatabase("GalleryDBContext"));
+
             // Users
-            services.AddDbContext<UserContext>(opt => opt.UseInMemoryDatabase("Users"));
             services.AddScoped<IUserRepository, UserRepository>();
 
             // Galleries
-            services.AddDbContext<GalleryContext>(opt => opt.UseInMemoryDatabase("Galleries"));
             services.AddScoped<IGalleryRepository, GalleryRepository>();
         }
 

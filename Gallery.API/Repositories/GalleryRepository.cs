@@ -10,31 +10,26 @@ namespace Gallery.API.Repositories
 {
     public class GalleryRepository : IGalleryRepository
     {
-        public readonly GalleryContext _context;
+        public readonly GalleryDBContext _context;
 
-        public GalleryRepository(GalleryContext context)
+        public GalleryRepository(GalleryDBContext context)
         {
             _context = context;
         }
 
-        public async Task<IEnumerable<GalleryEntity>> GetGalleries()
-        {
-            return await _context.GalleryItems.ToListAsync();
-        }
-
         public async Task<IEnumerable<GalleryEntity>> GetGalleriesFromOwner(Guid ownerId)
         {
-            return await _context.GalleryItems.Where(tmpGallery => tmpGallery.fk_owner == ownerId).ToListAsync();
+            return await _context.Galleries.Where(tmpGallery => tmpGallery.fk_owner == ownerId).Include(a => a.owner).ToListAsync();
         }
 
         public async Task<GalleryEntity> GetGallery(Guid galleryId)
         {
-            return await _context.GalleryItems.FindAsync(galleryId);
+            return await _context.Galleries.FindAsync(galleryId);
         }
 
         public async Task<GalleryEntity> PostGallery(GalleryEntity galleryItem)
         {
-            var changeTracking = await _context.GalleryItems.AddAsync(galleryItem);
+            var changeTracking = await _context.Galleries.AddAsync(galleryItem);
             return changeTracking.Entity;
         }
 
@@ -47,7 +42,7 @@ namespace Gallery.API.Repositories
                 return;
             }
 
-            _context.GalleryItems.Remove(galleryEntity);
+            _context.Galleries.Remove(galleryEntity);
 
             return;
         }
