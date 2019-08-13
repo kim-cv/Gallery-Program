@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Gallery.API.Entities;
 using Gallery.API.Interfaces;
+using System.Linq;
 
 namespace Gallery.API.Repositories
 {
@@ -19,6 +20,11 @@ namespace Gallery.API.Repositories
         public async Task<IEnumerable<GalleryEntity>> GetGalleries()
         {
             return await _context.GalleryItems.ToListAsync();
+        }
+
+        public async Task<IEnumerable<GalleryEntity>> GetGalleriesFromOwner(Guid ownerId)
+        {
+            return await _context.GalleryItems.Where(tmpGallery => tmpGallery.fk_owner == ownerId).ToListAsync();
         }
 
         public async Task<GalleryEntity> GetGallery(Guid galleryId)
