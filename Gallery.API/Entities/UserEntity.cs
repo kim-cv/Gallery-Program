@@ -13,5 +13,8 @@ namespace Gallery.API.Entities
 
         [Required]
         public string Password { get; set; }
+
+        [Required]
+        public byte[] Salt { get; set; }
     }
 }

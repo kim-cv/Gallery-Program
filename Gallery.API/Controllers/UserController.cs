@@ -14,9 +14,11 @@ namespace Gallery.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly IAuthenticateService _authService;
 
-        public UserController(IUserRepository userRepository)
+        public UserController(IAuthenticateService authService, IUserRepository userRepository)
         {
+            _authService = authService;
             _userRepository = userRepository;
         }
 
@@ -54,6 +56,11 @@ namespace Gallery.API.Controllers
             }
 
             UserEntity entity = dto.ToUserEntity();
+
+            byte[] salt = _authService.GenerateSalt();
+            string hashedPassword = _authService.HashPassword(entity.Password, salt);
+            entity.Password = hashedPassword;
+            entity.Salt = salt;
 
             UserEntity addedEntity = await _userRepository.PostUser(entity);
             _userRepository.Save();

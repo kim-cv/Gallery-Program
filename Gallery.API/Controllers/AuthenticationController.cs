@@ -23,10 +23,16 @@ namespace Gallery.API.Controllers
         [HttpPost("login")]
         public IActionResult RequestToken(UserLoginDTO request)
         {
-            UserEntity userEntity = _userRepository.GetUser(request.username, request.password);
+            UserEntity userEntity = _userRepository.GetUser(request.username);
             if (userEntity == null)
             {
                 return NotFound("User not found");
+            }
+
+            string hashedPassword = _authService.HashPassword(request.password, userEntity.Salt);
+            if (userEntity.Password != hashedPassword)
+            {
+                return Unauthorized("Wrong Password");
             }
 
             string token = _authService.GenerateTokenForUser(userEntity.Id);

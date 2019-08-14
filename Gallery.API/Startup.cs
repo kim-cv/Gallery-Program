@@ -55,7 +55,7 @@ namespace Gallery.API
             });
 
             // Auth
-            services.AddScoped<IAuthenticateService, TokenAuthenticationService>();
+            services.AddScoped<IAuthenticateService, AuthenticationService>();
             services.AddScoped<IUserManagementService, UserManagementService>();
 
             // Database
