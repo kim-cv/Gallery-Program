@@ -20,8 +20,10 @@ namespace Gallery.API.Test
         private static Mock<IUserRepository> userRepository;
         private static List<UserEntity> users = new List<UserEntity>();
 
-        [ClassInitialize]
-        public static void InitTestClass(TestContext testContext)
+        //[ClassInitialize]
+        //public static void InitTestClass(TestContext testContext)
+        [TestInitialize]
+        public void InitBeforeEachTest()
         {
             users.Add(new UserEntity() { Id = Guid.NewGuid(), Username = "Username1", Password = "Password1" });
             users.Add(new UserEntity() { Id = Guid.NewGuid(), Username = "Username2", Password = "Password2" });
