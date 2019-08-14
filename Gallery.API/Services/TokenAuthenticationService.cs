@@ -13,7 +13,7 @@ namespace Gallery.API.Services
     {
         private readonly TokenData _tokenManagement;
 
-         public TokenAuthenticationService(IOptions<TokenData> tokenManagement)
+        public TokenAuthenticationService(IOptions<TokenData> tokenManagement)
         {
             _tokenManagement = tokenManagement.Value;
         }
