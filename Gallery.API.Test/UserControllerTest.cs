@@ -83,9 +83,10 @@ namespace Gallery.API.Test
 
             // Act
             ActionResult<UserDTO> response = await controller.GetUser(retrieveThisUserItem.Id);
-            var result = response.Result as OkObjectResult;
 
             // Assert
+            Assert.IsInstanceOfType(response.Result, typeof(OkObjectResult));
+            var result = response.Result as OkObjectResult;
             Assert.AreEqual(200, result.StatusCode);
             Assert.IsNotNull(result.Value);
             Assert.IsInstanceOfType(result.Value, typeof(UserDTO));
@@ -122,9 +123,10 @@ namespace Gallery.API.Test
 
             // Act
             ActionResult<UserDTO> response = await controller.GetUser(users[0].Id);
-            var result = response.Result as UnauthorizedResult;
 
             // Assert
+            Assert.IsInstanceOfType(response.Result, typeof(UnauthorizedResult));
+            var result = response.Result as UnauthorizedResult;
             Assert.AreEqual(401, result.StatusCode);
         }
 
@@ -152,9 +154,10 @@ namespace Gallery.API.Test
 
             // Act
             ActionResult<UserDTO> response = await controller.GetUser(randomGuid);
-            var result = response.Result as NotFoundResult;
 
             // Assert
+            Assert.IsInstanceOfType(response.Result, typeof(NotFoundResult));
+            var result = response.Result as NotFoundResult;
             Assert.AreEqual(404, result.StatusCode);
         }
         #endregion
@@ -173,9 +176,10 @@ namespace Gallery.API.Test
 
             // Act
             ActionResult<UserDTO> response = await controller.CreateUser(newUser);
-            var result = response.Result as CreatedAtActionResult;
 
-            // Assert            
+            // Assert
+            Assert.IsInstanceOfType(response.Result, typeof(CreatedAtActionResult));
+            var result = response.Result as CreatedAtActionResult;
             Assert.AreEqual(201, result.StatusCode);
             Assert.IsNotNull(result.Value);
             Assert.IsInstanceOfType(result.Value, typeof(UserDTO));
