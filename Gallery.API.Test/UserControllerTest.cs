@@ -2,15 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Gallery.API.Controllers;
 using Gallery.API.Entities;
 using Gallery.API.Interfaces;
 using Gallery.API.Models;
+using Gallery.TestUtils;
 
 namespace Gallery.API.Test
 {
@@ -65,21 +64,7 @@ namespace Gallery.API.Test
             // Arrange
             var controller = new UserController(userRepository.Object);
             UserEntity retrieveThisUserItem = users[0];
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Name, users[0].Id.ToString())
-            };
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            var claimsPrincipal = new ClaimsPrincipal(identity);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = claimsPrincipal
-                }
-            };
-            controller.ControllerContext = context;
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
             // Act
             ActionResult<UserDTO> response = await controller.GetUser(retrieveThisUserItem.Id);
@@ -105,21 +90,7 @@ namespace Gallery.API.Test
 
             // Arrange
             var controller = new UserController(userRepository.Object);
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Name, users[1].Id.ToString())
-            };
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            var claimsPrincipal = new ClaimsPrincipal(identity);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = claimsPrincipal
-                }
-            };
-            controller.ControllerContext = context;
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[1].Id.ToString());
 
             // Act
             ActionResult<UserDTO> response = await controller.GetUser(users[0].Id);
@@ -136,21 +107,7 @@ namespace Gallery.API.Test
             // Arrange
             var controller = new UserController(userRepository.Object);
             var randomGuid = Guid.NewGuid();
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Name, randomGuid.ToString())
-            };
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            var claimsPrincipal = new ClaimsPrincipal(identity);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = claimsPrincipal
-                }
-            };
-            controller.ControllerContext = context;
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(randomGuid.ToString());
 
             // Act
             ActionResult<UserDTO> response = await controller.GetUser(randomGuid);
