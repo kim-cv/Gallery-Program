@@ -15,14 +15,19 @@ namespace Gallery.API.Repositories
             _context = context;
         }
 
-        public UserEntity GetUser(string username, string password)
-        {
-            return _context.Users.FirstOrDefault(tmpUser => tmpUser.Username == username && tmpUser.Password == password);
-        }
-
         public async Task<UserEntity> GetUser(Guid userId)
         {
             return await _context.Users.FindAsync(userId);
+        }
+
+        public UserEntity GetUser(string username)
+        {
+            return _context.Users.FirstOrDefault(tmpUser => tmpUser.Username == username);
+        }
+
+        public UserEntity GetUser(string username, string password)
+        {
+            return _context.Users.FirstOrDefault(tmpUser => tmpUser.Username == username && tmpUser.Password == password);
         }
 
         public async Task<UserEntity> PostUser(UserEntity userEntity)

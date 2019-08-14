@@ -2,15 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Gallery.API.Controllers;
 using Gallery.API.Entities;
 using Gallery.API.Interfaces;
 using Gallery.API.Models;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
 
 namespace Gallery.API.Test
 {
@@ -33,6 +33,16 @@ namespace Gallery.API.Test
                 {
                     return users.FirstOrDefault(tmpUser => tmpUser.Id == id);
                 });
+            userRepository.Setup(repo => repo.GetUser(It.IsAny<string>()))
+                .Returns((string username) =>
+                {
+                    return users.FirstOrDefault(tmpUser => tmpUser.Username == username);
+                });
+            userRepository.Setup(repo => repo.GetUser(It.IsAny<string>(), It.IsAny<string>()))
+                 .Returns((string username, string password) =>
+                 {
+                     return users.FirstOrDefault(tmpUser => tmpUser.Username == username && tmpUser.Password == password);
+                 });
             userRepository.Setup(repo => repo.PostUser(It.IsAny<UserEntity>()))
                 .ReturnsAsync((UserEntity userEntity) =>
                 {
@@ -155,8 +165,8 @@ namespace Gallery.API.Test
             var controller = new UserController(userRepository.Object);
             UserCreationDTO newUser = new UserCreationDTO()
             {
-                Username = "CreatedTestUsername",
-                Password = "CreatedTestPassword"
+                Username = "CreateUserUsername",
+                Password = "CreateUserPassword"
             };
 
             // Act
@@ -168,7 +178,36 @@ namespace Gallery.API.Test
             Assert.IsNotNull(result.Value);
             Assert.IsInstanceOfType(result.Value, typeof(UserDTO));
             UserDTO createdItem = result.Value as UserDTO;
-            Assert.AreEqual(createdItem.Username, "CreatedTestUsername");
+            Assert.AreEqual(createdItem.Username, "CreateUserUsername");
+        }
+
+        [TestMethod]
+        public async Task CreateUser_username_used()
+        {
+            // Arrange
+            var existingUser = new UserEntity()
+            {
+                Id = Guid.NewGuid(),
+                Username = "CreateUserUsernameUsed",
+                Password = "Password"
+            };
+            users.Add(existingUser);
+            var controller = new UserController(userRepository.Object);
+            UserCreationDTO newUser = new UserCreationDTO()
+            {
+                Username = "CreateUserUsernameUsed",
+                Password = "Password"
+            };
+
+            // Act
+            ActionResult<UserDTO> response = await controller.CreateUser(newUser);
+
+            // Assert
+            Assert.IsInstanceOfType(response.Result, typeof(ConflictResult));
+            var result = response.Result as ConflictResult;
+            Assert.AreEqual(409, result.StatusCode);
+            users.Remove(existingUser);
+            userRepository.Verify(repo => repo.GetUser(It.IsAny<string>()), Times.Once());
         }
         #endregion
     }

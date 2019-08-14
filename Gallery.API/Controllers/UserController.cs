@@ -46,6 +46,13 @@ namespace Gallery.API.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<UserDTO>> CreateUser(UserCreationDTO dto)
         {
+            // Check username not already used
+            UserEntity existingUser = _userRepository.GetUser(dto.Username);
+            if (existingUser != null)
+            {
+                return Conflict();
+            }
+
             UserEntity entity = dto.ToUserEntity();
 
             UserEntity addedEntity = await _userRepository.PostUser(entity);

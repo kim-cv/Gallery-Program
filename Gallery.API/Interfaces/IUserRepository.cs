@@ -6,8 +6,9 @@ namespace Gallery.API.Interfaces
 {
     public interface IUserRepository
     {
-        UserEntity GetUser(string username, string password);
         Task<UserEntity> GetUser(Guid userId);
+        UserEntity GetUser(string username);
+        UserEntity GetUser(string username, string password);
         Task<UserEntity> PostUser(UserEntity userEntity);
         bool Save();
     }
