@@ -90,9 +90,10 @@ namespace Gallery.API.Test
 
             // Act
             ActionResult<GalleryDTO> response = await controller.GetGallery(retrieveThisGalleryItem.Id);
-            var result = response.Result as OkObjectResult;
 
             // Assert
+            Assert.IsInstanceOfType(response.Result, typeof(OkObjectResult));
+            var result = response.Result as OkObjectResult;
             Assert.AreEqual(200, result.StatusCode);
             Assert.IsNotNull(result.Value);
             Assert.IsInstanceOfType(result.Value, typeof(GalleryDTO));
@@ -119,9 +120,10 @@ namespace Gallery.API.Test
 
             // Act
             ActionResult<GalleryDTO> response = await controller.GetGallery(newGallery.Id);
-            var result = response.Result as UnauthorizedResult;
 
             // Assert
+            Assert.IsInstanceOfType(response.Result, typeof(UnauthorizedResult));
+            var result = response.Result as UnauthorizedResult;
             Assert.AreEqual(401, result.StatusCode);
         }
 
@@ -134,9 +136,10 @@ namespace Gallery.API.Test
 
             // Act
             ActionResult<GalleryDTO> response = await controller.GetGallery(Guid.NewGuid());
-            var result = response.Result as NotFoundResult;
 
             // Assert
+            Assert.IsInstanceOfType(response.Result, typeof(NotFoundResult));
+            var result = response.Result as NotFoundResult;
             Assert.AreEqual(404, result.StatusCode);
         }
         #endregion
@@ -151,9 +154,10 @@ namespace Gallery.API.Test
 
             // Act
             ActionResult<IEnumerable<GalleryDTO>> response = await controller.GetGalleries();
-            var result = response.Result as OkObjectResult;
 
             // Assert
+            Assert.IsInstanceOfType(response.Result, typeof(OkObjectResult));
+            var result = response.Result as OkObjectResult;
             Assert.AreEqual(200, result.StatusCode);
             Assert.IsNotNull(result.Value);
             Assert.IsInstanceOfType(result.Value, typeof(IEnumerable<GalleryDTO>));
@@ -178,9 +182,10 @@ namespace Gallery.API.Test
 
             // Act
             ActionResult<GalleryDTO> response = await controller.CreateGallery(newGalleryItem);
-            var result = response.Result as CreatedAtActionResult;
 
-            // Assert            
+            // Assert
+            Assert.IsInstanceOfType(response.Result, typeof(CreatedAtActionResult));
+            var result = response.Result as CreatedAtActionResult;
             Assert.AreEqual(201, result.StatusCode);
             Assert.IsNotNull(result.Value);
             Assert.IsInstanceOfType(result.Value, typeof(GalleryDTO));
@@ -203,9 +208,10 @@ namespace Gallery.API.Test
 
             // Act
             ActionResult<GalleryDTO> response = await controller.CreateGallery(newGalleryItem);
-            var result = response.Result as BadRequestResult;
 
-            // Assert            
+            // Assert
+            Assert.IsInstanceOfType(response.Result, typeof(BadRequestResult));
+            var result = response.Result as BadRequestResult;
             Assert.AreEqual(400, result.StatusCode);
         }
         #endregion
@@ -220,9 +226,10 @@ namespace Gallery.API.Test
 
             // Act
             ActionResult response = await controller.DeleteGallery(galleryItems[0].Id);
-            var result = response as NoContentResult;
 
             // Assert
+            Assert.IsInstanceOfType(response, typeof(NoContentResult));
+            var result = response as NoContentResult;
             Assert.AreEqual(204, result.StatusCode);
             galleryRepository.Verify(repo => repo.DeleteGallery(It.IsAny<Guid>()), Times.Once());
         }
@@ -245,9 +252,10 @@ namespace Gallery.API.Test
 
             // Act
             ActionResult response = await controller.DeleteGallery(newGallery.Id);
-            var result = response as UnauthorizedResult;
 
             // Assert
+            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+            var result = response as UnauthorizedResult;
             Assert.AreEqual(401, result.StatusCode);
         }
 
@@ -260,9 +268,10 @@ namespace Gallery.API.Test
 
             // Act
             ActionResult response = await controller.DeleteGallery(Guid.NewGuid());
-            var result = response as NotFoundResult;
 
             // Assert
+            Assert.IsInstanceOfType(response, typeof(NotFoundResult));
+            var result = response as NotFoundResult;
             Assert.AreEqual(404, result.StatusCode);
         }
         #endregion
