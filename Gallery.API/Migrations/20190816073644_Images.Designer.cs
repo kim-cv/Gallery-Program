@@ -4,14 +4,16 @@ using Gallery.API.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Gallery.API.Migrations
 {
     [DbContext(typeof(GalleryDBContext))]
-    partial class GalleryDBContextModelSnapshot : ModelSnapshot
+    [Migration("20190816073644_Images")]
+    partial class Images
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,13 +43,8 @@ namespace Gallery.API.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Extension")
-                        .IsRequired();
-
                     b.Property<string>("Name")
                         .IsRequired();
-
-                    b.Property<long>("SizeInBytes");
 
                     b.Property<Guid>("fk_gallery");
 
