@@ -67,6 +67,12 @@ namespace Gallery.API
 
             // Galleries
             services.AddScoped<IGalleryRepository, GalleryRepository>();
+
+            // Images
+            services.AddScoped<IImageRepository, ImageRepository>();
+
+            // File System
+            services.AddScoped<IFileSystemRepository, FileSystemRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
