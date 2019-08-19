@@ -229,7 +229,7 @@ namespace Gallery.API.Controllers
 
             if (imageEntity.fk_gallery != galleryEntity.Id)
             {
-                return Unauthorized();
+                return NotFound();
             }
 
             await _imageRepository.DeleteImage(imageEntity.Id);

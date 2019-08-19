@@ -472,10 +472,11 @@ namespace Gallery.API.Test
             var result = response as NoContentResult;
             Assert.AreEqual(204, result.StatusCode);
             imageRepository.Verify(repo => repo.DeleteImage(It.IsAny<Guid>()), Times.Once());
+            imageItems.Remove(imageEntity);
         }
 
         [TestMethod]
-        public async Task DeleteImage_not_exist()
+        public async Task DeleteImage_mine_and_image_not_exist()
         {
             // Arrange
             var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
@@ -489,6 +490,26 @@ namespace Gallery.API.Test
             Assert.IsInstanceOfType(response, typeof(NotFoundResult));
             var result = response as NotFoundResult;
             Assert.AreEqual(404, result.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task DeleteImage_image_not_owned_by_gallery()
+        {
+            // Arrange
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            Guid imageId = Guid.NewGuid();
+            ImageEntity imageEntity = new ImageEntity() { Id = imageId, fk_gallery = galleryItems[0].Id, gallery = galleryItems[0], Name = "Test1", Extension = ".jpg", SizeInBytes = 100 };
+            imageItems.Add(imageEntity);
+
+            // Act
+            ActionResult response = await controller.DeleteImage(galleryItems[1].Id, imageId);
+
+            // Assert
+            Assert.IsInstanceOfType(response, typeof(NotFoundResult));
+            var result = response as NotFoundResult;
+            Assert.AreEqual(404, result.StatusCode);
+            imageItems.Remove(imageEntity);
         }
 
         [TestMethod]
