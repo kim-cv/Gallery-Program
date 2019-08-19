@@ -204,5 +204,38 @@ namespace Gallery.API.Controllers
 
             return CreatedAtAction(nameof(GetImage), new { galleryId = gallery.Id, imageId = dtoToReturn.Id }, dtoToReturn);
         }
+
+        [HttpDelete("{galleryId}/images/{imageId}")]
+        public async Task<ActionResult> DeleteImage(Guid galleryId, Guid imageId)
+        {
+            Guid userId = new Guid(HttpContext.User.Identity.Name);
+            GalleryEntity galleryEntity = await _galleryRepository.GetGallery(galleryId);
+            ImageEntity imageEntity = await _imageRepository.GetImage(imageId);
+
+            if (galleryEntity == null)
+            {
+                return NotFound();
+            }
+
+            if (imageEntity == null)
+            {
+                return NotFound();
+            }
+
+            if (userId != galleryEntity.fk_owner)
+            {
+                return Unauthorized();
+            }
+
+            if (imageEntity.fk_gallery != galleryEntity.Id)
+            {
+                return Unauthorized();
+            }
+
+            await _imageRepository.DeleteImage(imageEntity.Id);
+            _imageRepository.Save();
+
+            return NoContent();
+        }
     }
 }
