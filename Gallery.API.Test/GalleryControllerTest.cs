@@ -122,7 +122,7 @@ namespace Gallery.API.Test
         public async Task GetGallery_mine_and_it_exist()
         {
             // Arrange
-            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object,  imageRepository.Object, fileSystemRepository.Object);
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
             var retrieveThisGalleryItem = galleryItems[0];
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
@@ -153,7 +153,7 @@ namespace Gallery.API.Test
             });
 
             // Arrange
-            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object,  imageRepository.Object, fileSystemRepository.Object);
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
             // Act
@@ -169,7 +169,7 @@ namespace Gallery.API.Test
         public async Task GetGallery_not_exist()
         {
             // Arrange
-            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object,  imageRepository.Object, fileSystemRepository.Object);
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
             // Act
@@ -187,7 +187,7 @@ namespace Gallery.API.Test
         public async Task GetGalleries()
         {
             // Arrange
-            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object,  imageRepository.Object, fileSystemRepository.Object);
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
             // Act
@@ -209,7 +209,7 @@ namespace Gallery.API.Test
         public async Task CreateGallery()
         {
             // Arrange
-            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object,  imageRepository.Object, fileSystemRepository.Object);
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[1].Id.ToString());
 
             GalleryCreationDTO newGalleryItem = new GalleryCreationDTO()
@@ -235,7 +235,7 @@ namespace Gallery.API.Test
         public async Task CreateGallery_claim_not_match_ownerId()
         {
             // Arrange
-            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object,  imageRepository.Object, fileSystemRepository.Object);
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[1].Id.ToString());
 
             GalleryCreationDTO newGalleryItem = new GalleryCreationDTO()
@@ -259,7 +259,7 @@ namespace Gallery.API.Test
         public async Task DeleteGallery_mine_and_it_exist()
         {
             // Arrange
-            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object,  imageRepository.Object, fileSystemRepository.Object);
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
             // Act
@@ -285,7 +285,7 @@ namespace Gallery.API.Test
             });
 
             // Arrange
-            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object,  imageRepository.Object, fileSystemRepository.Object);
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
             // Act
@@ -301,7 +301,7 @@ namespace Gallery.API.Test
         public async Task DeleteGallery_not_exist()
         {
             // Arrange
-            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object,  imageRepository.Object, fileSystemRepository.Object);
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
             // Act
@@ -315,6 +315,63 @@ namespace Gallery.API.Test
         #endregion
 
         #region GetImages
+        [TestMethod]
+        public async Task GetImages()
+        {
+            // Arrange
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+
+            Guid galleryId = galleryItems[0].Id;
+
+            // Act
+            ActionResult<IEnumerable<ImageDTO>> response = await controller.GetImages(galleryId);
+
+            // Assert
+            Assert.IsInstanceOfType(response.Result, typeof(OkObjectResult));
+            var result = response.Result as OkObjectResult;
+            Assert.AreEqual(200, result.StatusCode);
+            Assert.IsNotNull(result.Value);
+            Assert.IsInstanceOfType(result.Value, typeof(IEnumerable<ImageDTO>));
+            IEnumerable<ImageDTO> retrievedItems = result.Value as IEnumerable<ImageDTO>;
+            Assert.AreEqual(0, retrievedItems.Count());
+        }
+
+        [TestMethod]
+        public async Task GetImages_not_existing_gallery()
+        {
+            // Arrange
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+
+            Guid galleryId = Guid.NewGuid();
+
+            // Act
+            ActionResult<IEnumerable<ImageDTO>> response = await controller.GetImages(galleryId);
+
+            // Assert
+            Assert.IsInstanceOfType(response.Result, typeof(NotFoundResult));
+            var result = response.Result as NotFoundResult;
+            Assert.AreEqual(404, result.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task GetImages_not_own_gallery()
+        {
+            // Arrange
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[1].Id.ToString());
+
+            Guid galleryId = galleryItems[0].Id;
+
+            // Act
+            ActionResult<IEnumerable<ImageDTO>> response = await controller.GetImages(galleryId);
+
+            // Assert
+            Assert.IsInstanceOfType(response.Result, typeof(UnauthorizedResult));
+            var result = response.Result as UnauthorizedResult;
+            Assert.AreEqual(401, result.StatusCode);
+        }
         #endregion
 
         #region CreateImage
@@ -322,7 +379,7 @@ namespace Gallery.API.Test
         public async Task CreateImage()
         {
             // Arrange
-            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object,  imageRepository.Object, fileSystemRepository.Object);
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
             ImageUtils utils = new ImageUtils();
@@ -350,7 +407,7 @@ namespace Gallery.API.Test
         public async Task CreateImage_not_existing_gallery()
         {
             // Arrange
-            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object,  imageRepository.Object, fileSystemRepository.Object);
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
             Guid galleryId = Guid.NewGuid();
@@ -373,7 +430,7 @@ namespace Gallery.API.Test
         public async Task CreateImage_not_own_gallery()
         {
             // Arrange
-            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object,  imageRepository.Object, fileSystemRepository.Object);
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[1].Id.ToString());
 
             Guid galleryId = galleryItems[0].Id;
