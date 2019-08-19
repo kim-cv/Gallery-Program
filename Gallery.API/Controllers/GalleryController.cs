@@ -84,7 +84,7 @@ namespace Gallery.API.Controllers
             return CreatedAtAction(nameof(GetGallery), new { id = dtoToReturn.Id }, dtoToReturn);
         }
 
-        [HttpGet("{id}")]
+        [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteGallery(Guid id)
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
