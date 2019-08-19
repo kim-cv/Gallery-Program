@@ -376,6 +376,104 @@ namespace Gallery.API.Test
         }
         #endregion
 
+        #region GetImage
+        [TestMethod]
+        public async Task GetImage_mine_and_it_exist()
+        {
+            // Arrange
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+
+            Guid imageId = Guid.NewGuid();
+            ImageEntity imageEntity = new ImageEntity() { Id = imageId, fk_gallery = galleryItems[0].Id, gallery = galleryItems[0], Name = "Test1", Extension = ".jpg", SizeInBytes = 100 };
+            imageItems.Add(imageEntity);
+
+            // Act
+            ActionResult response = await controller.GetImage(galleryItems[0].Id, imageId);
+
+            // Assert
+            Assert.IsInstanceOfType(response, typeof(FileContentResult));
+            var result = response as FileContentResult;
+            //Assert.AreEqual(200, result.StatusCode);
+            imageItems.Remove(imageEntity);
+        }
+
+        [TestMethod]
+        public async Task GetImage_mine_and_image_not_exist()
+        {
+            // Arrange
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            Guid imageId = Guid.NewGuid();
+
+            // Act
+            ActionResult response = await controller.GetImage(galleryItems[0].Id, imageId);
+
+            // Assert
+            Assert.IsInstanceOfType(response, typeof(NotFoundResult));
+            var result = response as NotFoundResult;
+            Assert.AreEqual(404, result.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task GetImage_image_not_owned_by_gallery()
+        {
+            // Arrange
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            Guid imageId = Guid.NewGuid();
+            ImageEntity imageEntity = new ImageEntity() { Id = imageId, fk_gallery = galleryItems[0].Id, gallery = galleryItems[0], Name = "Test1", Extension = ".jpg", SizeInBytes = 100 };
+            imageItems.Add(imageEntity);
+
+            // Act
+            ActionResult response = await controller.GetImage(galleryItems[1].Id, imageId);
+
+            // Assert
+            Assert.IsInstanceOfType(response, typeof(NotFoundResult));
+            var result = response as NotFoundResult;
+            Assert.AreEqual(404, result.StatusCode);
+            imageItems.Remove(imageEntity);
+        }
+
+        [TestMethod]
+        public async Task GetImage_not_existing_gallery()
+        {
+            // Arrange
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+
+            Guid galleryId = Guid.NewGuid();
+            Guid imageId = imageItems[0].Id;
+
+            // Act
+            ActionResult response = await controller.GetImage(galleryId, imageId);
+
+            // Assert
+            Assert.IsInstanceOfType(response, typeof(NotFoundResult));
+            var result = response as NotFoundResult;
+            Assert.AreEqual(404, result.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task GetImage_not_own_gallery()
+        {
+            // Arrange
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[1].Id.ToString());
+
+            Guid galleryId = galleryItems[0].Id;
+            Guid imageId = imageItems[0].Id;
+
+            // Act
+            ActionResult response = await controller.GetImage(galleryId, imageId);
+
+            // Assert
+            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+            var result = response as UnauthorizedResult;
+            Assert.AreEqual(401, result.StatusCode);
+        }
+        #endregion
+
         #region CreateImage
         [TestMethod]
         public async Task CreateImage()
