@@ -106,50 +106,29 @@ namespace Gallery.API.Controllers
             return NoContent();
         }
 
-        [Consumes("multipart/form-data")]
-        [HttpPost("{galleryId}/images")]
-        public async Task<ActionResult> CreateImage(Guid galleryId, [FromForm] ImageCreationDTO dto)
+
+        [HttpGet("{galleryId}/images")]
+        public async Task<ActionResult<IEnumerable<ImageDTO>>> GetImages(Guid galleryId)
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
 
-            GalleryEntity gallery = await _galleryRepository.GetGallery(galleryId);
+            var gallery = await _galleryRepository.GetGallery(galleryId);
 
             if (gallery == null)
             {
                 return NotFound();
             }
 
-            if (userId != gallery.fk_owner)
+            if (gallery.fk_owner != userId)
             {
                 return Unauthorized();
             }
 
-            ImageEntity entity = dto.ToImageEntity();
-            entity.fk_gallery = gallery.Id;
-            
-            ImageEntity addedEntity = await _imageRepository.PostImage(entity);
-            _imageRepository.Save();
+            var items = await _imageRepository.GetImages(galleryId);
 
-            var uploads = Path.Combine(_environment.ContentRootPath, "uploads");
-            IFormFile formFile = dto.formFile;
-            if (formFile.Length > 0)
-            {
-                string extension = Path.GetExtension(formFile.FileName);
-                string filename = addedEntity.Id.ToString();
+            IEnumerable<ImageDTO> dtos = items.Select(tmpEntity => tmpEntity.ToImageDto());
 
-                byte[] formfileBytes;
-                using (Stream stream = formFile.OpenReadStream())
-                {
-                    formfileBytes = new byte[stream.Length];
-                    await stream.ReadAsync(formfileBytes, 0, (int)stream.Length);
-                }
-
-                await _fileSystemRepository.SaveFile(uploads, formfileBytes, filename, extension);
-            }
-
-            ImageDTO dtoToReturn = addedEntity.ToImageDto();
-
-            return CreatedAtAction(nameof(GetImage), new { galleryId = gallery.Id, imageId = dtoToReturn.Id }, dtoToReturn);
+            return Ok(dtos);
         }
 
         [HttpGet("{galleryId}/images/{imageId}")]
@@ -178,6 +157,52 @@ namespace Gallery.API.Controllers
             byte[] imgData = await _fileSystemRepository.RetrieveFile(uploads, image.Id.ToString(), image.Extension);
 
             return File(imgData, "image/jpeg");
+        }
+
+        [Consumes("multipart/form-data")]
+        [HttpPost("{galleryId}/images")]
+        public async Task<ActionResult> CreateImage(Guid galleryId, [FromForm] ImageCreationDTO dto)
+        {
+            Guid userId = new Guid(HttpContext.User.Identity.Name);
+
+            GalleryEntity gallery = await _galleryRepository.GetGallery(galleryId);
+
+            if (gallery == null)
+            {
+                return NotFound();
+            }
+
+            if (userId != gallery.fk_owner)
+            {
+                return Unauthorized();
+            }
+
+            ImageEntity entity = dto.ToImageEntity();
+            entity.fk_gallery = gallery.Id;
+
+            ImageEntity addedEntity = await _imageRepository.PostImage(entity);
+            _imageRepository.Save();
+
+            var uploads = Path.Combine(_environment.ContentRootPath, "uploads");
+            IFormFile formFile = dto.formFile;
+            if (formFile.Length > 0)
+            {
+                string extension = Path.GetExtension(formFile.FileName);
+                string filename = addedEntity.Id.ToString();
+
+                byte[] formfileBytes;
+                using (Stream stream = formFile.OpenReadStream())
+                {
+                    formfileBytes = new byte[stream.Length];
+                    await stream.ReadAsync(formfileBytes, 0, (int)stream.Length);
+                }
+
+                await _fileSystemRepository.SaveFile(uploads, formfileBytes, filename, extension);
+            }
+
+            ImageDTO dtoToReturn = addedEntity.ToImageDto();
+
+            return CreatedAtAction(nameof(GetImage), new { galleryId = gallery.Id, imageId = dtoToReturn.Id }, dtoToReturn);
         }
     }
 }
