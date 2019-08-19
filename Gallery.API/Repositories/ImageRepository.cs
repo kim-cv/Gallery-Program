@@ -33,6 +33,20 @@ namespace Gallery.API.Repositories
             return changeTracking.Entity;
         }
 
+        public async Task DeleteImage(Guid imageId)
+        {
+            var imageEntity = await GetImage(imageId);
+
+            if (imageEntity == null)
+            {
+                return;
+            }
+
+            _context.Images.Remove(imageEntity);
+
+            return;
+        }
+
         public bool Save()
         {
             try
