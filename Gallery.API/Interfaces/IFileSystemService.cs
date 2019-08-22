@@ -6,5 +6,6 @@ namespace Gallery.API.Interfaces
     {
         Task<byte[]> RetrieveFile(string path, string name, string extension);
         Task SaveFile(string path, byte[] data, string name, string extension);
+        void DeleteFile(string path, string name, string extension);
     }
 }
