@@ -31,5 +31,20 @@ namespace Gallery.API.Repositories
                 await fileStream.WriteAsync(data);
             }
         }
+
+        public void DeleteFile(string path, string name, string extension)
+        {
+            string filename = Path.ChangeExtension(name, extension);
+            string pathWithFilename = Path.Combine(path, filename);
+
+            bool fileExist = File.Exists(pathWithFilename);
+
+            if (fileExist == false)
+            {
+                return;
+            }
+
+            File.Delete(pathWithFilename);
+        }
     }
 }
