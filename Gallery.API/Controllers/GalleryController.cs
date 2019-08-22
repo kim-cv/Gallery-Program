@@ -232,6 +232,11 @@ namespace Gallery.API.Controllers
                 return NotFound();
             }
 
+            // Delete from filesystem
+            var uploads = Path.Combine(_environment.ContentRootPath, "uploads");
+            _fileSystemRepository.DeleteFile(uploads, imageEntity.Id.ToString(), imageEntity.Extension);
+
+            // Delete from DB
             await _imageRepository.DeleteImage(imageEntity.Id);
             _imageRepository.Save();
 
