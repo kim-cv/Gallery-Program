@@ -84,6 +84,32 @@ namespace Gallery.API.Controllers
             return CreatedAtAction(nameof(GetGallery), new { id = dtoToReturn.Id }, dtoToReturn);
         }
 
+        [HttpPut("{id}")]
+        public async Task<ActionResult<GalleryDTO>> PutGallery(Guid id, GalleryPutDTO galleryPutDTO)
+        {
+            Guid userId = new Guid(HttpContext.User.Identity.Name);
+            GalleryEntity galleryEntity = await _galleryRepository.GetGallery(id);
+
+            if (galleryEntity == null)
+            {
+                return NotFound();
+            }
+
+            if (userId != galleryEntity.fk_owner)
+            {
+                return Unauthorized();
+            }
+
+            galleryPutDTO.ToGalleryEntity(ref galleryEntity);
+
+            await _galleryRepository.PutGallery(galleryEntity);
+            _galleryRepository.Save();
+
+            GalleryDTO dtoToReturn = galleryEntity.ToGalleryDto();
+
+            return CreatedAtAction(nameof(GetGallery), new { id = dtoToReturn.Id }, dtoToReturn);
+        }
+
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteGallery(Guid id)
         {
