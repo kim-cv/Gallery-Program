@@ -70,6 +70,7 @@ namespace Gallery.API
 
             // Images
             services.AddScoped<IImageRepository, ImageRepository>();
+            services.AddScoped<IImageService, ImageService>();
 
             // File System
             services.AddScoped<IFileSystemRepository, FileSystemRepository>();

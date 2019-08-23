@@ -22,13 +22,15 @@ namespace Gallery.API.Controllers
         private readonly IImageRepository _imageRepository;
         private readonly IHostingEnvironment _environment;
         private readonly IFileSystemRepository _fileSystemRepository;
+        private readonly IImageService _imageService;
 
-        public GalleryController(IHostingEnvironment environment, IGalleryRepository galleryRepository, IImageRepository imageRepository, IFileSystemRepository fileSystemRepository)
+        public GalleryController(IHostingEnvironment environment, IGalleryRepository galleryRepository, IImageRepository imageRepository, IFileSystemRepository fileSystemRepository, IImageService imageService)
         {
             _galleryRepository = galleryRepository;
             _imageRepository = imageRepository;
             _environment = environment;
             _fileSystemRepository = fileSystemRepository;
+            _imageService = imageService;
         }
 
         [HttpGet]
@@ -129,7 +131,7 @@ namespace Gallery.API.Controllers
 
 
         [HttpGet("{galleryId}/images")]
-        public async Task<ActionResult<IEnumerable<ImageDTO>>> GetImages(Guid galleryId)
+        public async Task<ActionResult<IEnumerable<ImageDTO>>> GetImages(Guid galleryId, [FromQuery] bool thumb = false)
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
 
@@ -153,7 +155,7 @@ namespace Gallery.API.Controllers
         }
 
         [HttpGet("{galleryId}/images/{imageId}")]
-        public async Task<ActionResult> GetImage(Guid galleryId, Guid imageId)
+        public async Task<ActionResult> GetImage(Guid galleryId, Guid imageId, [FromQuery] bool thumb = false)
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
             GalleryEntity gallery = await _galleryRepository.GetGallery(galleryId);
@@ -176,6 +178,11 @@ namespace Gallery.API.Controllers
 
             var uploads = Path.Combine(_environment.ContentRootPath, "uploads");
             byte[] imgData = await _fileSystemRepository.RetrieveFile(uploads, image.Id.ToString(), image.Extension);
+
+            if (thumb == true)
+            {
+                imgData = _imageService.GenerateThumb(imgData);
+            }
 
             return File(imgData, "image/jpeg");
         }
