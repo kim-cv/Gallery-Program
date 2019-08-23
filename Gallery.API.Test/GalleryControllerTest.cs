@@ -256,6 +256,90 @@ namespace Gallery.API.Test
         }
         #endregion
 
+        #region PutGallery
+        [TestMethod]
+        public async Task PutGallery_mine_and_it_exist()
+        {
+            // Arrange
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            GalleryEntity newGalleryEntity = new GalleryEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "TestGalleryName",
+                fk_owner = users[0].Id,
+                owner = users[0]
+            };
+            galleryItems.Add(newGalleryEntity);
+
+            // Act
+            GalleryPutDTO galleryPutDto = new GalleryPutDTO()
+            {
+                Name = "UpdatedTestGalleryName"
+            };
+            ActionResult<GalleryDTO> response = await controller.PutGallery(newGalleryEntity.Id, galleryPutDto);
+
+            // Assert
+            Assert.IsInstanceOfType(response.Result, typeof(CreatedAtActionResult));
+            var result = response.Result as CreatedAtActionResult;
+            Assert.AreEqual(201, result.StatusCode);
+            Assert.IsNotNull(result.Value);
+            Assert.IsInstanceOfType(result.Value, typeof(GalleryDTO));
+            GalleryDTO retrievedItem = result.Value as GalleryDTO;
+            Assert.AreEqual(retrievedItem.Id, newGalleryEntity.Id);
+            Assert.AreEqual(retrievedItem.Name, "UpdatedTestGalleryName");
+            galleryItems.Remove(newGalleryEntity);
+        }
+
+        [TestMethod]
+        public async Task PutGallery_not_mine_and_it_exist()
+        {
+            // Arrange
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            GalleryEntity newGalleryEntity = new GalleryEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "TestGalleryName",
+                fk_owner = users[1].Id,
+                owner = users[1]
+            };
+            galleryItems.Add(newGalleryEntity);
+
+            // Act
+            GalleryPutDTO galleryPutDto = new GalleryPutDTO()
+            {
+                Name = "UpdatedTestGalleryName"
+            };
+            ActionResult<GalleryDTO> response = await controller.PutGallery(newGalleryEntity.Id, galleryPutDto);
+
+            // Assert
+            Assert.IsInstanceOfType(response.Result, typeof(UnauthorizedResult));
+            var result = response.Result as UnauthorizedResult;
+            Assert.AreEqual(401, result.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task PutGallery_not_exist()
+        {
+            // Arrange
+            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+
+            // Act
+            GalleryPutDTO galleryPutDto = new GalleryPutDTO()
+            {
+                Name = "UpdatedTestGalleryName"
+            };
+            ActionResult<GalleryDTO> response = await controller.PutGallery(Guid.NewGuid(), galleryPutDto);
+
+            // Assert
+            Assert.IsInstanceOfType(response.Result, typeof(NotFoundResult));
+            var result = response.Result as NotFoundResult;
+            Assert.AreEqual(404, result.StatusCode);
+        }
+        #endregion
+
         #region DeleteGallery
         [TestMethod]
         public async Task DeleteGallery_mine_and_it_exist()
