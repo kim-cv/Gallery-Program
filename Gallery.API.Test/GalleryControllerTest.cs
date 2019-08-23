@@ -216,8 +216,7 @@ namespace Gallery.API.Test
 
             GalleryCreationDTO newGalleryItem = new GalleryCreationDTO()
             {
-                Name = "CreatedTestName",
-                ownerId = users[1].Id
+                Name = "CreatedTestName"
             };
 
             // Act
@@ -231,28 +230,6 @@ namespace Gallery.API.Test
             Assert.IsInstanceOfType(result.Value, typeof(GalleryDTO));
             GalleryDTO createdItem = result.Value as GalleryDTO;
             Assert.AreEqual(createdItem.Name, "CreatedTestName");
-        }
-
-        [TestMethod]
-        public async Task CreateGallery_claim_not_match_ownerId()
-        {
-            // Arrange
-            var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[1].Id.ToString());
-
-            GalleryCreationDTO newGalleryItem = new GalleryCreationDTO()
-            {
-                Name = "CreatedTestName",
-                ownerId = Guid.NewGuid()
-            };
-
-            // Act
-            ActionResult<GalleryDTO> response = await controller.CreateGallery(newGalleryItem);
-
-            // Assert
-            Assert.IsInstanceOfType(response.Result, typeof(BadRequestResult));
-            var result = response.Result as BadRequestResult;
-            Assert.AreEqual(400, result.StatusCode);
         }
         #endregion
 

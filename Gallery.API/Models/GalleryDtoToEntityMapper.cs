@@ -1,4 +1,5 @@
-﻿using Gallery.API.Entities;
+﻿using System;
+using Gallery.API.Entities;
 
 namespace Gallery.API.Models
 {
@@ -14,12 +15,12 @@ namespace Gallery.API.Models
             };
         }
 
-        public static GalleryEntity ToGalleryEntity(this GalleryCreationDTO galleryDto)
+        public static GalleryEntity ToGalleryEntity(this GalleryCreationDTO galleryDto, Guid ownerId)
         {
             return new GalleryEntity()
             {
                 Name = galleryDto.Name,
-                fk_owner = galleryDto.ownerId
+                fk_owner = ownerId
             };
         }
 

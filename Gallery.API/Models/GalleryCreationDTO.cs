@@ -7,7 +7,5 @@ namespace Gallery.API.Models
     {
         [Required]
         public string Name { get; set; }
-        [Required]
-        public Guid ownerId { get; set; }
     }
 }

@@ -69,12 +69,7 @@ namespace Gallery.API.Controllers
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
 
-            if (userId != dto.ownerId)
-            {
-                return BadRequest();
-            }
-
-            GalleryEntity entity = dto.ToGalleryEntity();
+            GalleryEntity entity = dto.ToGalleryEntity(userId);
 
             GalleryEntity addedEntity = await _galleryRepository.PostGallery(entity);
             _galleryRepository.Save();
