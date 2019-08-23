@@ -33,6 +33,13 @@ namespace Gallery.API.Repositories
             return changeTracking.Entity;
         }
 
+        public async Task PutGallery(GalleryEntity galleryItem)
+        {
+            // This repository uses Entity Framework
+            // Method is empty because caller is updating entity properties in-place
+            // The entity is tracked by EF and reflected onto the DB when calling Save()
+        }
+
         public async Task DeleteGallery(Guid galleryId)
         {
             var galleryEntity = await GetGallery(galleryId);
