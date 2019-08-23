@@ -22,5 +22,13 @@ namespace Gallery.API.Models
                 fk_owner = galleryDto.ownerId
             };
         }
+
+        /// <summary>
+        /// Updates the entity properties in-place
+        /// </summary>
+        public static void ToGalleryEntity(this GalleryPutDTO galleryDto, ref GalleryEntity entityToUpdate)
+        {
+            entityToUpdate.Name = galleryDto.Name;
+        }
     }
 }
