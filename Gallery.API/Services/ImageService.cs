@@ -9,7 +9,7 @@ namespace Gallery.API.Services
 {
     public class ImageService : IImageService
     {
-        public byte[] GenerateThumb(byte[] imageData)
+        public byte[] GenerateThumb(byte[] imageData, int maxWidth, int maxHeight, bool keepAspectRatio)
         {
             using (Image<Rgba32> image = Image.Load(imageData))
             using (var ms = new MemoryStream())
@@ -17,7 +17,7 @@ namespace Gallery.API.Services
                 int imgWidth = image.Width;
                 int imgHeight = image.Height;
 
-                (int ThumbWidth, int ThumbHeight) = AspectRatio(imgWidth, imgHeight, 100, 100);
+                (int ThumbWidth, int ThumbHeight) = AspectRatio(imgWidth, imgHeight, maxWidth, maxHeight, keepAspectRatio);
 
                 image.Mutate(x => x
                      .Resize(ThumbWidth, ThumbHeight));
@@ -26,7 +26,7 @@ namespace Gallery.API.Services
             }
         }
 
-        private (int ThumbWidth, int ThumbHeight) AspectRatio(double currentWidth, double currentHeight, double maxWidth, double maxHeight)
+        private (int ThumbWidth, int ThumbHeight) AspectRatio(double currentWidth, double currentHeight, double maxWidth, double maxHeight, bool keepAspectRatio)
         {
             // Used for aspect ratio
             double ratio = Math.Min(maxWidth / currentWidth, maxHeight / currentHeight);
@@ -34,14 +34,17 @@ namespace Gallery.API.Services
             double calculatedWidth = maxWidth;
             double calculatedHeight = maxHeight;
 
-            if (currentWidth > maxWidth)
+            if (keepAspectRatio)
             {
-                calculatedHeight = currentHeight * ratio;
-            }
+                if (currentWidth > maxWidth)
+                {
+                    calculatedHeight = currentHeight * ratio;
+                }
 
-            if (currentHeight > maxHeight)
-            {
-                calculatedWidth = currentWidth * ratio;
+                if (currentHeight > maxHeight)
+                {
+                    calculatedWidth = currentWidth * ratio;
+                }
             }
 
             int finalWidth = Convert.ToInt32(calculatedWidth);
