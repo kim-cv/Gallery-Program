@@ -454,7 +454,7 @@ namespace Gallery.API.Test
             imageItems.Add(imageEntity);
 
             // Act
-            ActionResult response = await controller.GetImage(galleryItems[0].Id, imageId);
+            ActionResult response = await controller.GetImage(galleryItems[0].Id, imageId, false, null, null, null);
 
             // Assert
             Assert.IsInstanceOfType(response, typeof(FileContentResult));
@@ -472,7 +472,7 @@ namespace Gallery.API.Test
             Guid imageId = Guid.NewGuid();
 
             // Act
-            ActionResult response = await controller.GetImage(galleryItems[0].Id, imageId);
+            ActionResult response = await controller.GetImage(galleryItems[0].Id, imageId, false, null, null, null);
 
             // Assert
             Assert.IsInstanceOfType(response, typeof(NotFoundResult));
@@ -491,7 +491,7 @@ namespace Gallery.API.Test
             imageItems.Add(imageEntity);
 
             // Act
-            ActionResult response = await controller.GetImage(galleryItems[1].Id, imageId);
+            ActionResult response = await controller.GetImage(galleryItems[1].Id, imageId, false, null, null, null);
 
             // Assert
             Assert.IsInstanceOfType(response, typeof(NotFoundResult));
@@ -511,7 +511,7 @@ namespace Gallery.API.Test
             Guid imageId = imageItems[0].Id;
 
             // Act
-            ActionResult response = await controller.GetImage(galleryId, imageId);
+            ActionResult response = await controller.GetImage(galleryId, imageId, false, null, null, null);
 
             // Assert
             Assert.IsInstanceOfType(response, typeof(NotFoundResult));
@@ -530,7 +530,7 @@ namespace Gallery.API.Test
             Guid imageId = imageItems[0].Id;
 
             // Act
-            ActionResult response = await controller.GetImage(galleryId, imageId);
+            ActionResult response = await controller.GetImage(galleryId, imageId, false, null, null, null);
 
             // Assert
             Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));

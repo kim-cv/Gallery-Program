@@ -3,9 +3,11 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Hosting;
 using Gallery.API.Entities;
 using Gallery.API.Interfaces;
@@ -155,8 +157,29 @@ namespace Gallery.API.Controllers
         }
 
         [HttpGet("{galleryId}/images/{imageId}")]
-        public async Task<ActionResult> GetImage(Guid galleryId, Guid imageId, [FromQuery] bool thumb = false)
+        public async Task<ActionResult> GetImage(
+            Guid galleryId,
+            Guid imageId,
+            [FromQuery, BindRequired] bool thumb,
+            [FromQuery, Range(1, 4096)] int? thumbWidth,
+            [FromQuery, Range(1, 2160)] int? thumbHeight,
+            [FromQuery] bool? keepAspectRatio
+            )
         {
+            // TODO: Very bad conditional validation, when fix this maybe take a look at fluent validation.
+            if (thumb)
+            {
+                IList<string> conditionalValidationErrors = new List<string>();
+                if (thumbWidth == null) conditionalValidationErrors.Add("You set 'thumb' to true, please also provide 'thumbWidth'");
+                if (thumbHeight == null) conditionalValidationErrors.Add("You set 'thumb' to true, please also provide 'thumbHeight'");
+                if (keepAspectRatio == null) conditionalValidationErrors.Add("You set 'thumb' to true, please also provide 'keepAspectRatio'");
+
+                if (conditionalValidationErrors.Count > 0)
+                {
+                    return BadRequest(conditionalValidationErrors);
+                }
+            }
+
             Guid userId = new Guid(HttpContext.User.Identity.Name);
             GalleryEntity gallery = await _galleryRepository.GetGallery(galleryId);
             ImageEntity image = await _imageRepository.GetImage(imageId);
@@ -181,7 +204,7 @@ namespace Gallery.API.Controllers
 
             if (thumb == true)
             {
-                imgData = _imageService.GenerateThumb(imgData);
+                imgData = _imageService.GenerateThumb(imgData, (int)thumbWidth, (int)thumbHeight, (bool)keepAspectRatio);
             }
 
             return File(imgData, "image/jpeg");
