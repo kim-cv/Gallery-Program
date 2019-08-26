@@ -42,7 +42,11 @@ namespace Gallery.API.Controllers
 
             var items = await _galleryRepository.GetGalleriesFromOwner(userId);
 
-            IEnumerable<GalleryDTO> dtos = items.Select(tmpEntity => tmpEntity.ToGalleryDto());
+            IEnumerable<GalleryDTO> dtos = items.Select(tmpEntity =>
+            {
+                int numImagesInGallery = _imageRepository.GetNumberOfImagesInGallery(tmpEntity.Id);
+                return tmpEntity.ToGalleryDto(numImagesInGallery);
+            });
 
             return Ok(dtos);
         }
@@ -63,7 +67,8 @@ namespace Gallery.API.Controllers
                 return Unauthorized();
             }
 
-            GalleryDTO dto = item.ToGalleryDto();
+            int numImagesInGallery = _imageRepository.GetNumberOfImagesInGallery(item.Id);
+            GalleryDTO dto = item.ToGalleryDto(numImagesInGallery);
 
             return Ok(dto);
         }
@@ -78,7 +83,7 @@ namespace Gallery.API.Controllers
             GalleryEntity addedEntity = await _galleryRepository.PostGallery(entity);
             _galleryRepository.Save();
 
-            GalleryDTO dtoToReturn = addedEntity.ToGalleryDto();
+            GalleryDTO dtoToReturn = addedEntity.ToGalleryDto(0);
 
             return CreatedAtAction(nameof(GetGallery), new { id = dtoToReturn.Id }, dtoToReturn);
         }
@@ -104,7 +109,8 @@ namespace Gallery.API.Controllers
             await _galleryRepository.PutGallery(galleryEntity);
             _galleryRepository.Save();
 
-            GalleryDTO dtoToReturn = galleryEntity.ToGalleryDto();
+            int numImagesInGallery = _imageRepository.GetNumberOfImagesInGallery(galleryEntity.Id);
+            GalleryDTO dtoToReturn = galleryEntity.ToGalleryDto(numImagesInGallery);
 
             return CreatedAtAction(nameof(GetGallery), new { id = dtoToReturn.Id }, dtoToReturn);
         }

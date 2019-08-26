@@ -7,5 +7,6 @@ namespace Gallery.API.Models
         public Guid Id { get; set; }
         public Guid ownerId { get; set; }
         public string Name { get; set; }
+        public int NumberOfImages { get; set; }
     }
 }

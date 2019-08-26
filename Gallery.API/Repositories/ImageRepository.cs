@@ -22,6 +22,11 @@ namespace Gallery.API.Repositories
             return await _context.Images.Where(tmpImage => tmpImage.fk_gallery == galleryId).ToListAsync();
         }
 
+        public int GetNumberOfImagesInGallery(Guid galleryId)
+        {
+            return _context.Images.Where(tmpImage => tmpImage.fk_gallery == galleryId).Count();
+        }
+
         public async Task<ImageEntity> GetImage(Guid imageId)
         {
             return await _context.Images.FindAsync(imageId);

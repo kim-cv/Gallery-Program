@@ -8,6 +8,7 @@ namespace Gallery.API.Interfaces
     public interface IImageRepository
     {
         Task<IEnumerable<ImageEntity>> GetImages(Guid galleryId);
+        int GetNumberOfImagesInGallery(Guid galleryId);
         Task<ImageEntity> GetImage(Guid imageId);
         Task<ImageEntity> PostImage(ImageEntity imageEntity);
         Task DeleteImage(Guid imageId);
