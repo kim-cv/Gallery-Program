@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Gallery.API.Entities;
 using Gallery.API.Interfaces;
 
@@ -9,10 +10,12 @@ namespace Gallery.API.Repositories
     public class UserRepository : IUserRepository
     {
         public readonly GalleryDBContext _context;
+        private readonly ILogger<UserRepository> _logger;
 
-        public UserRepository(GalleryDBContext context)
+        public UserRepository(GalleryDBContext context, ILogger<UserRepository> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<UserEntity> GetUser(Guid userId)
@@ -45,6 +48,7 @@ namespace Gallery.API.Repositories
             }
             catch (Exception ex)
             {
+                _logger.LogError("Uncaught exception during method Save().", ex);
                 return false;
             }
         }

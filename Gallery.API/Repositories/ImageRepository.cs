@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Gallery.API.Entities;
 using Gallery.API.Interfaces;
 using Gallery.API.Helpers;
@@ -12,10 +13,12 @@ namespace Gallery.API.Repositories
     public class ImageRepository : IImageRepository
     {
         public readonly GalleryDBContext _context;
+        private readonly ILogger<ImageRepository> _logger;
 
-        public ImageRepository(GalleryDBContext context)
+        public ImageRepository(GalleryDBContext context, ILogger<ImageRepository> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<ImageEntity>> GetImages(Guid galleryId, Pagination pagination)
@@ -67,6 +70,7 @@ namespace Gallery.API.Repositories
             }
             catch (Exception ex)
             {
+                _logger.LogError("Uncaught exception during method Save().", ex);
                 return false;
             }
         }
