@@ -12,6 +12,7 @@ using Gallery.API.Entities;
 using Gallery.API.Interfaces;
 using Gallery.API.Models;
 using Gallery.TestUtils;
+using Gallery.API.Helpers;
 
 namespace Gallery.API.Test
 {
@@ -80,8 +81,8 @@ namespace Gallery.API.Test
                 {
                     return galleryItems.FirstOrDefault(tmpGallery => tmpGallery.Id == galleryId);
                 });
-            galleryRepository.Setup(repo => repo.GetGalleriesFromOwner(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid ownerId) =>
+            galleryRepository.Setup(repo => repo.GetGalleriesFromOwner(It.IsAny<Guid>(), It.IsAny<Pagination>()))
+                .ReturnsAsync((Guid ownerId, Pagination pagination) =>
                 {
                     return galleryItems.Where(tmpGallery => tmpGallery.fk_owner == ownerId);
                 });
@@ -195,9 +196,10 @@ namespace Gallery.API.Test
             // Arrange
             var controller = new GalleryController(hostingEnvironment.Object, galleryRepository.Object, imageRepository.Object, fileSystemRepository.Object, imageService.Object);
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            var pagination = new Pagination();
 
             // Act
-            ActionResult<IEnumerable<GalleryDTO>> response = await controller.GetGalleries();
+            ActionResult<IEnumerable<GalleryDTO>> response = await controller.GetGalleries(pagination);
 
             // Assert
             Assert.IsInstanceOfType(response.Result, typeof(OkObjectResult));

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Gallery.API.Entities;
 using Gallery.API.Interfaces;
 using Gallery.API.Models;
+using Gallery.API.Helpers;
 
 namespace Gallery.API.Controllers
 {
@@ -36,11 +37,11 @@ namespace Gallery.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GalleryDTO>>> GetGalleries()
+        public async Task<ActionResult<IEnumerable<GalleryDTO>>> GetGalleries([FromQuery] Pagination pagination)
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
 
-            var items = await _galleryRepository.GetGalleriesFromOwner(userId);
+            var items = await _galleryRepository.GetGalleriesFromOwner(userId, pagination);
 
             IEnumerable<GalleryDTO> dtos = items.Select(tmpEntity =>
             {
