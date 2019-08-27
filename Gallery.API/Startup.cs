@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Gallery.API.Models;
 using Gallery.API.Services;
@@ -28,6 +29,12 @@ namespace Gallery.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            // Logging
+            services.AddLogging(loggingBuilder => {
+                loggingBuilder.AddConsole();
+                loggingBuilder.AddDebug();
+            });
 
             // Auth Configuration
             services.Configure<TokenData>(Configuration.GetSection("tokenManagement"));
