@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Gallery.API.Entities;
 using Gallery.API.Interfaces;
+using Gallery.API.Helpers;
 
 namespace Gallery.API.Repositories
 {
@@ -17,9 +18,14 @@ namespace Gallery.API.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<ImageEntity>> GetImages(Guid galleryId)
+        public async Task<IEnumerable<ImageEntity>> GetImages(Guid galleryId, Pagination pagination)
         {
-            return await _context.Images.Where(tmpImage => tmpImage.fk_gallery == galleryId).ToListAsync();
+            return await _context
+                .Images
+                .Where(tmpImage => tmpImage.fk_gallery == galleryId)
+                .Skip(pagination.Skip)
+                .Take(pagination.Take)
+                .ToListAsync();
         }
 
         public int GetNumberOfImagesInGallery(Guid galleryId)
