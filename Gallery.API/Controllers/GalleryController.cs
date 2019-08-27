@@ -140,7 +140,7 @@ namespace Gallery.API.Controllers
 
 
         [HttpGet("{galleryId}/images")]
-        public async Task<ActionResult<IEnumerable<ImageDTO>>> GetImages(Guid galleryId, [FromQuery] bool thumb = false)
+        public async Task<ActionResult<IEnumerable<ImageDTO>>> GetImages(Guid galleryId, [FromQuery] Pagination pagination, [FromQuery] bool thumb = false)
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
 
@@ -156,7 +156,7 @@ namespace Gallery.API.Controllers
                 return Unauthorized();
             }
 
-            var items = await _imageRepository.GetImages(galleryId);
+            var items = await _imageRepository.GetImages(galleryId, pagination);
 
             IEnumerable<ImageDTO> dtos = items.Select(tmpEntity => tmpEntity.ToImageDto());
 

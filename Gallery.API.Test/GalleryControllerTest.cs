@@ -392,9 +392,10 @@ namespace Gallery.API.Test
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
             Guid galleryId = galleryItems[0].Id;
+            Pagination pagination = new Pagination();
 
             // Act
-            ActionResult<IEnumerable<ImageDTO>> response = await controller.GetImages(galleryId);
+            ActionResult<IEnumerable<ImageDTO>> response = await controller.GetImages(galleryId, pagination);
 
             // Assert
             Assert.IsInstanceOfType(response.Result, typeof(OkObjectResult));
@@ -414,9 +415,10 @@ namespace Gallery.API.Test
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
             Guid galleryId = Guid.NewGuid();
+            Pagination pagination = new Pagination();
 
             // Act
-            ActionResult<IEnumerable<ImageDTO>> response = await controller.GetImages(galleryId);
+            ActionResult<IEnumerable<ImageDTO>> response = await controller.GetImages(galleryId, pagination);
 
             // Assert
             Assert.IsInstanceOfType(response.Result, typeof(NotFoundResult));
@@ -432,9 +434,10 @@ namespace Gallery.API.Test
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[1].Id.ToString());
 
             Guid galleryId = galleryItems[0].Id;
+            Pagination pagination = new Pagination();
 
             // Act
-            ActionResult<IEnumerable<ImageDTO>> response = await controller.GetImages(galleryId);
+            ActionResult<IEnumerable<ImageDTO>> response = await controller.GetImages(galleryId, pagination);
 
             // Assert
             Assert.IsInstanceOfType(response.Result, typeof(UnauthorizedResult));
