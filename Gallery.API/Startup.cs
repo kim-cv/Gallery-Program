@@ -1,17 +1,17 @@
-﻿using Gallery.API.Entities;
-using Gallery.API.Repositories;
-using Gallery.API.Interfaces;
+﻿using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Gallery.API.Models;
-using System.Text;
 using Gallery.API.Services;
+using Gallery.API.Entities;
+using Gallery.API.Repositories;
+using Gallery.API.Interfaces;
 
 namespace Gallery.API
 {
