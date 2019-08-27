@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Gallery.API.Entities;
 using Gallery.API.Interfaces;
-using System.Linq;
+using Gallery.API.Helpers;
 
 namespace Gallery.API.Repositories
 {
@@ -17,9 +18,14 @@ namespace Gallery.API.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<GalleryEntity>> GetGalleriesFromOwner(Guid ownerId)
+        public async Task<IEnumerable<GalleryEntity>> GetGalleriesFromOwner(Guid ownerId, Pagination pagination)
         {
-            return await _context.Galleries.Where(tmpGallery => tmpGallery.fk_owner == ownerId).Include(a => a.owner).ToListAsync();
+            return await _context.Galleries
+                .Where(tmpGallery => tmpGallery.fk_owner == ownerId)
+                .Include(a => a.owner)
+                .Skip(pagination.Skip)
+                .Take(pagination.Take)
+                .ToListAsync();
         }
 
         public async Task<GalleryEntity> GetGallery(Guid galleryId)
