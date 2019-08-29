@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Gallery.API.Entities;
 using Gallery.API.Interfaces;
 using Gallery.API.Models;
@@ -63,11 +64,23 @@ namespace Gallery.API.Controllers
             entity.Salt = salt;
 
             UserEntity addedEntity = await _userRepository.PostUser(entity);
-            _userRepository.Save();
 
-            UserDTO dtoToReturn = addedEntity.ToUserDto();
-
-            return CreatedAtAction(nameof(GetUser), new { id = dtoToReturn.Id }, dtoToReturn);
+            if (_userRepository.Save() == false)
+            {
+                var problemDetails = new ProblemDetails
+                {
+                    Title = "An unexpected error occurred.",
+                    Status = StatusCodes.Status500InternalServerError,
+                    Detail = "Unable to create the user at this moment due to an error, the error has been logged and sent to the developers for fixing.",
+                    Instance = HttpContext.TraceIdentifier,
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, problemDetails);
+            }
+            else
+            {
+                UserDTO dtoToReturn = addedEntity.ToUserDto();
+                return CreatedAtAction(nameof(GetUser), new { id = dtoToReturn.Id }, dtoToReturn);
+            }
         }
     }
 }

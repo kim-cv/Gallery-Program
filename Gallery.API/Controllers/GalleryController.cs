@@ -82,11 +82,23 @@ namespace Gallery.API.Controllers
             GalleryEntity entity = dto.ToGalleryEntity(userId);
 
             GalleryEntity addedEntity = await _galleryRepository.PostGallery(entity);
-            _galleryRepository.Save();
 
-            GalleryDTO dtoToReturn = addedEntity.ToGalleryDto(0);
-
-            return CreatedAtAction(nameof(GetGallery), new { id = dtoToReturn.Id }, dtoToReturn);
+            if (_galleryRepository.Save() == false)
+            {
+                var problemDetails = new ProblemDetails
+                {
+                    Title = "An unexpected error occurred.",
+                    Status = StatusCodes.Status500InternalServerError,
+                    Detail = "Unable to create the gallery at this moment due to an error, the error has been logged and sent to the developers for fixing.",
+                    Instance = HttpContext.TraceIdentifier,
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, problemDetails);
+            }
+            else
+            {
+                GalleryDTO dtoToReturn = addedEntity.ToGalleryDto(0);
+                return CreatedAtAction(nameof(GetGallery), new { id = dtoToReturn.Id }, dtoToReturn);
+            }
         }
 
         [HttpPut("{id}")]
@@ -108,12 +120,24 @@ namespace Gallery.API.Controllers
             galleryPutDTO.ToGalleryEntity(ref galleryEntity);
 
             await _galleryRepository.PutGallery(galleryEntity);
-            _galleryRepository.Save();
 
-            int numImagesInGallery = _imageRepository.GetNumberOfImagesInGallery(galleryEntity.Id);
-            GalleryDTO dtoToReturn = galleryEntity.ToGalleryDto(numImagesInGallery);
-
-            return CreatedAtAction(nameof(GetGallery), new { id = dtoToReturn.Id }, dtoToReturn);
+            if (_galleryRepository.Save() == false)
+            {
+                var problemDetails = new ProblemDetails
+                {
+                    Title = "An unexpected error occurred.",
+                    Status = StatusCodes.Status500InternalServerError,
+                    Detail = "Unable to update the gallery at this moment due to an error, the error has been logged and sent to the developers for fixing.",
+                    Instance = HttpContext.TraceIdentifier,
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, problemDetails);
+            }
+            else
+            {
+                int numImagesInGallery = _imageRepository.GetNumberOfImagesInGallery(galleryEntity.Id);
+                GalleryDTO dtoToReturn = galleryEntity.ToGalleryDto(numImagesInGallery);
+                return CreatedAtAction(nameof(GetGallery), new { id = dtoToReturn.Id }, dtoToReturn);
+            }
         }
 
         [HttpDelete("{id}")]
@@ -133,9 +157,22 @@ namespace Gallery.API.Controllers
             }
 
             await _galleryRepository.DeleteGallery(item.Id);
-            _galleryRepository.Save();
 
-            return NoContent();
+            if (_galleryRepository.Save() == false)
+            {
+                var problemDetails = new ProblemDetails
+                {
+                    Title = "An unexpected error occurred.",
+                    Status = StatusCodes.Status500InternalServerError,
+                    Detail = "Unable to delete the gallery at this moment due to an error, the error has been logged and sent to the developers for fixing.",
+                    Instance = HttpContext.TraceIdentifier,
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, problemDetails);
+            }
+            else
+            {
+                return NoContent();
+            }
         }
 
 
@@ -239,28 +276,41 @@ namespace Gallery.API.Controllers
             entity.fk_gallery = gallery.Id;
 
             ImageEntity addedEntity = await _imageRepository.PostImage(entity);
-            _imageRepository.Save();
 
-            var uploads = Path.Combine(_environment.ContentRootPath, "uploads");
-            IFormFile formFile = dto.formFile;
-            if (formFile.Length > 0)
+            if (_imageRepository.Save() == false)
             {
-                string extension = Path.GetExtension(formFile.FileName);
-                string filename = addedEntity.Id.ToString();
-
-                byte[] formfileBytes;
-                using (Stream stream = formFile.OpenReadStream())
+                var problemDetails = new ProblemDetails
                 {
-                    formfileBytes = new byte[stream.Length];
-                    await stream.ReadAsync(formfileBytes, 0, (int)stream.Length);
+                    Title = "An unexpected error occurred.",
+                    Status = StatusCodes.Status500InternalServerError,
+                    Detail = "Unable to create the image at this moment due to an error, the error has been logged and sent to the developers for fixing.",
+                    Instance = HttpContext.TraceIdentifier,
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, problemDetails);
+            }
+            else
+            {
+                var uploads = Path.Combine(_environment.ContentRootPath, "uploads");
+                IFormFile formFile = dto.formFile;
+                if (formFile.Length > 0)
+                {
+                    string extension = Path.GetExtension(formFile.FileName);
+                    string filename = addedEntity.Id.ToString();
+
+                    byte[] formfileBytes;
+                    using (Stream stream = formFile.OpenReadStream())
+                    {
+                        formfileBytes = new byte[stream.Length];
+                        await stream.ReadAsync(formfileBytes, 0, (int)stream.Length);
+                    }
+
+                    await _fileSystemRepository.SaveFile(uploads, formfileBytes, filename, extension);
                 }
 
-                await _fileSystemRepository.SaveFile(uploads, formfileBytes, filename, extension);
+                ImageDTO dtoToReturn = addedEntity.ToImageDto();
+
+                return CreatedAtAction(nameof(GetImage), new { galleryId = gallery.Id, imageId = dtoToReturn.Id }, dtoToReturn);
             }
-
-            ImageDTO dtoToReturn = addedEntity.ToImageDto();
-
-            return CreatedAtAction(nameof(GetImage), new { galleryId = gallery.Id, imageId = dtoToReturn.Id }, dtoToReturn);
         }
 
         [HttpDelete("{galleryId}/images/{imageId}")]
@@ -296,9 +346,22 @@ namespace Gallery.API.Controllers
 
             // Delete from DB
             await _imageRepository.DeleteImage(imageEntity.Id);
-            _imageRepository.Save();
 
-            return NoContent();
+            if (_imageRepository.Save() == false)
+            {
+                var problemDetails = new ProblemDetails
+                {
+                    Title = "An unexpected error occurred.",
+                    Status = StatusCodes.Status500InternalServerError,
+                    Detail = "Unable to delete the image at this moment due to an error, the error has been logged and sent to the developers for fixing.",
+                    Instance = HttpContext.TraceIdentifier,
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, problemDetails);
+            }
+            else
+            {
+                return NoContent();
+            }
         }
     }
 }
