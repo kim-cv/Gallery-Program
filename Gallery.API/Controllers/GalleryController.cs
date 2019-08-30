@@ -26,9 +26,11 @@ namespace Gallery.API.Controllers
         private readonly IHostingEnvironment _environment;
         private readonly IFileSystemRepository _fileSystemRepository;
         private readonly IImageService _imageService;
+        private readonly string _uploadsFolder;
 
         public GalleryController(IHostingEnvironment environment, IGalleryRepository galleryRepository, IImageRepository imageRepository, IFileSystemRepository fileSystemRepository, IImageService imageService)
         {
+            _uploadsFolder = Path.Combine(_environment.ContentRootPath, "uploads");
             _galleryRepository = galleryRepository;
             _imageRepository = imageRepository;
             _environment = environment;
@@ -243,8 +245,7 @@ namespace Gallery.API.Controllers
                 return Unauthorized();
             }
 
-            var uploads = Path.Combine(_environment.ContentRootPath, "uploads");
-            byte[] imgData = await _fileSystemRepository.RetrieveFile(uploads, image.Id.ToString(), image.Extension);
+            byte[] imgData = await _fileSystemRepository.RetrieveFile(_uploadsFolder, image.Id.ToString(), image.Extension);
 
             if (thumb == true)
             {
@@ -290,7 +291,6 @@ namespace Gallery.API.Controllers
             }
             else
             {
-                var uploads = Path.Combine(_environment.ContentRootPath, "uploads");
                 IFormFile formFile = dto.formFile;
                 if (formFile.Length > 0)
                 {
@@ -304,7 +304,7 @@ namespace Gallery.API.Controllers
                         await stream.ReadAsync(formfileBytes, 0, (int)stream.Length);
                     }
 
-                    await _fileSystemRepository.SaveFile(uploads, formfileBytes, filename, extension);
+                    await _fileSystemRepository.SaveFile(_uploadsFolder, formfileBytes, filename, extension);
                 }
 
                 ImageDTO dtoToReturn = addedEntity.ToImageDto();
@@ -341,8 +341,7 @@ namespace Gallery.API.Controllers
             }
 
             // Delete from filesystem
-            var uploads = Path.Combine(_environment.ContentRootPath, "uploads");
-            _fileSystemRepository.DeleteFile(uploads, imageEntity.Id.ToString(), imageEntity.Extension);
+            _fileSystemRepository.DeleteFile(_uploadsFolder, imageEntity.Id.ToString(), imageEntity.Extension);
 
             // Delete from DB
             await _imageRepository.DeleteImage(imageEntity.Id);
