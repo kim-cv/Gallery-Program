@@ -84,11 +84,7 @@ namespace Gallery.API
             services.AddScoped<IFileSystemRepository, FileSystemRepository>();
 
             // Content Folder Configuration
-            services.Configure<ContentFolders>(Configuration.GetSection("ContentFolders"));
-            ContentFolders contentFolders = Configuration.GetSection("ContentFolders").Get<ContentFolders>();
-
-            // Add ContentService
-            services.AddSingleton<IContentService>(x => new ContentService(contentFolders));
+            services.Configure<ContentFolders>(options => Configuration.GetSection("ContentFolders").Bind(options));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -103,10 +99,6 @@ namespace Gallery.API
             app.UseAuthentication();
             app.UseHttpsRedirection();
             app.UseMvc();
-
-            // Configure ContentService
-            IContentService contentService = app.ApplicationServices.GetService<IContentService>();
-            contentService.SetHostingEnvironment(env);
         }
     }
 }

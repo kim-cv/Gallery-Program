@@ -1,13 +1,26 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Options;
 using Gallery.API.Interfaces;
+using Gallery.API.Models;
 
 namespace Gallery.API.Repositories
 {
     public class FileSystemRepository : IFileSystemRepository
     {
-        public async Task<byte[]> RetrieveFile(string path, string name, string extension)
+        private IHostingEnvironment _environment;
+        private IOptions<ContentFolders> _options;
+
+        public FileSystemRepository(IHostingEnvironment environment, IOptions<ContentFolders> options)
         {
+            _environment = environment;
+            _options = options;
+        }
+
+        public async Task<byte[]> RetrieveFile(string name, string extension)
+        {
+            string path = ConstructPath();
             string filename = Path.ChangeExtension(name, extension);
             string pathWithFilename = Path.Combine(path, filename);
 
@@ -21,8 +34,9 @@ namespace Gallery.API.Repositories
             return data;
         }
 
-        public async Task SaveFile(string path, byte[] data, string name, string extension)
+        public async Task SaveFile(byte[] data, string name, string extension)
         {
+            string path = ConstructPath();
             string filename = Path.ChangeExtension(name, extension);
             string pathWithFilename = Path.Combine(path, filename);
 
@@ -32,8 +46,9 @@ namespace Gallery.API.Repositories
             }
         }
 
-        public void DeleteFile(string path, string name, string extension)
+        public void DeleteFile(string name, string extension)
         {
+            string path = ConstructPath();
             string filename = Path.ChangeExtension(name, extension);
             string pathWithFilename = Path.Combine(path, filename);
 
@@ -45,6 +60,11 @@ namespace Gallery.API.Repositories
             }
 
             File.Delete(pathWithFilename);
+        }
+
+        private string ConstructPath()
+        {
+            return Path.Combine(_environment.ContentRootPath, _options.Value.UploadFolderImages);
         }
     }
 }

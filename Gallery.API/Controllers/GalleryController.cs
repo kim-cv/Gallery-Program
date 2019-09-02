@@ -22,15 +22,13 @@ namespace Gallery.API.Controllers
     {
         private readonly IGalleryRepository _galleryRepository;
         private readonly IImageRepository _imageRepository;
-        private readonly IContentService _contentService;
         private readonly IFileSystemRepository _fileSystemRepository;
         private readonly IImageService _imageService;
 
-        public GalleryController(IContentService contentService, IGalleryRepository galleryRepository, IImageRepository imageRepository, IFileSystemRepository fileSystemRepository, IImageService imageService)
+        public GalleryController(IGalleryRepository galleryRepository, IImageRepository imageRepository, IFileSystemRepository fileSystemRepository, IImageService imageService)
         {
             _galleryRepository = galleryRepository;
             _imageRepository = imageRepository;
-            _contentService = contentService;
             _fileSystemRepository = fileSystemRepository;
             _imageService = imageService;
         }
@@ -242,7 +240,7 @@ namespace Gallery.API.Controllers
                 return Unauthorized();
             }
 
-            byte[] imgData = await _fileSystemRepository.RetrieveFile(_contentService.ImagesUploadFolderPath(), image.Id.ToString(), image.Extension);
+            byte[] imgData = await _fileSystemRepository.RetrieveFile(image.Id.ToString(), image.Extension);
 
             if (thumb == true)
             {
@@ -301,7 +299,7 @@ namespace Gallery.API.Controllers
                         await stream.ReadAsync(formfileBytes, 0, (int)stream.Length);
                     }
 
-                    await _fileSystemRepository.SaveFile(_contentService.ImagesUploadFolderPath(), formfileBytes, filename, extension);
+                    await _fileSystemRepository.SaveFile(formfileBytes, filename, extension);
                 }
 
                 ImageDTO dtoToReturn = addedEntity.ToImageDto();
@@ -338,7 +336,7 @@ namespace Gallery.API.Controllers
             }
 
             // Delete from filesystem
-            _fileSystemRepository.DeleteFile(_contentService.ImagesUploadFolderPath(), imageEntity.Id.ToString(), imageEntity.Extension);
+            _fileSystemRepository.DeleteFile(imageEntity.Id.ToString(), imageEntity.Extension);
 
             // Delete from DB
             await _imageRepository.DeleteImage(imageEntity.Id);
