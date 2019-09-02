@@ -31,8 +31,9 @@ namespace Gallery.API
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             // Logging
-            services.AddLogging(loggingBuilder => {
-                loggingBuilder.AddConsole();
+            services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.AddConsole(options => options.IncludeScopes = true);
                 loggingBuilder.AddDebug();
             });
 
@@ -40,7 +41,7 @@ namespace Gallery.API
             services.Configure<TokenData>(Configuration.GetSection("tokenManagement"));
             TokenData token = Configuration.GetSection("tokenManagement").Get<TokenData>();
             //byte[] secret = Encoding.ASCII.GetBytes(token.Secret);
-
+            
             // Configure authentication schema
             services.AddAuthentication(x =>
             {
@@ -81,6 +82,13 @@ namespace Gallery.API
 
             // File System
             services.AddScoped<IFileSystemRepository, FileSystemRepository>();
+
+            // Content Folder Configuration
+            services.Configure<ContentFolders>(Configuration.GetSection("ContentFolders"));
+            ContentFolders contentFolders = Configuration.GetSection("ContentFolders").Get<ContentFolders>();
+
+            // Add ContentService
+            services.AddSingleton<IContentService>(x => new ContentService(contentFolders));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -95,6 +103,10 @@ namespace Gallery.API
             app.UseAuthentication();
             app.UseHttpsRedirection();
             app.UseMvc();
+
+            // Configure ContentService
+            IContentService contentService = app.ApplicationServices.GetService<IContentService>();
+            contentService.SetHostingEnvironment(env);
         }
     }
 }

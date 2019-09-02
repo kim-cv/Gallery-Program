@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Hosting;
 using Gallery.API.Entities;
 using Gallery.API.Interfaces;
 using Gallery.API.Models;
@@ -23,17 +22,15 @@ namespace Gallery.API.Controllers
     {
         private readonly IGalleryRepository _galleryRepository;
         private readonly IImageRepository _imageRepository;
-        private readonly IHostingEnvironment _environment;
+        private readonly IContentService _contentService;
         private readonly IFileSystemRepository _fileSystemRepository;
         private readonly IImageService _imageService;
-        private readonly string _uploadsFolder;
 
-        public GalleryController(IHostingEnvironment environment, IGalleryRepository galleryRepository, IImageRepository imageRepository, IFileSystemRepository fileSystemRepository, IImageService imageService)
+        public GalleryController(IContentService contentService, IGalleryRepository galleryRepository, IImageRepository imageRepository, IFileSystemRepository fileSystemRepository, IImageService imageService)
         {
-            _uploadsFolder = Path.Combine(_environment.ContentRootPath, "uploads");
             _galleryRepository = galleryRepository;
             _imageRepository = imageRepository;
-            _environment = environment;
+            _contentService = contentService;
             _fileSystemRepository = fileSystemRepository;
             _imageService = imageService;
         }
@@ -245,7 +242,7 @@ namespace Gallery.API.Controllers
                 return Unauthorized();
             }
 
-            byte[] imgData = await _fileSystemRepository.RetrieveFile(_uploadsFolder, image.Id.ToString(), image.Extension);
+            byte[] imgData = await _fileSystemRepository.RetrieveFile(_contentService.ImagesUploadFolderPath(), image.Id.ToString(), image.Extension);
 
             if (thumb == true)
             {
@@ -304,7 +301,7 @@ namespace Gallery.API.Controllers
                         await stream.ReadAsync(formfileBytes, 0, (int)stream.Length);
                     }
 
-                    await _fileSystemRepository.SaveFile(_uploadsFolder, formfileBytes, filename, extension);
+                    await _fileSystemRepository.SaveFile(_contentService.ImagesUploadFolderPath(), formfileBytes, filename, extension);
                 }
 
                 ImageDTO dtoToReturn = addedEntity.ToImageDto();
@@ -341,7 +338,7 @@ namespace Gallery.API.Controllers
             }
 
             // Delete from filesystem
-            _fileSystemRepository.DeleteFile(_uploadsFolder, imageEntity.Id.ToString(), imageEntity.Extension);
+            _fileSystemRepository.DeleteFile(_contentService.ImagesUploadFolderPath(), imageEntity.Id.ToString(), imageEntity.Extension);
 
             // Delete from DB
             await _imageRepository.DeleteImage(imageEntity.Id);
