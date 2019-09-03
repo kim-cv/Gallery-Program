@@ -1,14 +1,11 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Gallery.API.Entities;
 using Gallery.API.Interfaces;
 using Gallery.API.Models;
 using Gallery.API.Helpers;
@@ -21,13 +18,11 @@ namespace Gallery.API.Controllers
     public class GalleryController : ControllerBase
     {
         private readonly IGalleryService _galleryService;
-        private readonly IFileSystemRepository _fileSystemRepository;
         private readonly IImageService _imageService;
 
-        public GalleryController(IGalleryService galleryService, IFileSystemRepository fileSystemRepository, IImageService imageService)
+        public GalleryController(IGalleryService galleryService, IImageService imageService)
         {
             _galleryService = galleryService;
-            _fileSystemRepository = fileSystemRepository;
             _imageService = imageService;
         }
 
