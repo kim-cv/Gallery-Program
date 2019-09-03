@@ -20,14 +20,14 @@ namespace Gallery.API.Controllers
     [Route("api/galleries")]
     public class GalleryController : ControllerBase
     {
-        private readonly IGalleryRepository _galleryRepository;
+        private readonly IGalleryService _galleryService;
         private readonly IImageRepository _imageRepository;
         private readonly IFileSystemRepository _fileSystemRepository;
         private readonly IImageService _imageService;
 
-        public GalleryController(IGalleryRepository galleryRepository, IImageRepository imageRepository, IFileSystemRepository fileSystemRepository, IImageService imageService)
+        public GalleryController(IGalleryService galleryService, IImageRepository imageRepository, IFileSystemRepository fileSystemRepository, IImageService imageService)
         {
-            _galleryRepository = galleryRepository;
+            _galleryService = galleryService;
             _imageRepository = imageRepository;
             _fileSystemRepository = fileSystemRepository;
             _imageService = imageService;
@@ -38,49 +38,43 @@ namespace Gallery.API.Controllers
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
 
-            var items = await _galleryRepository.GetGalleriesFromOwner(userId, pagination);
+            IEnumerable<GalleryDTO> galleryDTOs = await _galleryService.GetGalleriesByUserAsync(userId, pagination);
 
-            IEnumerable<GalleryDTO> dtos = items.Select(tmpEntity =>
-            {
-                int numImagesInGallery = _imageRepository.GetNumberOfImagesInGallery(tmpEntity.Id);
-                return tmpEntity.ToGalleryDto(numImagesInGallery);
-            });
-
-            return Ok(dtos);
+            return Ok(galleryDTOs);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<GalleryDTO>> GetGallery(Guid id)
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
-            GalleryEntity item = await _galleryRepository.GetGallery(id);
 
-            if (item == null)
+            if (await _galleryService.DoesGalleryExistAsync(id) == false)
             {
                 return NotFound();
             }
 
-            if (userId != item.fk_owner)
+            if (await _galleryService.IsGalleryOwnedByUserAsync(id, userId) == false)
             {
                 return Unauthorized();
             }
 
-            int numImagesInGallery = _imageRepository.GetNumberOfImagesInGallery(item.Id);
-            GalleryDTO dto = item.ToGalleryDto(numImagesInGallery);
+            GalleryDTO dto = await _galleryService.GetGalleryAsync(id);
 
             return Ok(dto);
         }
 
         [HttpPost]
-        public async Task<ActionResult<GalleryDTO>> CreateGallery(GalleryCreationDTO dto)
+        public async Task<ActionResult<GalleryDTO>> CreateGallery(GalleryCreationDTO creationDto)
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
 
-            GalleryEntity entity = dto.ToGalleryEntity(userId);
+            try
+            {
+                GalleryDTO dto = await _galleryService.CreateGalleryAsync(userId, creationDto);
 
-            GalleryEntity addedEntity = await _galleryRepository.PostGallery(entity);
-
-            if (_galleryRepository.Save() == false)
+                return CreatedAtAction(nameof(GetGallery), new { id = dto.Id }, dto);
+            }
+            catch (Exception ex)
             {
                 var problemDetails = new ProblemDetails
                 {
@@ -91,34 +85,30 @@ namespace Gallery.API.Controllers
                 };
                 return StatusCode(StatusCodes.Status500InternalServerError, problemDetails);
             }
-            else
-            {
-                GalleryDTO dtoToReturn = addedEntity.ToGalleryDto(0);
-                return CreatedAtAction(nameof(GetGallery), new { id = dtoToReturn.Id }, dtoToReturn);
-            }
         }
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult<GalleryDTO>> PutGallery(Guid id, GalleryPutDTO galleryPutDTO)
+        [HttpPut("{galleryId}")]
+        public async Task<ActionResult<GalleryDTO>> PutGallery(Guid galleryId, GalleryPutDTO galleryPutDTO)
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
-            GalleryEntity galleryEntity = await _galleryRepository.GetGallery(id);
 
-            if (galleryEntity == null)
+            if (await _galleryService.DoesGalleryExistAsync(galleryId) == false)
             {
                 return NotFound();
             }
 
-            if (userId != galleryEntity.fk_owner)
+            if (await _galleryService.IsGalleryOwnedByUserAsync(galleryId, userId) == false)
             {
                 return Unauthorized();
             }
 
-            galleryPutDTO.ToGalleryEntity(ref galleryEntity);
+            try
+            {
+                GalleryDTO galleryDto = await _galleryService.PutGalleryAsync(userId, galleryId, galleryPutDTO);
 
-            await _galleryRepository.PutGallery(galleryEntity);
-
-            if (_galleryRepository.Save() == false)
+                return CreatedAtAction(nameof(GetGallery), new { id = galleryDto.Id }, galleryDto);
+            }
+            catch (Exception ex)
             {
                 var problemDetails = new ProblemDetails
                 {
@@ -129,33 +119,29 @@ namespace Gallery.API.Controllers
                 };
                 return StatusCode(StatusCodes.Status500InternalServerError, problemDetails);
             }
-            else
-            {
-                int numImagesInGallery = _imageRepository.GetNumberOfImagesInGallery(galleryEntity.Id);
-                GalleryDTO dtoToReturn = galleryEntity.ToGalleryDto(numImagesInGallery);
-                return CreatedAtAction(nameof(GetGallery), new { id = dtoToReturn.Id }, dtoToReturn);
-            }
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteGallery(Guid id)
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
-            GalleryEntity item = await _galleryRepository.GetGallery(id);
 
-            if (item == null)
+            if (await _galleryService.DoesGalleryExistAsync(id) == false)
             {
                 return NotFound();
             }
 
-            if (userId != item.fk_owner)
+            if (await _galleryService.IsGalleryOwnedByUserAsync(id, userId) == false)
             {
                 return Unauthorized();
             }
 
-            await _galleryRepository.DeleteGallery(item.Id);
-
-            if (_galleryRepository.Save() == false)
+            try
+            {
+                await _galleryService.DeleteGalleryAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
             {
                 var problemDetails = new ProblemDetails
                 {
@@ -166,10 +152,6 @@ namespace Gallery.API.Controllers
                 };
                 return StatusCode(StatusCodes.Status500InternalServerError, problemDetails);
             }
-            else
-            {
-                return NoContent();
-            }
         }
 
 
@@ -178,14 +160,12 @@ namespace Gallery.API.Controllers
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
 
-            var gallery = await _galleryRepository.GetGallery(galleryId);
-
-            if (gallery == null)
+            if (await _galleryService.DoesGalleryExistAsync(galleryId) == false)
             {
                 return NotFound();
             }
 
-            if (gallery.fk_owner != userId)
+            if (await _galleryService.IsGalleryOwnedByUserAsync(galleryId, userId) == false)
             {
                 return Unauthorized();
             }
@@ -222,20 +202,24 @@ namespace Gallery.API.Controllers
             }
 
             Guid userId = new Guid(HttpContext.User.Identity.Name);
-            GalleryEntity gallery = await _galleryRepository.GetGallery(galleryId);
             ImageEntity image = await _imageRepository.GetImage(imageId);
 
-            if (gallery == null || image == null)
+            if (await _galleryService.DoesGalleryExistAsync(galleryId) == false)
             {
                 return NotFound();
             }
 
-            if (gallery.Id != image.fk_gallery)
+            if (image == null)
             {
                 return NotFound();
             }
 
-            if (userId != gallery.fk_owner)
+            if (galleryId != image.fk_gallery)
+            {
+                return NotFound();
+            }
+
+            if (await _galleryService.IsGalleryOwnedByUserAsync(galleryId, userId) == false)
             {
                 return Unauthorized();
             }
@@ -256,20 +240,18 @@ namespace Gallery.API.Controllers
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
 
-            GalleryEntity gallery = await _galleryRepository.GetGallery(galleryId);
-
-            if (gallery == null)
+            if (await _galleryService.DoesGalleryExistAsync(galleryId) == false)
             {
                 return NotFound();
             }
 
-            if (userId != gallery.fk_owner)
+            if (await _galleryService.IsGalleryOwnedByUserAsync(galleryId, userId) == false)
             {
                 return Unauthorized();
             }
 
             ImageEntity entity = dto.ToImageEntity();
-            entity.fk_gallery = gallery.Id;
+            entity.fk_gallery = galleryId;
 
             ImageEntity addedEntity = await _imageRepository.PostImage(entity);
 
@@ -304,7 +286,7 @@ namespace Gallery.API.Controllers
 
                 ImageDTO dtoToReturn = addedEntity.ToImageDto();
 
-                return CreatedAtAction(nameof(GetImage), new { galleryId = gallery.Id, imageId = dtoToReturn.Id }, dtoToReturn);
+                return CreatedAtAction(nameof(GetImage), new { galleryId = galleryId, imageId = dtoToReturn.Id }, dtoToReturn);
             }
         }
 
@@ -312,10 +294,10 @@ namespace Gallery.API.Controllers
         public async Task<ActionResult> DeleteImage(Guid galleryId, Guid imageId)
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
-            GalleryEntity galleryEntity = await _galleryRepository.GetGallery(galleryId);
             ImageEntity imageEntity = await _imageRepository.GetImage(imageId);
 
-            if (galleryEntity == null)
+
+            if (await _galleryService.DoesGalleryExistAsync(galleryId) == false)
             {
                 return NotFound();
             }
@@ -325,12 +307,12 @@ namespace Gallery.API.Controllers
                 return NotFound();
             }
 
-            if (userId != galleryEntity.fk_owner)
+            if (await _galleryService.IsGalleryOwnedByUserAsync(galleryId, userId) == false)
             {
                 return Unauthorized();
             }
 
-            if (imageEntity.fk_gallery != galleryEntity.Id)
+            if (imageEntity.fk_gallery != galleryId)
             {
                 return NotFound();
             }
