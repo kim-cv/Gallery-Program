@@ -21,14 +21,12 @@ namespace Gallery.API.Controllers
     public class GalleryController : ControllerBase
     {
         private readonly IGalleryService _galleryService;
-        private readonly IImageRepository _imageRepository;
         private readonly IFileSystemRepository _fileSystemRepository;
         private readonly IImageService _imageService;
 
-        public GalleryController(IGalleryService galleryService, IImageRepository imageRepository, IFileSystemRepository fileSystemRepository, IImageService imageService)
+        public GalleryController(IGalleryService galleryService, IFileSystemRepository fileSystemRepository, IImageService imageService)
         {
             _galleryService = galleryService;
-            _imageRepository = imageRepository;
             _fileSystemRepository = fileSystemRepository;
             _imageService = imageService;
         }
@@ -156,8 +154,28 @@ namespace Gallery.API.Controllers
 
 
         [HttpGet("{galleryId}/images")]
-        public async Task<ActionResult<IEnumerable<ImageDTO>>> GetImages(Guid galleryId, [FromQuery] Pagination pagination, [FromQuery] bool thumb = false)
+        public async Task<ActionResult<IEnumerable<byte[]>>> GetImages(
+            Guid galleryId,
+            [FromQuery] Pagination pagination,
+            [FromQuery, BindRequired] bool thumb,
+            [FromQuery, Range(1, 4096)] int? thumbWidth,
+            [FromQuery, Range(1, 2160)] int? thumbHeight,
+            [FromQuery] bool? keepAspectRatio)
         {
+            // TODO: Very bad conditional validation, when fix this maybe take a look at fluent validation.
+            if (thumb)
+            {
+                IList<string> conditionalValidationErrors = new List<string>();
+                if (thumbWidth == null) conditionalValidationErrors.Add("You set 'thumb' to true, please also provide 'thumbWidth'");
+                if (thumbHeight == null) conditionalValidationErrors.Add("You set 'thumb' to true, please also provide 'thumbHeight'");
+                if (keepAspectRatio == null) conditionalValidationErrors.Add("You set 'thumb' to true, please also provide 'keepAspectRatio'");
+
+                if (conditionalValidationErrors.Count > 0)
+                {
+                    return BadRequest(conditionalValidationErrors);
+                }
+            }
+
             Guid userId = new Guid(HttpContext.User.Identity.Name);
 
             if (await _galleryService.DoesGalleryExistAsync(galleryId) == false)
@@ -170,11 +188,9 @@ namespace Gallery.API.Controllers
                 return Unauthorized();
             }
 
-            var items = await _imageRepository.GetImages(galleryId, pagination);
+            IEnumerable<byte[]> images = await _imageService.GetImagesInGalleryAsync(galleryId, pagination, thumb, thumbWidth, thumbHeight, keepAspectRatio);
 
-            IEnumerable<ImageDTO> dtos = items.Select(tmpEntity => tmpEntity.ToImageDto());
-
-            return Ok(dtos);
+            return Ok(images);
         }
 
         [HttpGet("{galleryId}/images/{imageId}")]
@@ -202,19 +218,18 @@ namespace Gallery.API.Controllers
             }
 
             Guid userId = new Guid(HttpContext.User.Identity.Name);
-            ImageEntity image = await _imageRepository.GetImage(imageId);
 
             if (await _galleryService.DoesGalleryExistAsync(galleryId) == false)
             {
                 return NotFound();
             }
 
-            if (image == null)
+            if (await _imageService.DoesImageExistAsync(imageId) == false)
             {
                 return NotFound();
             }
 
-            if (galleryId != image.fk_gallery)
+            if (await _imageService.IsImageInsideGalleryAsync(imageId, galleryId) == false)
             {
                 return NotFound();
             }
@@ -224,14 +239,9 @@ namespace Gallery.API.Controllers
                 return Unauthorized();
             }
 
-            byte[] imgData = await _fileSystemRepository.RetrieveFile(image.Id.ToString(), image.Extension);
+            byte[] image = await _imageService.GetImageAsync(imageId, thumb, thumbWidth, thumbHeight, keepAspectRatio);
 
-            if (thumb == true)
-            {
-                imgData = _imageService.GenerateThumb(imgData, (int)thumbWidth, (int)thumbHeight, (bool)keepAspectRatio);
-            }
-
-            return File(imgData, "image/jpeg");
+            return File(image, "image/jpeg");
         }
 
         [Consumes("multipart/form-data")]
@@ -250,12 +260,13 @@ namespace Gallery.API.Controllers
                 return Unauthorized();
             }
 
-            ImageEntity entity = dto.ToImageEntity();
-            entity.fk_gallery = galleryId;
+            try
+            {
+                ImageDTO imageDTO = await _imageService.CreateImageAsync(userId, galleryId, dto);
 
-            ImageEntity addedEntity = await _imageRepository.PostImage(entity);
-
-            if (_imageRepository.Save() == false)
+                return CreatedAtAction(nameof(GetImage), new { galleryId = galleryId, imageId = imageDTO.Id }, imageDTO);
+            }
+            catch (Exception ex)
             {
                 var problemDetails = new ProblemDetails
                 {
@@ -266,43 +277,19 @@ namespace Gallery.API.Controllers
                 };
                 return StatusCode(StatusCodes.Status500InternalServerError, problemDetails);
             }
-            else
-            {
-                IFormFile formFile = dto.formFile;
-                if (formFile.Length > 0)
-                {
-                    string extension = Path.GetExtension(formFile.FileName);
-                    string filename = addedEntity.Id.ToString();
-
-                    byte[] formfileBytes;
-                    using (Stream stream = formFile.OpenReadStream())
-                    {
-                        formfileBytes = new byte[stream.Length];
-                        await stream.ReadAsync(formfileBytes, 0, (int)stream.Length);
-                    }
-
-                    await _fileSystemRepository.SaveFile(formfileBytes, filename, extension);
-                }
-
-                ImageDTO dtoToReturn = addedEntity.ToImageDto();
-
-                return CreatedAtAction(nameof(GetImage), new { galleryId = galleryId, imageId = dtoToReturn.Id }, dtoToReturn);
-            }
         }
 
         [HttpDelete("{galleryId}/images/{imageId}")]
         public async Task<ActionResult> DeleteImage(Guid galleryId, Guid imageId)
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
-            ImageEntity imageEntity = await _imageRepository.GetImage(imageId);
-
 
             if (await _galleryService.DoesGalleryExistAsync(galleryId) == false)
             {
                 return NotFound();
             }
 
-            if (imageEntity == null)
+            if (await _imageService.DoesImageExistAsync(imageId) == false)
             {
                 return NotFound();
             }
@@ -312,18 +299,17 @@ namespace Gallery.API.Controllers
                 return Unauthorized();
             }
 
-            if (imageEntity.fk_gallery != galleryId)
+            if (await _imageService.IsImageInsideGalleryAsync(imageId, galleryId) == false)
             {
                 return NotFound();
             }
 
-            // Delete from filesystem
-            _fileSystemRepository.DeleteFile(imageEntity.Id.ToString(), imageEntity.Extension);
-
-            // Delete from DB
-            await _imageRepository.DeleteImage(imageEntity.Id);
-
-            if (_imageRepository.Save() == false)
+            try
+            {
+                await _imageService.DeleteImageAsync(galleryId, imageId);
+                return NoContent();
+            }
+            catch (Exception ex)
             {
                 var problemDetails = new ProblemDetails
                 {
@@ -333,10 +319,6 @@ namespace Gallery.API.Controllers
                     Instance = HttpContext.TraceIdentifier,
                 };
                 return StatusCode(StatusCodes.Status500InternalServerError, problemDetails);
-            }
-            else
-            {
-                return NoContent();
             }
         }
     }
