@@ -1,14 +1,124 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.PixelFormats;
+using Gallery.API.Models;
+using Gallery.API.Entities;
 using Gallery.API.Interfaces;
+using Gallery.API.Helpers;
 
 namespace Gallery.API.Services
 {
     public class ImageService : IImageService
     {
+        private readonly IImageRepository _imageRepository;
+        private readonly IFileSystemRepository _fileSystemRepository;
+
+        public ImageService(IImageRepository imageRepository, IFileSystemRepository fileSystemRepository)
+        {
+            _imageRepository = imageRepository;
+            _fileSystemRepository = fileSystemRepository;
+        }
+
+        public async Task<bool> DoesImageExistAsync(Guid imageId)
+        {
+            ImageEntity image = await _imageRepository.GetImage(imageId);
+            return (image != null);
+        }
+
+        public async Task<bool> IsImageInsideGalleryAsync(Guid imageId, Guid galleryId)
+        {
+            ImageEntity image = await _imageRepository.GetImage(imageId);
+            return (image.fk_gallery == galleryId);
+        }
+
+        public async Task<ImageDTO> CreateImageAsync(Guid userId, Guid galleryId, ImageCreationDTO dto)
+        {
+            ImageEntity entity = dto.ToImageEntity();
+            entity.fk_gallery = galleryId;
+
+            ImageEntity addedEntity = await _imageRepository.PostImage(entity);
+
+            if (_imageRepository.Save() == false)
+            {
+                throw new Exception();
+            }
+
+            IFormFile formFile = dto.formFile;
+            if (formFile.Length > 0)
+            {
+                string extension = Path.GetExtension(formFile.FileName);
+                string filename = addedEntity.Id.ToString();
+
+                byte[] formfileBytes;
+                using (Stream stream = formFile.OpenReadStream())
+                {
+                    formfileBytes = new byte[stream.Length];
+                    await stream.ReadAsync(formfileBytes, 0, (int)stream.Length);
+                }
+
+                await _fileSystemRepository.SaveFile(formfileBytes, filename, extension);
+            }
+
+            return addedEntity.ToImageDto();
+        }
+
+        public async Task<byte[]> GetImageAsync(Guid imageId, bool thumb, int? thumbWidth, int? thumbHeight, bool? keepAspectRatio)
+        {
+            ImageEntity image = await _imageRepository.GetImage(imageId);
+
+            byte[] imgData = await _fileSystemRepository.RetrieveFile(image.Id.ToString(), image.Extension);
+
+            if (thumb == true)
+            {
+                imgData = GenerateThumb(imgData, (int)thumbWidth, (int)thumbHeight, (bool)keepAspectRatio);
+            }
+
+            return imgData;
+        }
+
+        public async Task<IEnumerable<byte[]>> GetImagesInGalleryAsync(Guid galleryId, Pagination pagination, bool thumb, int? thumbWidth, int? thumbHeight, bool? keepAspectRatio)
+        {
+            IEnumerable<ImageEntity> imageEntities = await _imageRepository.GetImages(galleryId, pagination);
+
+            IEnumerable<Task<byte[]>> tasks = imageEntities.Select(async tmpEntity =>
+            {
+                byte[] imgData = await _fileSystemRepository.RetrieveFile(tmpEntity.Id.ToString(), tmpEntity.Extension);
+
+                if (thumb == true)
+                {
+                    imgData = GenerateThumb(imgData, (int)thumbWidth, (int)thumbHeight, (bool)keepAspectRatio);
+                }
+
+                return imgData;
+            });
+
+            IEnumerable<byte[]> imgDatas = await Task.WhenAll(tasks);
+
+            return imgDatas;
+        }
+
+        public async Task DeleteImageAsync(Guid galleryId, Guid imageId)
+        {
+            ImageEntity imageEntity = await _imageRepository.GetImage(imageId);
+
+            // Delete from filesystem
+            _fileSystemRepository.DeleteFile(imageEntity.Id.ToString(), imageEntity.Extension);
+
+            // Delete from DB
+            await _imageRepository.DeleteImage(imageId);
+
+            if (_imageRepository.Save() == false)
+            {
+                throw new Exception();
+            }
+        }
+
         public byte[] GenerateThumb(byte[] imageData, int maxWidth, int maxHeight, bool keepAspectRatio)
         {
             using (Image<Rgba32> image = Image.Load(imageData))
