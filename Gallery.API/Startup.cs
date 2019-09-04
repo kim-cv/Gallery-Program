@@ -72,6 +72,7 @@ namespace Gallery.API
 
             // Users
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserService, UserService>();
 
             // Galleries
             services.AddScoped<IGalleryService, GalleryService>();
