@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-using Gallery.API.Entities;
 using Gallery.API.Interfaces;
 using Gallery.API.Models;
 
@@ -14,13 +13,46 @@ namespace Gallery.API.Controllers
     [Route("api/users")]
     public class UserController : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IAuthenticateService _authService;
+        private readonly IUserService _userService;
 
-        public UserController(IAuthenticateService authService, IUserRepository userRepository)
+        public UserController(IUserService userService)
         {
-            _authService = authService;
-            _userRepository = userRepository;
+            _userService = userService;
+        }
+
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public async Task<IActionResult> RequestTokenAsync(UserLoginDTO userLoginDTO)
+        {
+            if (await _userService.DoesUserExist(userLoginDTO.username) == false)
+            {
+                return NotFound("User not found");
+            }
+
+            try
+            {
+                string jwtToken = await _userService.LoginAsync(userLoginDTO);
+                return Ok(new { token = jwtToken });
+            }
+            catch (Exception ex)
+            {
+                // TODO: Better exception handling
+                if (ex.Message == "Wrong Password")
+                {
+                    return Unauthorized("Wrong Password");
+                }
+                else
+                {
+                    var problemDetails = new ProblemDetails
+                    {
+                        Title = "An unexpected error occurred.",
+                        Status = StatusCodes.Status500InternalServerError,
+                        Detail = "Unable to login at this moment due to an error, the error has been logged and sent to the developers for fixing.",
+                        Instance = HttpContext.TraceIdentifier,
+                    };
+                    return StatusCode(StatusCodes.Status500InternalServerError, problemDetails);
+                }
+            }
         }
 
         [HttpGet("{id}")]
@@ -28,21 +60,20 @@ namespace Gallery.API.Controllers
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
 
+            // Only allow user to request info about itself
             if (id != userId)
             {
                 return Unauthorized();
             }
 
-            UserEntity item = await _userRepository.GetUser(id);
-
-            if (item == null)
+            if (await _userService.DoesUserExist(userId) == false)
             {
                 return NotFound();
             }
 
-            UserDTO dto = item.ToUserDto();
+            UserDTO userDTO = await _userService.GetUserAsync(id);
 
-            return Ok(dto);
+            return Ok(userDTO);
         }
 
         [HttpPost]
@@ -50,22 +81,17 @@ namespace Gallery.API.Controllers
         public async Task<ActionResult<UserDTO>> CreateUser(UserCreationDTO dto)
         {
             // Check username not already used
-            UserEntity existingUser = _userRepository.GetUser(dto.Username);
-            if (existingUser != null)
+            if (await _userService.DoesUserExist(dto.Username) == true)
             {
                 return Conflict();
             }
 
-            UserEntity entity = dto.ToUserEntity();
-
-            byte[] salt = _authService.GenerateSalt();
-            string hashedPassword = _authService.HashPassword(entity.Password, salt);
-            entity.Password = hashedPassword;
-            entity.Salt = salt;
-
-            UserEntity addedEntity = await _userRepository.PostUser(entity);
-
-            if (_userRepository.Save() == false)
+            try
+            {
+                UserDTO userDTO = await _userService.CreateUserAsync(dto);
+                return CreatedAtAction(nameof(GetUser), new { id = userDTO.Id }, userDTO);
+            }
+            catch (Exception ex)
             {
                 var problemDetails = new ProblemDetails
                 {
@@ -75,11 +101,6 @@ namespace Gallery.API.Controllers
                     Instance = HttpContext.TraceIdentifier,
                 };
                 return StatusCode(StatusCodes.Status500InternalServerError, problemDetails);
-            }
-            else
-            {
-                UserDTO dtoToReturn = addedEntity.ToUserDto();
-                return CreatedAtAction(nameof(GetUser), new { id = dtoToReturn.Id }, dtoToReturn);
             }
         }
     }

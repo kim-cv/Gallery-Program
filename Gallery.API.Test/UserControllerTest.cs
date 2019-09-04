@@ -10,6 +10,7 @@ using Gallery.API.Entities;
 using Gallery.API.Interfaces;
 using Gallery.API.Models;
 using Gallery.TestUtils;
+using Gallery.API.Services;
 
 namespace Gallery.API.Test
 {
@@ -17,6 +18,7 @@ namespace Gallery.API.Test
     public class UserControllerTest
     {
         private static Mock<IUserRepository> userRepository;
+        private static Mock<UserService> userService;
         private static Mock<IAuthenticateService> authService;
         private static List<UserEntity> users = new List<UserEntity>();
 
@@ -58,6 +60,7 @@ namespace Gallery.API.Test
                 });
 
             authService = new Mock<IAuthenticateService>();
+            userService = new Mock<UserService>(userRepository.Object, authService.Object);
         }
 
         #region GetUser
@@ -65,7 +68,7 @@ namespace Gallery.API.Test
         public async Task GetUser_get_self()
         {
             // Arrange
-            var controller = new UserController(authService.Object, userRepository.Object);
+            var controller = new UserController(userService.Object);
             UserEntity retrieveThisUserItem = users[0];
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
 
@@ -92,7 +95,7 @@ namespace Gallery.API.Test
              */
 
             // Arrange
-            var controller = new UserController(authService.Object, userRepository.Object);
+            var controller = new UserController(userService.Object);
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[1].Id.ToString());
 
             // Act
@@ -108,7 +111,7 @@ namespace Gallery.API.Test
         public async Task GetUser_get_self_not_exist()
         {
             // Arrange
-            var controller = new UserController(authService.Object, userRepository.Object);
+            var controller = new UserController(userService.Object);
             var randomGuid = Guid.NewGuid();
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(randomGuid.ToString());
 
@@ -127,7 +130,7 @@ namespace Gallery.API.Test
         public async Task CreateUser()
         {
             // Arrange
-            var controller = new UserController(authService.Object, userRepository.Object);
+            var controller = new UserController(userService.Object);
             UserCreationDTO newUser = new UserCreationDTO()
             {
                 Username = "CreateUserUsername",
@@ -158,7 +161,7 @@ namespace Gallery.API.Test
                 Password = "Password"
             };
             users.Add(existingUser);
-            var controller = new UserController(authService.Object, userRepository.Object);
+            var controller = new UserController(userService.Object);
             UserCreationDTO newUser = new UserCreationDTO()
             {
                 Username = "CreateUserUsernameUsed",
