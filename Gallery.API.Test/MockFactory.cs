@@ -89,5 +89,69 @@ namespace Gallery.API.Test
 
             return mock;
         }
+
+        public static Mock<IImageService> CreateImageServiceMock(List<ImageEntity> ImageEntities)
+        {
+            Mock<IImageService> mock = new Mock<IImageService>();
+
+            mock
+                .Setup(repo => repo.DoesImageExistAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid imageId) =>
+                {
+                    ImageEntity image = ImageEntities.FirstOrDefault(tmp => tmp.Id == imageId);
+                    return (image != null);
+                });
+
+            mock
+                .Setup(repo => repo.IsImageInsideGalleryAsync(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync((Guid imageId, Guid galleryId) =>
+                {
+                    ImageEntity image = ImageEntities.FirstOrDefault(tmp => tmp.Id == imageId);
+                    return (image.fk_gallery == galleryId);
+                });
+
+            mock
+                .Setup(repo => repo.CreateImageAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<ImageCreationDTO>()))
+                .ReturnsAsync((Guid userId, Guid galleryId, ImageCreationDTO imageCreationDTO) =>
+                {
+                    ImageEntity entity = imageCreationDTO.ToImageEntity();
+                    entity.fk_gallery = galleryId;
+                    ImageEntities.Add(entity);
+                    return entity.ToImageDto();
+                });
+
+            mock
+                .Setup(repo => repo.GetImageAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<int?>(), It.IsAny<int?>(), It.IsAny<bool?>()))
+                .ReturnsAsync((Guid imageId, bool thumb, int? thumbWidth, int? thumbHeight, bool? keepAspectRatio) =>
+                {
+                    ImageEntity entity = ImageEntities.FirstOrDefault(tmp => tmp.Id == imageId);
+
+                    return new byte[0];
+                });
+
+            mock
+                .Setup(repo => repo.GetImagesInGalleryAsync(It.IsAny<Guid>(), It.IsAny<Pagination>(), It.IsAny<bool>(), It.IsAny<int?>(), It.IsAny<int?>(), It.IsAny<bool?>()))
+                .ReturnsAsync((Guid galleryId, Pagination pagination, bool thumb, int? thumbWidth, int? thumbHeight, bool? keepAspectRatio) =>
+                {
+                    IEnumerable<ImageEntity> imageEntities = ImageEntities.FindAll(tmp => tmp.fk_gallery == galleryId);
+
+                    IEnumerable<byte[]> imgData = imageEntities.Select(tmpEntity =>
+                    {
+                        return new byte[0];
+                    });
+
+                    return imgData;
+                });
+
+            mock
+                .Setup(repo => repo.DeleteImageAsync(It.IsAny<Guid>()))
+                .Callback((Guid imageId) =>
+                {
+                    ImageEntity entity = ImageEntities.FirstOrDefault(tmp => tmp.Id == imageId);
+                    ImageEntities.Remove(entity);
+                });
+
+            return mock;
+        }
     }
 }

@@ -37,9 +37,9 @@ namespace Gallery.API.Services
             return (image.fk_gallery == galleryId);
         }
 
-        public async Task<ImageDTO> CreateImageAsync(Guid userId, Guid galleryId, ImageCreationDTO dto)
+        public async Task<ImageDTO> CreateImageAsync(Guid userId, Guid galleryId, ImageCreationDTO imageCreationDTO)
         {
-            ImageEntity entity = dto.ToImageEntity();
+            ImageEntity entity = imageCreationDTO.ToImageEntity();
             entity.fk_gallery = galleryId;
 
             ImageEntity addedEntity = await _imageRepository.PostImage(entity);
@@ -49,7 +49,7 @@ namespace Gallery.API.Services
                 throw new Exception();
             }
 
-            IFormFile formFile = dto.formFile;
+            IFormFile formFile = imageCreationDTO.formFile;
             if (formFile.Length > 0)
             {
                 string extension = Path.GetExtension(formFile.FileName);
@@ -103,7 +103,7 @@ namespace Gallery.API.Services
             return imgDatas;
         }
 
-        public async Task DeleteImageAsync(Guid galleryId, Guid imageId)
+        public async Task DeleteImageAsync(Guid imageId)
         {
             ImageEntity imageEntity = await _imageRepository.GetImage(imageId);
 

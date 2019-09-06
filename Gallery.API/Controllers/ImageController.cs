@@ -180,7 +180,7 @@ namespace Gallery.API.Controllers
 
             try
             {
-                await _imageService.DeleteImageAsync(galleryId, imageId);
+                await _imageService.DeleteImageAsync(imageId);
                 return NoContent();
             }
             catch (Exception ex)

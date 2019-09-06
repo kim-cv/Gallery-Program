@@ -25,15 +25,9 @@ namespace Gallery.API.Test
         private static List<GalleryEntity> GalleryEntities = new List<GalleryEntity>();
         private static List<ImageEntity> ImageEntities = new List<ImageEntity>();
 
-        // Repositories
-        private static Mock<IUserRepository> UserRepository;
-        private static Mock<IGalleryRepository> GalleryRepository;
-        private static Mock<IImageRepository> ImageRepository;
-        private static Mock<IFileSystemRepository> FileSystemRepository;
-
         // Services
-        private static Mock<GalleryService> GalleryService;
-        private static Mock<ImageService> ImageService;
+        private static Mock<IGalleryService> GalleryService;
+        private static Mock<IImageService> ImageService;
 
         [ClassInitialize]
         public static void InitTestClass(TestContext testContext)
@@ -52,87 +46,12 @@ namespace Gallery.API.Test
             ImageEntities.Add(new ImageEntity() { Id = Guid.NewGuid(), fk_gallery = GalleryEntities[0].Id, gallery = GalleryEntities[0], Name = "Test1", Extension = ".jpg", SizeInBytes = 100 });
 
 
-            // Mock file system repository
-            FileSystemRepository = new Mock<IFileSystemRepository>();
-
-
-            // Mock user repository
-            UserRepository = new Mock<IUserRepository>();
-            UserRepository.Setup(repo => repo.GetUser(It.IsAny<string>(), It.IsAny<string>()))
-            .Returns((string username, string password) =>
-            {
-                return UserEntities.FirstOrDefault(tmpUser => tmpUser.Username == username && tmpUser.Password == password);
-            });
-            UserRepository.Setup(repo => repo.GetUser(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid userId) =>
-                {
-                    return UserEntities.FirstOrDefault(tmpUser => tmpUser.Id == userId);
-                });
-            UserRepository.Setup(repo => repo.PostUser(It.IsAny<UserEntity>()))
-                .ReturnsAsync((UserEntity userEntity) =>
-                {
-                    UserEntities.Add(userEntity);
-                    return userEntity;
-                });
-            UserRepository.Setup(repo => repo.Save())
-                .Returns(() =>
-                {
-                    return true;
-                });
-
-
-            // Mock gallery repository
-            GalleryRepository = new Mock<IGalleryRepository>();
-            GalleryRepository.Setup(repo => repo.GetGallery(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid galleryId) =>
-                {
-                    return GalleryEntities.FirstOrDefault(tmpGallery => tmpGallery.Id == galleryId);
-                });
-            GalleryRepository.Setup(repo => repo.GetGalleriesFromOwner(It.IsAny<Guid>(), It.IsAny<Pagination>()))
-                .ReturnsAsync((Guid ownerId, Pagination pagination) =>
-                {
-                    return GalleryEntities.Where(tmpGallery => tmpGallery.fk_owner == ownerId);
-                });
-            GalleryRepository.Setup(repo => repo.PostGallery(It.IsAny<GalleryEntity>()))
-                .ReturnsAsync((GalleryEntity galleryEntity) =>
-                {
-                    GalleryEntities.Add(galleryEntity);
-                    return galleryEntity;
-                });
-            GalleryRepository.Setup(repo => repo.DeleteGallery(It.IsAny<Guid>()));
-            GalleryRepository.Setup(repo => repo.Save())
-                .Returns(() =>
-                {
-                    return true;
-                });
-
-
-            // Mock image repository
-            ImageRepository = new Mock<IImageRepository>();
-            ImageRepository.Setup(repo => repo.GetImage(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid imageId) =>
-                {
-                    return ImageEntities.FirstOrDefault(tmp => tmp.Id == imageId);
-                });
-            ImageRepository.Setup(repo => repo.PostImage(It.IsAny<ImageEntity>()))
-                .ReturnsAsync((ImageEntity imageEntity) =>
-                {
-                    ImageEntities.Add(imageEntity);
-                    return imageEntity;
-                });
-            ImageRepository.Setup(repo => repo.Save())
-                .Returns(() =>
-                {
-                    return true;
-                });
-
-
             // Mock gallery service
-            GalleryService = new Mock<GalleryService>(GalleryRepository.Object, ImageRepository.Object);
+            GalleryService = MockFactory.CreateGalleryServiceMock(GalleryEntities, ImageEntities);
 
 
             // Mock image service
-            ImageService = new Mock<ImageService>(ImageRepository.Object, FileSystemRepository.Object);
+            ImageService = MockFactory.CreateImageServiceMock(ImageEntities);
         }
 
         #region GetImages
@@ -391,7 +310,7 @@ namespace Gallery.API.Test
             Assert.IsInstanceOfType(response, typeof(NoContentResult));
             var result = response as NoContentResult;
             Assert.AreEqual(204, result.StatusCode);
-            ImageRepository.Verify(repo => repo.DeleteImage(It.IsAny<Guid>()), Times.Once());
+            ImageService.Verify(repo => repo.DeleteImageAsync(It.IsAny<Guid>()), Times.Once());
             ImageEntities.Remove(imageEntity);
         }
 
