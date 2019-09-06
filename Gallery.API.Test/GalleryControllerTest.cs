@@ -11,7 +11,6 @@ using Gallery.API.Interfaces;
 using Gallery.API.Models;
 using Gallery.TestUtils;
 using Gallery.API.Helpers;
-using Gallery.API.Services;
 
 namespace Gallery.API.Test
 {
@@ -23,12 +22,8 @@ namespace Gallery.API.Test
         private static List<GalleryEntity> GalleryEntities = new List<GalleryEntity>();
         private static List<ImageEntity> ImageEntities = new List<ImageEntity>();
 
-        // Repositories
-        private static Mock<IGalleryRepository> GalleryRepository;
-        private static Mock<IImageRepository> ImageRepository;
-
         // Services
-        private static Mock<GalleryService> GalleryService;
+        private static Mock<IGalleryService> GalleryService;
 
         [ClassInitialize]
         public static void InitTestClass(TestContext testContext)
@@ -47,54 +42,80 @@ namespace Gallery.API.Test
             ImageEntities.Add(new ImageEntity() { Id = Guid.NewGuid(), fk_gallery = GalleryEntities[0].Id, gallery = GalleryEntities[0], Name = "Test1", Extension = ".jpg", SizeInBytes = 100 });
 
 
-            // Mock gallery repository
-            GalleryRepository = new Mock<IGalleryRepository>();
-            GalleryRepository.Setup(repo => repo.GetGallery(It.IsAny<Guid>()))
+            // Mock gallery service
+            GalleryService = new Mock<IGalleryService>();
+
+            GalleryService
+                .Setup(repo => repo.DoesGalleryExistAsync(It.IsAny<Guid>()))
                 .ReturnsAsync((Guid galleryId) =>
                 {
-                    return GalleryEntities.FirstOrDefault(tmpGallery => tmpGallery.Id == galleryId);
-                });
-            GalleryRepository.Setup(repo => repo.GetGalleriesFromOwner(It.IsAny<Guid>(), It.IsAny<Pagination>()))
-                .ReturnsAsync((Guid ownerId, Pagination pagination) =>
-                {
-                    return GalleryEntities.Where(tmpGallery => tmpGallery.fk_owner == ownerId);
-                });
-            GalleryRepository.Setup(repo => repo.PostGallery(It.IsAny<GalleryEntity>()))
-                .ReturnsAsync((GalleryEntity galleryEntity) =>
-                {
-                    GalleryEntities.Add(galleryEntity);
-                    return galleryEntity;
-                });
-            GalleryRepository.Setup(repo => repo.DeleteGallery(It.IsAny<Guid>()));
-            GalleryRepository.Setup(repo => repo.Save())
-                .Returns(() =>
-                {
-                    return true;
+                    return (GalleryEntities.FirstOrDefault(tmp => tmp.Id == galleryId) != null);
                 });
 
+            GalleryService
+                .Setup(repo => repo.IsGalleryOwnedByUserAsync(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync((Guid galleryId, Guid userId) =>
+                {
+                    GalleryEntity galleryEntity = GalleryEntities.FirstOrDefault(tmp => tmp.Id == galleryId);
 
-            // Mock image repository
-            ImageRepository = new Mock<IImageRepository>();
-            ImageRepository.Setup(repo => repo.GetImage(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid imageId) =>
-                {
-                    return ImageEntities.FirstOrDefault(tmp => tmp.Id == imageId);
-                });
-            ImageRepository.Setup(repo => repo.PostImage(It.IsAny<ImageEntity>()))
-                .ReturnsAsync((ImageEntity imageEntity) =>
-                {
-                    ImageEntities.Add(imageEntity);
-                    return imageEntity;
-                });
-            ImageRepository.Setup(repo => repo.Save())
-                .Returns(() =>
-                {
-                    return true;
+                    return galleryEntity.fk_owner == userId;
                 });
 
+            GalleryService
+                .Setup(repo => repo.CreateGalleryAsync(It.IsAny<Guid>(), It.IsAny<GalleryCreationDTO>()))
+                .ReturnsAsync((Guid userId, GalleryCreationDTO galleryCreationDTO) =>
+                {
+                    GalleryEntity entity = galleryCreationDTO.ToGalleryEntity(userId);
+                    GalleryEntities.Add(entity);
+                    return entity.ToGalleryDto(0);
+                });
 
-            // Mock gallery service
-            GalleryService = new Mock<GalleryService>(GalleryRepository.Object, ImageRepository.Object);
+            GalleryService
+                .Setup(repo => repo.PutGalleryAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<GalleryPutDTO>()))
+                .ReturnsAsync((Guid userId, Guid galleryId, GalleryPutDTO galleryPutDTO) =>
+    {
+        GalleryEntity galleryEntity = GalleryEntities.FirstOrDefault(tmp => tmp.Id == galleryId);
+
+        galleryPutDTO.ToGalleryEntity(ref galleryEntity);
+
+        int numImagesInGallery = ImageEntities.FindAll(tmp => tmp.fk_gallery == galleryId).Count();
+
+        return galleryEntity.ToGalleryDto(numImagesInGallery);
+    });
+
+            GalleryService
+                .Setup(repo => repo.GetGalleryAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid galleryId) =>
+                {
+                    GalleryEntity entity = GalleryEntities.FirstOrDefault(tmp => tmp.Id == galleryId);
+
+                    int numImagesInGallery = ImageEntities.FindAll(tmp => tmp.fk_gallery == galleryId).Count();
+
+                    return entity.ToGalleryDto(numImagesInGallery);
+                });
+
+            GalleryService
+                .Setup(repo => repo.GetGalleriesByUserAsync(It.IsAny<Guid>(), It.IsAny<Pagination>()))
+                .ReturnsAsync((Guid userId, Pagination pagination) =>
+                {
+                    IEnumerable<GalleryEntity> galleryEntities = GalleryEntities.FindAll(tmp => tmp.fk_owner == userId);
+
+                    IEnumerable<GalleryDTO> galleryDTOs = galleryEntities.Select(tmpEntity =>
+                    {
+                        int numImagesInGallery = ImageEntities.FindAll(tmp => tmp.fk_gallery == tmpEntity.Id).Count();
+                        return tmpEntity.ToGalleryDto(numImagesInGallery);
+                    });
+
+                    return galleryDTOs;
+                });
+
+            GalleryService
+                .Setup(repo => repo.DeleteGalleryAsync(It.IsAny<Guid>()))
+                .Callback((Guid galleryId) =>
+                {
+                    GalleryEntity entity = GalleryEntities.FirstOrDefault(tmp => tmp.Id == galleryId);
+                    GalleryEntities.Remove(entity);
+                });
         }
 
         #region GetGallery
@@ -123,18 +144,17 @@ namespace Gallery.API.Test
         [TestMethod]
         public async Task GetGallery_not_mine_and_it_exist()
         {
-            //
-            GalleryEntity newGallery = await GalleryRepository.Object.PostGallery(new GalleryEntity()
+            // Arrange
+            var controller = new GalleryController(GalleryService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
+            GalleryEntity newGallery = new GalleryEntity()
             {
                 Id = Guid.NewGuid(),
                 fk_owner = UserEntities[1].Id,
                 Name = "TestName",
                 owner = UserEntities[1]
-            });
-
-            // Arrange
-            var controller = new GalleryController(GalleryService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
+            };
+            GalleryEntities.Add(newGallery);
 
             // Act
             ActionResult<GalleryDTO> response = await controller.GetGallery(newGallery.Id);
@@ -143,6 +163,7 @@ namespace Gallery.API.Test
             Assert.IsInstanceOfType(response.Result, typeof(UnauthorizedResult));
             var result = response.Result as UnauthorizedResult;
             Assert.AreEqual(401, result.StatusCode);
+            GalleryEntities.Remove(newGallery);
         }
 
         [TestMethod]
@@ -303,32 +324,40 @@ namespace Gallery.API.Test
             // Arrange
             var controller = new GalleryController(GalleryService.Object);
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
+            GalleryEntity newGallery = new GalleryEntity()
+            {
+                Id = Guid.NewGuid(),
+                fk_owner = UserEntities[0].Id,
+                Name = "TestName",
+                owner = UserEntities[0]
+            };
+            GalleryEntities.Add(newGallery);
 
             // Act
-            ActionResult response = await controller.DeleteGallery(GalleryEntities[0].Id);
+            ActionResult response = await controller.DeleteGallery(newGallery.Id);
 
             // Assert
             Assert.IsInstanceOfType(response, typeof(NoContentResult));
             var result = response as NoContentResult;
             Assert.AreEqual(204, result.StatusCode);
-            GalleryRepository.Verify(repo => repo.DeleteGallery(It.IsAny<Guid>()), Times.Once());
+            GalleryService.Verify(repo => repo.DeleteGalleryAsync(It.IsAny<Guid>()), Times.Once());
+            GalleryEntities.Remove(newGallery);
         }
 
         [TestMethod]
         public async Task DeleteGallery_not_mine_and_it_exist()
         {
-            //
-            GalleryEntity newGallery = await GalleryRepository.Object.PostGallery(new GalleryEntity()
+            // Arrange
+            var controller = new GalleryController(GalleryService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
+            GalleryEntity newGallery = new GalleryEntity()
             {
                 Id = Guid.NewGuid(),
                 fk_owner = UserEntities[1].Id,
                 Name = "TestName",
                 owner = UserEntities[1]
-            });
-
-            // Arrange
-            var controller = new GalleryController(GalleryService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
+            };
+            GalleryEntities.Add(newGallery);
 
             // Act
             ActionResult response = await controller.DeleteGallery(newGallery.Id);
@@ -337,6 +366,7 @@ namespace Gallery.API.Test
             Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
             var result = response as UnauthorizedResult;
             Assert.AreEqual(401, result.StatusCode);
+            GalleryEntities.Remove(newGallery);
         }
 
         [TestMethod]

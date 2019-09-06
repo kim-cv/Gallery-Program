@@ -10,7 +10,7 @@ namespace Gallery.API.Interfaces
     {
         Task<bool> DoesGalleryExistAsync(Guid galleryId);
         Task<bool> IsGalleryOwnedByUserAsync(Guid galleryId, Guid userId);
-        Task<GalleryDTO> CreateGalleryAsync(Guid userId, GalleryCreationDTO dto);
+        Task<GalleryDTO> CreateGalleryAsync(Guid userId, GalleryCreationDTO galleryCreationDTO);
         Task<GalleryDTO> PutGalleryAsync(Guid userId, Guid galleryId, GalleryPutDTO galleryPutDTO);
         Task<GalleryDTO> GetGalleryAsync(Guid galleryId);
         Task<IEnumerable<GalleryDTO>> GetGalleriesByUserAsync(Guid userId, Pagination pagination);
