@@ -18,14 +18,17 @@ namespace Gallery.API.Test
     [TestClass]
     public class GalleryControllerTest
     {
+        // Entities
         private static List<UserEntity> UserEntities = new List<UserEntity>();
-
-        private static Mock<IGalleryRepository> GalleryRepository;
-        private static Mock<GalleryService> GalleryService;
         private static List<GalleryEntity> GalleryEntities = new List<GalleryEntity>();
-
-        private static Mock<IImageRepository> ImageRepository;
         private static List<ImageEntity> ImageEntities = new List<ImageEntity>();
+
+        // Repositories
+        private static Mock<IGalleryRepository> GalleryRepository;
+        private static Mock<IImageRepository> ImageRepository;
+
+        // Services
+        private static Mock<GalleryService> GalleryService;
 
         [ClassInitialize]
         public static void InitTestClass(TestContext testContext)
@@ -34,12 +37,15 @@ namespace Gallery.API.Test
             UserEntities.Add(new UserEntity() { Id = Guid.NewGuid(), Username = "TestUsername1", Password = "TestPassword1" });
             UserEntities.Add(new UserEntity() { Id = Guid.NewGuid(), Username = "TestUsername2", Password = "TestPassword2" });
 
+
             // Init gallery entities
             GalleryEntities.Add(new GalleryEntity() { Id = Guid.NewGuid(), fk_owner = UserEntities[0].Id, Name = "TestName1" });
             GalleryEntities.Add(new GalleryEntity() { Id = Guid.NewGuid(), fk_owner = UserEntities[0].Id, Name = "TestName2" });
 
+
             // Init image entities
             ImageEntities.Add(new ImageEntity() { Id = Guid.NewGuid(), fk_gallery = GalleryEntities[0].Id, gallery = GalleryEntities[0], Name = "Test1", Extension = ".jpg", SizeInBytes = 100 });
+
 
             // Mock gallery repository
             GalleryRepository = new Mock<IGalleryRepository>();
@@ -66,6 +72,7 @@ namespace Gallery.API.Test
                     return true;
                 });
 
+
             // Mock image repository
             ImageRepository = new Mock<IImageRepository>();
             ImageRepository.Setup(repo => repo.GetImage(It.IsAny<Guid>()))
@@ -84,6 +91,7 @@ namespace Gallery.API.Test
                 {
                     return true;
                 });
+
 
             // Mock gallery service
             GalleryService = new Mock<GalleryService>(GalleryRepository.Object, ImageRepository.Object);

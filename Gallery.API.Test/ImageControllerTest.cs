@@ -20,112 +20,119 @@ namespace Gallery.API.Test
     [TestClass]
     public class ImageControllerTest
     {
-        private static Mock<IUserRepository> userRepository;
-        private static List<UserEntity> users = new List<UserEntity>();
+        // Entities
+        private static List<UserEntity> UserEntities = new List<UserEntity>();
+        private static List<GalleryEntity> GalleryEntities = new List<GalleryEntity>();
+        private static List<ImageEntity> ImageEntities = new List<ImageEntity>();
 
-        private static Mock<IGalleryRepository> galleryRepository;
-        private static Mock<GalleryService> galleryService;
-        private static List<GalleryEntity> galleryItems = new List<GalleryEntity>();
+        // Repositories
+        private static Mock<IUserRepository> UserRepository;
+        private static Mock<IGalleryRepository> GalleryRepository;
+        private static Mock<IImageRepository> ImageRepository;
+        private static Mock<IFileSystemRepository> FileSystemRepository;
 
-        private static Mock<IImageRepository> imageRepository;
-        private static List<ImageEntity> imageItems = new List<ImageEntity>();
-
-        private static Mock<IHostingEnvironment> hostingEnvironment;
-        private static Mock<IFileSystemRepository> fileSystemRepository;
-        private static Mock<ImageService> imageService;
+        // Services
+        private static Mock<GalleryService> GalleryService;
+        private static Mock<ImageService> ImageService;
 
         [ClassInitialize]
         public static void InitTestClass(TestContext testContext)
         {
-            // Mock hosting
-            string hostingPath = "./apiTestFolder";
-            hostingEnvironment = new Mock<IHostingEnvironment>();
-            Directory.CreateDirectory(hostingPath);
-            hostingEnvironment.SetupGet(x => x.ContentRootPath).Returns(hostingPath);
+            // Init users entities
+            UserEntities.Add(new UserEntity() { Id = Guid.NewGuid(), Username = "TestUsername1", Password = "TestPassword1" });
+            UserEntities.Add(new UserEntity() { Id = Guid.NewGuid(), Username = "TestUsername2", Password = "TestPassword2" });
+
+
+            // Init gallery entities
+            GalleryEntities.Add(new GalleryEntity() { Id = Guid.NewGuid(), fk_owner = UserEntities[0].Id, Name = "TestName1" });
+            GalleryEntities.Add(new GalleryEntity() { Id = Guid.NewGuid(), fk_owner = UserEntities[0].Id, Name = "TestName2" });
+
+
+            // Init image entities
+            ImageEntities.Add(new ImageEntity() { Id = Guid.NewGuid(), fk_gallery = GalleryEntities[0].Id, gallery = GalleryEntities[0], Name = "Test1", Extension = ".jpg", SizeInBytes = 100 });
+
 
             // Mock file system repository
-            fileSystemRepository = new Mock<IFileSystemRepository>();
+            FileSystemRepository = new Mock<IFileSystemRepository>();
+
 
             // Mock user repository
-            userRepository = new Mock<IUserRepository>();
-            userRepository.Setup(repo => repo.GetUser(It.IsAny<string>(), It.IsAny<string>()))
+            UserRepository = new Mock<IUserRepository>();
+            UserRepository.Setup(repo => repo.GetUser(It.IsAny<string>(), It.IsAny<string>()))
             .Returns((string username, string password) =>
             {
-                return users.FirstOrDefault(tmpUser => tmpUser.Username == username && tmpUser.Password == password);
+                return UserEntities.FirstOrDefault(tmpUser => tmpUser.Username == username && tmpUser.Password == password);
             });
-            userRepository.Setup(repo => repo.GetUser(It.IsAny<Guid>()))
+            UserRepository.Setup(repo => repo.GetUser(It.IsAny<Guid>()))
                 .ReturnsAsync((Guid userId) =>
                 {
-                    return users.FirstOrDefault(tmpUser => tmpUser.Id == userId);
+                    return UserEntities.FirstOrDefault(tmpUser => tmpUser.Id == userId);
                 });
-            userRepository.Setup(repo => repo.PostUser(It.IsAny<UserEntity>()))
+            UserRepository.Setup(repo => repo.PostUser(It.IsAny<UserEntity>()))
                 .ReturnsAsync((UserEntity userEntity) =>
                 {
-                    users.Add(userEntity);
+                    UserEntities.Add(userEntity);
                     return userEntity;
                 });
-            userRepository.Setup(repo => repo.Save())
+            UserRepository.Setup(repo => repo.Save())
                 .Returns(() =>
                 {
                     return true;
                 });
 
-            users.Add(new UserEntity() { Id = Guid.NewGuid(), Username = "TestUsername1", Password = "TestPassword1" });
-            users.Add(new UserEntity() { Id = Guid.NewGuid(), Username = "TestUsername2", Password = "TestPassword2" });
 
             // Mock gallery repository
-            galleryRepository = new Mock<IGalleryRepository>();
-            galleryRepository.Setup(repo => repo.GetGallery(It.IsAny<Guid>()))
+            GalleryRepository = new Mock<IGalleryRepository>();
+            GalleryRepository.Setup(repo => repo.GetGallery(It.IsAny<Guid>()))
                 .ReturnsAsync((Guid galleryId) =>
                 {
-                    return galleryItems.FirstOrDefault(tmpGallery => tmpGallery.Id == galleryId);
+                    return GalleryEntities.FirstOrDefault(tmpGallery => tmpGallery.Id == galleryId);
                 });
-            galleryRepository.Setup(repo => repo.GetGalleriesFromOwner(It.IsAny<Guid>(), It.IsAny<Pagination>()))
+            GalleryRepository.Setup(repo => repo.GetGalleriesFromOwner(It.IsAny<Guid>(), It.IsAny<Pagination>()))
                 .ReturnsAsync((Guid ownerId, Pagination pagination) =>
                 {
-                    return galleryItems.Where(tmpGallery => tmpGallery.fk_owner == ownerId);
+                    return GalleryEntities.Where(tmpGallery => tmpGallery.fk_owner == ownerId);
                 });
-            galleryRepository.Setup(repo => repo.PostGallery(It.IsAny<GalleryEntity>()))
+            GalleryRepository.Setup(repo => repo.PostGallery(It.IsAny<GalleryEntity>()))
                 .ReturnsAsync((GalleryEntity galleryEntity) =>
                 {
-                    galleryItems.Add(galleryEntity);
+                    GalleryEntities.Add(galleryEntity);
                     return galleryEntity;
                 });
-            galleryRepository.Setup(repo => repo.DeleteGallery(It.IsAny<Guid>()));
-            galleryRepository.Setup(repo => repo.Save())
+            GalleryRepository.Setup(repo => repo.DeleteGallery(It.IsAny<Guid>()));
+            GalleryRepository.Setup(repo => repo.Save())
                 .Returns(() =>
                 {
                     return true;
                 });
 
-            galleryItems.Add(new GalleryEntity() { Id = Guid.NewGuid(), fk_owner = users[0].Id, Name = "TestName1" });
-            galleryItems.Add(new GalleryEntity() { Id = Guid.NewGuid(), fk_owner = users[0].Id, Name = "TestName2" });
 
             // Mock image repository
-            imageRepository = new Mock<IImageRepository>();
-            imageRepository.Setup(repo => repo.GetImage(It.IsAny<Guid>()))
+            ImageRepository = new Mock<IImageRepository>();
+            ImageRepository.Setup(repo => repo.GetImage(It.IsAny<Guid>()))
                 .ReturnsAsync((Guid imageId) =>
                 {
-                    return imageItems.FirstOrDefault(tmp => tmp.Id == imageId);
+                    return ImageEntities.FirstOrDefault(tmp => tmp.Id == imageId);
                 });
-            imageRepository.Setup(repo => repo.PostImage(It.IsAny<ImageEntity>()))
+            ImageRepository.Setup(repo => repo.PostImage(It.IsAny<ImageEntity>()))
                 .ReturnsAsync((ImageEntity imageEntity) =>
                 {
-                    imageItems.Add(imageEntity);
+                    ImageEntities.Add(imageEntity);
                     return imageEntity;
                 });
-            imageRepository.Setup(repo => repo.Save())
+            ImageRepository.Setup(repo => repo.Save())
                 .Returns(() =>
                 {
                     return true;
                 });
 
-            imageItems.Add(new ImageEntity() { Id = Guid.NewGuid(), fk_gallery = galleryItems[0].Id, gallery = galleryItems[0], Name = "Test1", Extension = ".jpg", SizeInBytes = 100 });
+
+            // Mock gallery service
+            GalleryService = new Mock<GalleryService>(GalleryRepository.Object, ImageRepository.Object);
 
 
-            galleryService = new Mock<GalleryService>(galleryRepository.Object, imageRepository.Object);
-
-            imageService = new Mock<ImageService>(imageRepository.Object, fileSystemRepository.Object);
+            // Mock image service
+            ImageService = new Mock<ImageService>(ImageRepository.Object, FileSystemRepository.Object);
         }
 
         #region GetImages
@@ -133,10 +140,10 @@ namespace Gallery.API.Test
         public async Task GetImages()
         {
             // Arrange
-            var controller = new ImageController(galleryService.Object, imageService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            var controller = new ImageController(GalleryService.Object, ImageService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
 
-            Guid galleryId = galleryItems[0].Id;
+            Guid galleryId = GalleryEntities[0].Id;
             Pagination pagination = new Pagination();
 
             // Act
@@ -156,8 +163,8 @@ namespace Gallery.API.Test
         public async Task GetImages_not_existing_gallery()
         {
             // Arrange
-            var controller = new ImageController(galleryService.Object, imageService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            var controller = new ImageController(GalleryService.Object, ImageService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
 
             Guid galleryId = Guid.NewGuid();
             Pagination pagination = new Pagination();
@@ -175,10 +182,10 @@ namespace Gallery.API.Test
         public async Task GetImages_not_own_gallery()
         {
             // Arrange
-            var controller = new ImageController(galleryService.Object, imageService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[1].Id.ToString());
+            var controller = new ImageController(GalleryService.Object, ImageService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[1].Id.ToString());
 
-            Guid galleryId = galleryItems[0].Id;
+            Guid galleryId = GalleryEntities[0].Id;
             Pagination pagination = new Pagination();
 
             // Act
@@ -196,33 +203,33 @@ namespace Gallery.API.Test
         public async Task GetImage_mine_and_it_exist()
         {
             // Arrange
-            var controller = new ImageController(galleryService.Object, imageService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            var controller = new ImageController(GalleryService.Object, ImageService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
 
             Guid imageId = Guid.NewGuid();
-            ImageEntity imageEntity = new ImageEntity() { Id = imageId, fk_gallery = galleryItems[0].Id, gallery = galleryItems[0], Name = "Test1", Extension = ".jpg", SizeInBytes = 100 };
-            imageItems.Add(imageEntity);
+            ImageEntity imageEntity = new ImageEntity() { Id = imageId, fk_gallery = GalleryEntities[0].Id, gallery = GalleryEntities[0], Name = "Test1", Extension = ".jpg", SizeInBytes = 100 };
+            ImageEntities.Add(imageEntity);
 
             // Act
-            ActionResult response = await controller.GetImage(galleryItems[0].Id, imageId, false, null, null, null);
+            ActionResult response = await controller.GetImage(GalleryEntities[0].Id, imageId, false, null, null, null);
 
             // Assert
             Assert.IsInstanceOfType(response, typeof(FileContentResult));
             var result = response as FileContentResult;
             //Assert.AreEqual(200, result.StatusCode);
-            imageItems.Remove(imageEntity);
+            ImageEntities.Remove(imageEntity);
         }
 
         [TestMethod]
         public async Task GetImage_mine_and_image_not_exist()
         {
             // Arrange
-            var controller = new ImageController(galleryService.Object, imageService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            var controller = new ImageController(GalleryService.Object, ImageService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
             Guid imageId = Guid.NewGuid();
 
             // Act
-            ActionResult response = await controller.GetImage(galleryItems[0].Id, imageId, false, null, null, null);
+            ActionResult response = await controller.GetImage(GalleryEntities[0].Id, imageId, false, null, null, null);
 
             // Assert
             Assert.IsInstanceOfType(response, typeof(NotFoundResult));
@@ -234,31 +241,31 @@ namespace Gallery.API.Test
         public async Task GetImage_image_not_owned_by_gallery()
         {
             // Arrange
-            var controller = new ImageController(galleryService.Object, imageService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            var controller = new ImageController(GalleryService.Object, ImageService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
             Guid imageId = Guid.NewGuid();
-            ImageEntity imageEntity = new ImageEntity() { Id = imageId, fk_gallery = galleryItems[0].Id, gallery = galleryItems[0], Name = "Test1", Extension = ".jpg", SizeInBytes = 100 };
-            imageItems.Add(imageEntity);
+            ImageEntity imageEntity = new ImageEntity() { Id = imageId, fk_gallery = GalleryEntities[0].Id, gallery = GalleryEntities[0], Name = "Test1", Extension = ".jpg", SizeInBytes = 100 };
+            ImageEntities.Add(imageEntity);
 
             // Act
-            ActionResult response = await controller.GetImage(galleryItems[1].Id, imageId, false, null, null, null);
+            ActionResult response = await controller.GetImage(GalleryEntities[1].Id, imageId, false, null, null, null);
 
             // Assert
             Assert.IsInstanceOfType(response, typeof(NotFoundResult));
             var result = response as NotFoundResult;
             Assert.AreEqual(404, result.StatusCode);
-            imageItems.Remove(imageEntity);
+            ImageEntities.Remove(imageEntity);
         }
 
         [TestMethod]
         public async Task GetImage_not_existing_gallery()
         {
             // Arrange
-            var controller = new ImageController(galleryService.Object, imageService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            var controller = new ImageController(GalleryService.Object, ImageService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
 
             Guid galleryId = Guid.NewGuid();
-            Guid imageId = imageItems[0].Id;
+            Guid imageId = ImageEntities[0].Id;
 
             // Act
             ActionResult response = await controller.GetImage(galleryId, imageId, false, null, null, null);
@@ -273,11 +280,11 @@ namespace Gallery.API.Test
         public async Task GetImage_not_own_gallery()
         {
             // Arrange
-            var controller = new ImageController(galleryService.Object, imageService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[1].Id.ToString());
+            var controller = new ImageController(GalleryService.Object, ImageService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[1].Id.ToString());
 
-            Guid galleryId = galleryItems[0].Id;
-            Guid imageId = imageItems[0].Id;
+            Guid galleryId = GalleryEntities[0].Id;
+            Guid imageId = ImageEntities[0].Id;
 
             // Act
             ActionResult response = await controller.GetImage(galleryId, imageId, false, null, null, null);
@@ -294,11 +301,11 @@ namespace Gallery.API.Test
         public async Task CreateImage()
         {
             // Arrange
-            var controller = new ImageController(galleryService.Object, imageService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            var controller = new ImageController(GalleryService.Object, ImageService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
 
             ImageUtils utils = new ImageUtils();
-            Guid galleryId = galleryItems[0].Id;
+            Guid galleryId = GalleryEntities[0].Id;
             ImageCreationDTO newItem = new ImageCreationDTO()
             {
                 Name = "CreatedTestName",
@@ -322,8 +329,8 @@ namespace Gallery.API.Test
         public async Task CreateImage_not_existing_gallery()
         {
             // Arrange
-            var controller = new ImageController(galleryService.Object, imageService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            var controller = new ImageController(GalleryService.Object, ImageService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
 
             Guid galleryId = Guid.NewGuid();
             ImageCreationDTO newItem = new ImageCreationDTO()
@@ -345,10 +352,10 @@ namespace Gallery.API.Test
         public async Task CreateImage_not_own_gallery()
         {
             // Arrange
-            var controller = new ImageController(galleryService.Object, imageService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[1].Id.ToString());
+            var controller = new ImageController(GalleryService.Object, ImageService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[1].Id.ToString());
 
-            Guid galleryId = galleryItems[0].Id;
+            Guid galleryId = GalleryEntities[0].Id;
             ImageCreationDTO newItem = new ImageCreationDTO()
             {
                 Name = "CreatedTestName",
@@ -370,34 +377,34 @@ namespace Gallery.API.Test
         public async Task DeleteImage_mine_and_it_exist()
         {
             // Arrange
-            var controller = new ImageController(galleryService.Object, imageService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            var controller = new ImageController(GalleryService.Object, ImageService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
 
             Guid imageId = Guid.NewGuid();
-            ImageEntity imageEntity = new ImageEntity() { Id = imageId, fk_gallery = galleryItems[0].Id, gallery = galleryItems[0], Name = "Test1", Extension = ".jpg", SizeInBytes = 100 };
-            imageItems.Add(imageEntity);
+            ImageEntity imageEntity = new ImageEntity() { Id = imageId, fk_gallery = GalleryEntities[0].Id, gallery = GalleryEntities[0], Name = "Test1", Extension = ".jpg", SizeInBytes = 100 };
+            ImageEntities.Add(imageEntity);
 
             // Act
-            ActionResult response = await controller.DeleteImage(galleryItems[0].Id, imageId);
+            ActionResult response = await controller.DeleteImage(GalleryEntities[0].Id, imageId);
 
             // Assert
             Assert.IsInstanceOfType(response, typeof(NoContentResult));
             var result = response as NoContentResult;
             Assert.AreEqual(204, result.StatusCode);
-            imageRepository.Verify(repo => repo.DeleteImage(It.IsAny<Guid>()), Times.Once());
-            imageItems.Remove(imageEntity);
+            ImageRepository.Verify(repo => repo.DeleteImage(It.IsAny<Guid>()), Times.Once());
+            ImageEntities.Remove(imageEntity);
         }
 
         [TestMethod]
         public async Task DeleteImage_mine_and_image_not_exist()
         {
             // Arrange
-            var controller = new ImageController(galleryService.Object, imageService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            var controller = new ImageController(GalleryService.Object, ImageService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
             Guid imageId = Guid.NewGuid();
 
             // Act
-            ActionResult response = await controller.DeleteImage(galleryItems[0].Id, imageId);
+            ActionResult response = await controller.DeleteImage(GalleryEntities[0].Id, imageId);
 
             // Assert
             Assert.IsInstanceOfType(response, typeof(NotFoundResult));
@@ -409,31 +416,31 @@ namespace Gallery.API.Test
         public async Task DeleteImage_image_not_owned_by_gallery()
         {
             // Arrange
-            var controller = new ImageController(galleryService.Object, imageService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            var controller = new ImageController(GalleryService.Object, ImageService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
             Guid imageId = Guid.NewGuid();
-            ImageEntity imageEntity = new ImageEntity() { Id = imageId, fk_gallery = galleryItems[0].Id, gallery = galleryItems[0], Name = "Test1", Extension = ".jpg", SizeInBytes = 100 };
-            imageItems.Add(imageEntity);
+            ImageEntity imageEntity = new ImageEntity() { Id = imageId, fk_gallery = GalleryEntities[0].Id, gallery = GalleryEntities[0], Name = "Test1", Extension = ".jpg", SizeInBytes = 100 };
+            ImageEntities.Add(imageEntity);
 
             // Act
-            ActionResult response = await controller.DeleteImage(galleryItems[1].Id, imageId);
+            ActionResult response = await controller.DeleteImage(GalleryEntities[1].Id, imageId);
 
             // Assert
             Assert.IsInstanceOfType(response, typeof(NotFoundResult));
             var result = response as NotFoundResult;
             Assert.AreEqual(404, result.StatusCode);
-            imageItems.Remove(imageEntity);
+            ImageEntities.Remove(imageEntity);
         }
 
         [TestMethod]
         public async Task DeleteImage_not_existing_gallery()
         {
             // Arrange
-            var controller = new ImageController(galleryService.Object, imageService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            var controller = new ImageController(GalleryService.Object, ImageService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
 
             Guid galleryId = Guid.NewGuid();
-            Guid imageId = imageItems[0].Id;
+            Guid imageId = ImageEntities[0].Id;
 
             // Act
             ActionResult response = await controller.DeleteImage(galleryId, imageId);
@@ -448,11 +455,11 @@ namespace Gallery.API.Test
         public async Task DeleteImage_not_own_gallery()
         {
             // Arrange
-            var controller = new ImageController(galleryService.Object, imageService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[1].Id.ToString());
+            var controller = new ImageController(GalleryService.Object, ImageService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[1].Id.ToString());
 
-            Guid galleryId = galleryItems[0].Id;
-            Guid imageId = imageItems[0].Id;
+            Guid galleryId = GalleryEntities[0].Id;
+            Guid imageId = ImageEntities[0].Id;
 
             // Act
             ActionResult response = await controller.DeleteImage(galleryId, imageId);
