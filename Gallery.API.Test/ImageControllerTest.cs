@@ -21,17 +21,21 @@ namespace Gallery.API.Test
     public class ImageControllerTest
     {
         // Entities
-        private static List<UserEntity> UserEntities = new List<UserEntity>();
-        private static List<GalleryEntity> GalleryEntities = new List<GalleryEntity>();
-        private static List<ImageEntity> ImageEntities = new List<ImageEntity>();
+        private static List<UserEntity> UserEntities;
+        private static List<GalleryEntity> GalleryEntities;
+        private static List<ImageEntity> ImageEntities;
 
         // Services
         private static Mock<IGalleryService> GalleryService;
         private static Mock<IImageService> ImageService;
 
-        [ClassInitialize]
-        public static void InitTestClass(TestContext testContext)
+        [TestInitialize]
+        public void InitBeforeEachTest()
         {
+            UserEntities = new List<UserEntity>();
+            GalleryEntities = new List<GalleryEntity>();
+            ImageEntities = new List<ImageEntity>();
+
             // Init users entities
             UserEntities.Add(new UserEntity() { Id = Guid.NewGuid(), Username = "TestUsername1", Password = "TestPassword1" });
             UserEntities.Add(new UserEntity() { Id = Guid.NewGuid(), Username = "TestUsername2", Password = "TestPassword2" });
@@ -75,7 +79,7 @@ namespace Gallery.API.Test
             Assert.IsNotNull(result.Value);
             Assert.IsInstanceOfType(result.Value, typeof(IEnumerable<byte[]>));
             IEnumerable<byte[]> retrievedItems = result.Value as IEnumerable<byte[]>;
-            Assert.AreEqual(0, retrievedItems.Count());
+            Assert.AreEqual(1, retrievedItems.Count());
         }
 
         [TestMethod]
