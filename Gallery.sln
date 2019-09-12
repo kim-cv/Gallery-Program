@@ -3,27 +3,27 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29020.237
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gallery.WPF", "Gallery.WPF\Gallery.WPF.csproj", "{44141E3D-2064-4E23-9272-367D042F89C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gallery.WPF", "Gallery.WPF\Gallery.WPF.csproj", "{44141E3D-2064-4E23-9272-367D042F89C8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A26DD7C6-0FF4-4FCE-8189-79BA493EA7E2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E391B077-8283-44C6-95B8-06DCCCFC1F50}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gallery.BL", "Gallery.BL\Gallery.BL.csproj", "{A610D63E-BDE6-47EB-9836-44636BEF5714}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gallery.BL", "Gallery.BL\Gallery.BL.csproj", "{A610D63E-BDE6-47EB-9836-44636BEF5714}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gallery.BL.Test", "Gallery.BLTest\Gallery.BL.Test.csproj", "{2AD0C333-4A5E-406A-ABD5-F82FAC6C5512}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gallery.DA", "Gallery.DA\Gallery.DA.csproj", "{7E758F31-EB02-4ABC-963A-35813DDBF8E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gallery.DA", "Gallery.DA\Gallery.DA.csproj", "{7E758F31-EB02-4ABC-963A-35813DDBF8E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gallery.Core", "Gallery.Core\Gallery.Core.csproj", "{1925A165-08B9-4623-AD43-628FAC4429EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gallery.Core", "Gallery.Core\Gallery.Core.csproj", "{1925A165-08B9-4623-AD43-628FAC4429EB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gallery.DA.Test", "Gallery.DA.Test\Gallery.DA.Test.csproj", "{A304A831-D5E7-4E79-B7C2-7154AA7677A9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gallery.TestUtils", "Gallery.TestUtils\Gallery.TestUtils.csproj", "{09555101-34B6-42C7-B3B6-65C18D1AD495}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gallery.API", "Gallery.API\Gallery.API.csproj", "{FD1D5855-059C-41A0-BF42-4BADC34D68DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gallery.API", "Gallery.API\Gallery.API.csproj", "{FD1D5855-059C-41A0-BF42-4BADC34D68DA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gallery.API.Test", "Gallery.API.Test\Gallery.API.Test.csproj", "{3B3EDE4B-0A50-4B26-B600-4D305DDE9879}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gallery.API.Test", "Gallery.API.Test\Gallery.API.Test.csproj", "{3B3EDE4B-0A50-4B26-B600-4D305DDE9879}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
