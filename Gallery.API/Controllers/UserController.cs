@@ -32,7 +32,7 @@ namespace Gallery.API.Controllers
             try
             {
                 string jwtToken = await _userService.LoginAsync(userLoginDTO);
-                return Ok(new { token = jwtToken });
+                return Ok(new UserLoginResponseDTO(){ token = jwtToken });
             }
             catch (Exception ex)
             {

@@ -16,14 +16,14 @@ namespace Gallery.API.Test
             Mock<IGalleryService> mock = new Mock<IGalleryService>();
 
             mock
-                .Setup(repo => repo.DoesGalleryExistAsync(It.IsAny<Guid>()))
+                .Setup(service => service.DoesGalleryExistAsync(It.IsAny<Guid>()))
                 .ReturnsAsync((Guid galleryId) =>
                 {
                     return (GalleryEntities.FirstOrDefault(tmp => tmp.Id == galleryId) != null);
                 });
 
             mock
-                .Setup(repo => repo.IsGalleryOwnedByUserAsync(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .Setup(service => service.IsGalleryOwnedByUserAsync(It.IsAny<Guid>(), It.IsAny<Guid>()))
                 .ReturnsAsync((Guid galleryId, Guid userId) =>
                 {
                     GalleryEntity galleryEntity = GalleryEntities.FirstOrDefault(tmp => tmp.Id == galleryId);
@@ -32,7 +32,7 @@ namespace Gallery.API.Test
                 });
 
             mock
-                .Setup(repo => repo.CreateGalleryAsync(It.IsAny<Guid>(), It.IsAny<GalleryCreationDTO>()))
+                .Setup(service => service.CreateGalleryAsync(It.IsAny<Guid>(), It.IsAny<GalleryCreationDTO>()))
                 .ReturnsAsync((Guid userId, GalleryCreationDTO galleryCreationDTO) =>
                 {
                     GalleryEntity entity = galleryCreationDTO.ToGalleryEntity(userId);
@@ -41,7 +41,7 @@ namespace Gallery.API.Test
                 });
 
             mock
-                .Setup(repo => repo.PutGalleryAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<GalleryPutDTO>()))
+                .Setup(service => service.PutGalleryAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<GalleryPutDTO>()))
                 .ReturnsAsync((Guid userId, Guid galleryId, GalleryPutDTO galleryPutDTO) =>
                 {
                     GalleryEntity galleryEntity = GalleryEntities.FirstOrDefault(tmp => tmp.Id == galleryId);
@@ -54,7 +54,7 @@ namespace Gallery.API.Test
                 });
 
             mock
-                .Setup(repo => repo.GetGalleryAsync(It.IsAny<Guid>()))
+                .Setup(service => service.GetGalleryAsync(It.IsAny<Guid>()))
                 .ReturnsAsync((Guid galleryId) =>
                 {
                     GalleryEntity entity = GalleryEntities.FirstOrDefault(tmp => tmp.Id == galleryId);
@@ -65,7 +65,7 @@ namespace Gallery.API.Test
                 });
 
             mock
-                .Setup(repo => repo.GetGalleriesByUserAsync(It.IsAny<Guid>(), It.IsAny<Pagination>()))
+                .Setup(service => service.GetGalleriesByUserAsync(It.IsAny<Guid>(), It.IsAny<Pagination>()))
                 .ReturnsAsync((Guid userId, Pagination pagination) =>
                 {
                     IEnumerable<GalleryEntity> galleryEntities = GalleryEntities.FindAll(tmp => tmp.fk_owner == userId);
@@ -80,7 +80,7 @@ namespace Gallery.API.Test
                 });
 
             mock
-                .Setup(repo => repo.DeleteGalleryAsync(It.IsAny<Guid>()))
+                .Setup(service => service.DeleteGalleryAsync(It.IsAny<Guid>()))
                 .Callback((Guid galleryId) =>
                 {
                     GalleryEntity entity = GalleryEntities.FirstOrDefault(tmp => tmp.Id == galleryId);
@@ -95,7 +95,7 @@ namespace Gallery.API.Test
             Mock<IImageService> mock = new Mock<IImageService>();
 
             mock
-                .Setup(repo => repo.DoesImageExistAsync(It.IsAny<Guid>()))
+                .Setup(service => service.DoesImageExistAsync(It.IsAny<Guid>()))
                 .ReturnsAsync((Guid imageId) =>
                 {
                     ImageEntity image = ImageEntities.FirstOrDefault(tmp => tmp.Id == imageId);
@@ -103,7 +103,7 @@ namespace Gallery.API.Test
                 });
 
             mock
-                .Setup(repo => repo.IsImageInsideGalleryAsync(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .Setup(service => service.IsImageInsideGalleryAsync(It.IsAny<Guid>(), It.IsAny<Guid>()))
                 .ReturnsAsync((Guid imageId, Guid galleryId) =>
                 {
                     ImageEntity image = ImageEntities.FirstOrDefault(tmp => tmp.Id == imageId);
@@ -111,7 +111,7 @@ namespace Gallery.API.Test
                 });
 
             mock
-                .Setup(repo => repo.CreateImageAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<ImageCreationDTO>()))
+                .Setup(service => service.CreateImageAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<ImageCreationDTO>()))
                 .ReturnsAsync((Guid userId, Guid galleryId, ImageCreationDTO imageCreationDTO) =>
                 {
                     ImageEntity entity = imageCreationDTO.ToImageEntity();
@@ -121,7 +121,7 @@ namespace Gallery.API.Test
                 });
 
             mock
-                .Setup(repo => repo.GetImageAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<int?>(), It.IsAny<int?>(), It.IsAny<bool?>()))
+                .Setup(service => service.GetImageAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<int?>(), It.IsAny<int?>(), It.IsAny<bool?>()))
                 .ReturnsAsync((Guid imageId, bool thumb, int? thumbWidth, int? thumbHeight, bool? keepAspectRatio) =>
                 {
                     ImageEntity entity = ImageEntities.FirstOrDefault(tmp => tmp.Id == imageId);
@@ -130,7 +130,7 @@ namespace Gallery.API.Test
                 });
 
             mock
-                .Setup(repo => repo.GetImagesInGalleryAsync(It.IsAny<Guid>(), It.IsAny<Pagination>(), It.IsAny<bool>(), It.IsAny<int?>(), It.IsAny<int?>(), It.IsAny<bool?>()))
+                .Setup(service => service.GetImagesInGalleryAsync(It.IsAny<Guid>(), It.IsAny<Pagination>(), It.IsAny<bool>(), It.IsAny<int?>(), It.IsAny<int?>(), It.IsAny<bool?>()))
                 .ReturnsAsync((Guid galleryId, Pagination pagination, bool thumb, int? thumbWidth, int? thumbHeight, bool? keepAspectRatio) =>
                 {
                     IEnumerable<ImageEntity> imageEntities = ImageEntities.FindAll(tmp => tmp.fk_gallery == galleryId);
@@ -144,11 +144,71 @@ namespace Gallery.API.Test
                 });
 
             mock
-                .Setup(repo => repo.DeleteImageAsync(It.IsAny<Guid>()))
+                .Setup(service => service.DeleteImageAsync(It.IsAny<Guid>()))
                 .Callback((Guid imageId) =>
                 {
                     ImageEntity entity = ImageEntities.FirstOrDefault(tmp => tmp.Id == imageId);
                     ImageEntities.Remove(entity);
+                });
+
+            return mock;
+        }
+
+        public static Mock<IUserService> CreateUserServiceMock(List<UserEntity> UserEntities)
+        {
+            Mock<IUserService> mock = new Mock<IUserService>();
+
+            mock
+                .Setup(service => service.DoesUserExist(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid userId) =>
+                {
+                    return (UserEntities.FirstOrDefault(tmp => tmp.Id == userId) != null);
+                });
+
+            mock
+                .Setup(service => service.DoesUserExist(It.IsAny<string>()))
+                .ReturnsAsync((string username) =>
+                {
+                    return (UserEntities.FirstOrDefault(tmp => tmp.Username == username) != null);
+                });
+
+            mock
+                .Setup(service => service.CreateUserAsync(It.IsAny<UserCreationDTO>()))
+                .ReturnsAsync((UserCreationDTO userCreationDTO) =>
+                {
+                    UserEntity entity = userCreationDTO.ToUserEntity();
+                    UserEntities.Add(entity);
+                    return entity.ToUserDto();
+                });
+
+            mock
+                .Setup(service => service.GetUserAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid id) =>
+                {
+                    UserEntity entity = UserEntities.FirstOrDefault(tmpUser => tmpUser.Id == id);
+                    return entity.ToUserDto();
+                });
+
+            mock
+                .Setup(service => service.GetUserAsync(It.IsAny<string>()))
+                .Returns((string username) =>
+                {
+                    UserEntity entity = UserEntities.FirstOrDefault(tmpUser => tmpUser.Username == username);
+                    return entity.ToUserDto();
+                });
+
+            mock
+                .Setup(service => service.LoginAsync(It.IsAny<UserLoginDTO>()))
+                .ReturnsAsync((UserLoginDTO userLoginDTO) =>
+                {
+                    UserEntity entity = UserEntities.First(tmp => tmp.Username == userLoginDTO.username);
+                    
+                    if (userLoginDTO.password != entity.Password)
+                    {
+                        throw new Exception("Wrong Password");
+                    }
+
+                    return Guid.NewGuid().ToString();
                 });
 
             return mock;

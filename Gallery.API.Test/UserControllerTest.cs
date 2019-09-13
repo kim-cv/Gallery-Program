@@ -17,60 +17,96 @@ namespace Gallery.API.Test
     [TestClass]
     public class UserControllerTest
     {
-        private static Mock<IUserRepository> userRepository;
-        private static Mock<UserService> userService;
-        private static Mock<IAuthenticateService> authService;
-        private static List<UserEntity> users = new List<UserEntity>();
+        private static Mock<IUserService> UserService;
+        private static List<UserEntity> UserEntities = new List<UserEntity>();
 
         //[ClassInitialize]
         //public static void InitTestClass(TestContext testContext)
         [TestInitialize]
         public void InitBeforeEachTest()
         {
-            users.Add(new UserEntity() { Id = Guid.NewGuid(), Username = "Username1", Password = "Password1" });
-            users.Add(new UserEntity() { Id = Guid.NewGuid(), Username = "Username2", Password = "Password2" });
+            // Init users entities
+            UserEntities.Add(new UserEntity() { Id = Guid.NewGuid(), Username = "Username1", Password = "Password1" });
+            UserEntities.Add(new UserEntity() { Id = Guid.NewGuid(), Username = "Username2", Password = "Password2" });
 
-            userRepository = new Mock<IUserRepository>();
-
-            userRepository.Setup(repo => repo.GetUser(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid id) =>
-                {
-                    return users.FirstOrDefault(tmpUser => tmpUser.Id == id);
-                });
-            userRepository.Setup(repo => repo.GetUser(It.IsAny<string>()))
-                .Returns((string username) =>
-                {
-                    return users.FirstOrDefault(tmpUser => tmpUser.Username == username);
-                });
-            userRepository.Setup(repo => repo.GetUser(It.IsAny<string>(), It.IsAny<string>()))
-                 .Returns((string username, string password) =>
-                 {
-                     return users.FirstOrDefault(tmpUser => tmpUser.Username == username && tmpUser.Password == password);
-                 });
-            userRepository.Setup(repo => repo.PostUser(It.IsAny<UserEntity>()))
-                .ReturnsAsync((UserEntity userEntity) =>
-                {
-                    users.Add(userEntity);
-                    return userEntity;
-                });
-            userRepository.Setup(repo => repo.Save())
-                .Returns(() =>
-                {
-                    return true;
-                });
-
-            authService = new Mock<IAuthenticateService>();
-            userService = new Mock<UserService>(userRepository.Object, authService.Object);
+            // Mock user service
+            UserService = MockFactory.CreateUserServiceMock(UserEntities);
         }
+
+        #region RequestTokenAsync
+        [TestMethod]
+        public async Task RequestTokenAsync_exist_correctPassword_get_token()
+        {
+            // Arrange
+            var controller = new UserController(UserService.Object);
+            UserLoginDTO userLoginDTO = new UserLoginDTO() {
+                username = UserEntities.First().Username,
+                password = UserEntities.First().Password
+            };
+
+            // Act
+            IActionResult response = await controller.RequestTokenAsync(userLoginDTO);
+
+            // Assert
+            Assert.IsInstanceOfType(response, typeof(OkObjectResult));
+            var result = response as OkObjectResult;
+            Assert.AreEqual(200, result.StatusCode);
+            Assert.IsNotNull(result.Value);
+            Assert.IsInstanceOfType(result.Value, typeof(UserLoginResponseDTO));
+            UserLoginResponseDTO loginDTO = result.Value as UserLoginResponseDTO;
+            Assert.IsNotNull(loginDTO.token);
+            Assert.IsInstanceOfType(loginDTO.token, typeof(string));
+        }
+
+        [TestMethod]
+        public async Task RequestTokenAsync_exist_wrongPassword_return_unauthorized()
+        {
+            // Arrange
+            var controller = new UserController(UserService.Object);
+            UserLoginDTO userLoginDTO = new UserLoginDTO()
+            {
+                username = UserEntities.First().Username,
+                password = "WrongPassword1"
+            };
+
+            // Act
+            IActionResult response = await controller.RequestTokenAsync(userLoginDTO);
+
+            // Assert
+            Assert.IsInstanceOfType(response, typeof(UnauthorizedObjectResult));
+            var result = response as UnauthorizedObjectResult;
+            Assert.AreEqual(401, result.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task RequestTokenAsync_notExist_return_notFound()
+        {
+            // Arrange
+            var controller = new UserController(UserService.Object);
+            UserLoginDTO userLoginDTO = new UserLoginDTO()
+            {
+                username = "NotExistingUsername1",
+                password = "NotExistingPassword1"
+            };
+
+            // Act
+            IActionResult response = await controller.RequestTokenAsync(userLoginDTO);
+
+            // Assert
+            Assert.IsInstanceOfType(response, typeof(NotFoundObjectResult));
+            var result = response as NotFoundObjectResult;
+            Assert.AreEqual(404, result.StatusCode);
+        }
+        #endregion
 
         #region GetUser
         [TestMethod]
         public async Task GetUser_get_self()
         {
             // Arrange
-            var controller = new UserController(userService.Object);
-            UserEntity retrieveThisUserItem = users[0];
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[0].Id.ToString());
+            var controller = new UserController(UserService.Object);
+            UserEntity retrieveThisUserItem = UserEntities[0];
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
 
             // Act
             ActionResult<UserDTO> response = await controller.GetUser(retrieveThisUserItem.Id);
@@ -95,11 +131,11 @@ namespace Gallery.API.Test
              */
 
             // Arrange
-            var controller = new UserController(userService.Object);
-            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(users[1].Id.ToString());
+            var controller = new UserController(UserService.Object);
+            controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[1].Id.ToString());
 
             // Act
-            ActionResult<UserDTO> response = await controller.GetUser(users[0].Id);
+            ActionResult<UserDTO> response = await controller.GetUser(UserEntities[0].Id);
 
             // Assert
             Assert.IsInstanceOfType(response.Result, typeof(UnauthorizedResult));
@@ -111,7 +147,7 @@ namespace Gallery.API.Test
         public async Task GetUser_get_self_not_exist()
         {
             // Arrange
-            var controller = new UserController(userService.Object);
+            var controller = new UserController(UserService.Object);
             var randomGuid = Guid.NewGuid();
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(randomGuid.ToString());
 
@@ -130,7 +166,7 @@ namespace Gallery.API.Test
         public async Task CreateUser()
         {
             // Arrange
-            var controller = new UserController(userService.Object);
+            var controller = new UserController(UserService.Object);
             UserCreationDTO newUser = new UserCreationDTO()
             {
                 Username = "CreateUserUsername",
@@ -160,8 +196,8 @@ namespace Gallery.API.Test
                 Username = "CreateUserUsernameUsed",
                 Password = "Password"
             };
-            users.Add(existingUser);
-            var controller = new UserController(userService.Object);
+            UserEntities.Add(existingUser);
+            var controller = new UserController(UserService.Object);
             UserCreationDTO newUser = new UserCreationDTO()
             {
                 Username = "CreateUserUsernameUsed",
@@ -175,8 +211,8 @@ namespace Gallery.API.Test
             Assert.IsInstanceOfType(response.Result, typeof(ConflictResult));
             var result = response.Result as ConflictResult;
             Assert.AreEqual(409, result.StatusCode);
-            users.Remove(existingUser);
-            userRepository.Verify(repo => repo.GetUser(It.IsAny<string>()), Times.Once());
+            UserEntities.Remove(existingUser);
+            //userRepository.Verify(repo => repo.GetUser(It.IsAny<string>()), Times.Once());
         }
         #endregion
     }
