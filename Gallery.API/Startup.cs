@@ -1,18 +1,19 @@
 ﻿using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Gallery.API.Models;
-using Gallery.API.Services;
 using Gallery.API.Entities;
-using Gallery.API.Repositories;
 using Gallery.API.Interfaces;
+using Gallery.API.Models;
+using Gallery.API.Repositories;
+using Gallery.API.Services;
 
 namespace Gallery.API
 {
@@ -28,7 +29,7 @@ namespace Gallery.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddControllers().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             // Logging
             services.AddLogging(loggingBuilder =>
@@ -41,7 +42,7 @@ namespace Gallery.API
             services.Configure<TokenData>(Configuration.GetSection("tokenManagement"));
             TokenData token = Configuration.GetSection("tokenManagement").Get<TokenData>();
             //byte[] secret = Encoding.ASCII.GetBytes(token.Secret);
-            
+
             // Configure authentication schema
             services.AddAuthentication(x =>
             {
@@ -90,17 +91,25 @@ namespace Gallery.API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+            app.UseRouting();
 
             app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-            app.UseAuthentication();
+
             app.UseHttpsRedirection();
-            app.UseMvc();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }

@@ -2,9 +2,6 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Text;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 
 namespace Gallery.TestUtils
 {
@@ -118,14 +115,6 @@ namespace Gallery.TestUtils
                     return stream.ToArray();
                 }
             }
-        }
-
-        public IFormFile TestFormFile()
-        {
-            string text = "This is a dummy file for unit testing";
-            byte[] bytes = Encoding.UTF8.GetBytes(text);
-
-            return new FormFile(new MemoryStream(bytes), 0, bytes.Length, "Data", "dummy.txt");
         }
     }
 }

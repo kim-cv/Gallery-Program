@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.AspNetCore.Hosting;
 using Moq;
 using Gallery.API.Controllers;
 using Gallery.API.Entities;
@@ -13,7 +12,8 @@ using Gallery.API.Interfaces;
 using Gallery.API.Models;
 using Gallery.TestUtils;
 using Gallery.API.Helpers;
-using Gallery.API.Services;
+using Microsoft.AspNetCore.Http;
+using System.Text;
 
 namespace Gallery.API.Test
 {
@@ -227,12 +227,11 @@ namespace Gallery.API.Test
             var controller = new ImageController(GalleryService.Object, ImageService.Object);
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
 
-            ImageUtils utils = new ImageUtils();
             Guid galleryId = GalleryEntities[0].Id;
             ImageCreationDTO newItem = new ImageCreationDTO()
             {
                 Name = "CreatedTestName",
-                formFile = utils.TestFormFile()
+                formFile = TestFormFile()
             };
 
             // Act
@@ -259,7 +258,7 @@ namespace Gallery.API.Test
             ImageCreationDTO newItem = new ImageCreationDTO()
             {
                 Name = "CreatedTestName",
-                formFile = new ImageUtils().TestFormFile()
+                formFile = TestFormFile()
             };
 
             // Act
@@ -282,7 +281,7 @@ namespace Gallery.API.Test
             ImageCreationDTO newItem = new ImageCreationDTO()
             {
                 Name = "CreatedTestName",
-                formFile = new ImageUtils().TestFormFile()
+                formFile = TestFormFile()
             };
 
             // Act
@@ -393,5 +392,13 @@ namespace Gallery.API.Test
             Assert.AreEqual(401, result.StatusCode);
         }
         #endregion
+
+        public IFormFile TestFormFile()
+        {
+            string text = "This is a dummy file for unit testing";
+            byte[] bytes = Encoding.UTF8.GetBytes(text);
+
+            return new FormFile(new MemoryStream(bytes), 0, bytes.Length, "Data", "dummy.txt");
+        }
     }
 }

@@ -14,7 +14,7 @@ namespace Gallery.API.Controllers
 {
     [ApiController]
     [Authorize]
-    [Route("api/galleries/images")]
+    [Route("api/galleries/{galleryId}/images")]
     public class ImageController : ControllerBase
     {
         private readonly IGalleryService _galleryService;
@@ -27,7 +27,7 @@ namespace Gallery.API.Controllers
         }
 
 
-        [HttpGet("{galleryId}/images")]
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<byte[]>>> GetImages(
             Guid galleryId,
             [FromQuery] Pagination pagination,
@@ -67,7 +67,7 @@ namespace Gallery.API.Controllers
             return Ok(images);
         }
 
-        [HttpGet("{galleryId}/images/{imageId}")]
+        [HttpGet("{imageId}")]
         public async Task<ActionResult> GetImage(
             Guid galleryId,
             Guid imageId,
@@ -119,7 +119,7 @@ namespace Gallery.API.Controllers
         }
 
         [Consumes("multipart/form-data")]
-        [HttpPost("{galleryId}/images")]
+        [HttpPost]
         public async Task<ActionResult> CreateImage(Guid galleryId, [FromForm] ImageCreationDTO dto)
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
@@ -153,7 +153,7 @@ namespace Gallery.API.Controllers
             }
         }
 
-        [HttpDelete("{galleryId}/images/{imageId}")]
+        [HttpDelete("{imageId}")]
         public async Task<ActionResult> DeleteImage(Guid galleryId, Guid imageId)
         {
             Guid userId = new Guid(HttpContext.User.Identity.Name);
