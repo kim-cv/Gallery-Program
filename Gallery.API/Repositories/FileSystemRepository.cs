@@ -9,10 +9,10 @@ namespace Gallery.API.Repositories
 {
     public class FileSystemRepository : IFileSystemRepository
     {
-        private IHostingEnvironment _environment;
+        private IWebHostEnvironment _environment;
         private IOptions<ContentFolders> _options;
 
-        public FileSystemRepository(IHostingEnvironment environment, IOptions<ContentFolders> options)
+        public FileSystemRepository(IWebHostEnvironment environment, IOptions<ContentFolders> options)
         {
             _environment = environment;
             _options = options;
