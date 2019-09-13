@@ -393,7 +393,7 @@ namespace Gallery.API.Test
         }
         #endregion
 
-        public IFormFile TestFormFile()
+        private IFormFile TestFormFile()
         {
             string text = "This is a dummy file for unit testing";
             byte[] bytes = Encoding.UTF8.GetBytes(text);
