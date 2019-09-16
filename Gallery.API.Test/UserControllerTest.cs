@@ -10,7 +10,6 @@ using Gallery.API.Entities;
 using Gallery.API.Interfaces;
 using Gallery.API.Models;
 using Gallery.TestUtils;
-using Gallery.API.Services;
 
 namespace Gallery.API.Test
 {
