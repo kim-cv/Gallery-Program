@@ -144,6 +144,51 @@ namespace Gallery.API.Test
         #endregion
 
         #region DeleteFile
+        [TestMethod]
+        public async Task DeleteFile()
+        {
+            // Arrange            
+            var fileSystemRepository = new FileSystemRepository(WebHostEnvironment.Object, FolderOptions);
+
+            // Create test folder and test file
+            Directory.CreateDirectory(FolderPath);
+            using (var stream = File.CreateText(FilePathWithExtension))
+            {
+                stream.Write(FileData);
+                stream.Flush();
+            }
+
+            // Act
+            fileSystemRepository.DeleteFile(RandomFileName, RandomFileExtension);
+
+            // Assert
+            try
+            {
+                await fileSystemRepository.RetrieveFile(RandomFileName, RandomFileExtension);
+            }
+            catch (FileNotFoundException ex)
+            {
+                // Expecting exception
+                // Cleanup
+                Directory.Delete(FolderPath);
+                Directory.Delete(ContentRootFolderName);
+                return;
+            }
+
+            Assert.Fail("Expected to throw Exception: FileNotFoundException");
+        }
+
+        [TestMethod]
+        public void DeleteFile_folder_not_exist()
+        {
+            // Arrange
+            var fileSystemRepository = new FileSystemRepository(WebHostEnvironment.Object, FolderOptions);
+
+            // Act
+            fileSystemRepository.DeleteFile(RandomFileName, RandomFileExtension);
+
+            // Assert
+        }
         #endregion
     }
 }
