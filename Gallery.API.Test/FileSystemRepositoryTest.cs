@@ -104,8 +104,43 @@ namespace Gallery.API.Test
         }
         #endregion
 
-        
+
         #region SaveFile
+        [TestMethod]
+        public async Task SaveFile()
+        {
+            // Arrange            
+            var fileSystemRepository = new FileSystemRepository(WebHostEnvironment.Object, FolderOptions);
+            var fileByteArray = Encoding.UTF8.GetBytes(FileData);
+
+            // Create test folder
+            Directory.CreateDirectory(FolderPath);
+
+            // Act
+            await fileSystemRepository.SaveFile(fileByteArray, RandomFileName, RandomFileExtension);
+
+            // Cleanup test folder and test file
+            File.Delete(FilePathWithExtension);
+            Directory.Delete(FolderPath);
+            Directory.Delete(ContentRootFolderName);
+
+            // Assert
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(DirectoryNotFoundException))]
+        public async Task SaveFile_folder_not_exist()
+        {
+            // Arrange
+            var fileSystemRepository = new FileSystemRepository(WebHostEnvironment.Object, FolderOptions);
+            var fileByteArray = Encoding.UTF8.GetBytes(FileData);
+
+            // Act
+            await fileSystemRepository.SaveFile(fileByteArray, RandomFileName, RandomFileExtension);
+
+            // Assert
+            // Expecting exception
+        }
         #endregion
 
         #region DeleteFile
