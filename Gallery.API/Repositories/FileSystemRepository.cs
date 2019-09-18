@@ -16,11 +16,17 @@ namespace Gallery.API.Repositories
         {
             _environment = environment;
             _options = options;
+
+            string UploadFolderImagesPath = ConstructUploadFolderImagesPath();
+            if (Directory.Exists(UploadFolderImagesPath) == false)
+            {
+                Directory.CreateDirectory(UploadFolderImagesPath);
+            }
         }
 
         public async Task<byte[]> RetrieveFile(string name, string extension)
         {
-            string path = ConstructPath();
+            string path = ConstructUploadFolderImagesPath();
             string filename = Path.ChangeExtension(name, extension);
             string pathWithFilename = Path.Combine(path, filename);
 
@@ -36,7 +42,7 @@ namespace Gallery.API.Repositories
 
         public async Task SaveFile(byte[] data, string name, string extension)
         {
-            string path = ConstructPath();
+            string path = ConstructUploadFolderImagesPath();
             string filename = Path.ChangeExtension(name, extension);
             string pathWithFilename = Path.Combine(path, filename);
 
@@ -48,7 +54,7 @@ namespace Gallery.API.Repositories
 
         public void DeleteFile(string name, string extension)
         {
-            string path = ConstructPath();
+            string path = ConstructUploadFolderImagesPath();
             string filename = Path.ChangeExtension(name, extension);
             string pathWithFilename = Path.Combine(path, filename);
 
@@ -62,7 +68,7 @@ namespace Gallery.API.Repositories
             File.Delete(pathWithFilename);
         }
 
-        private string ConstructPath()
+        private string ConstructUploadFolderImagesPath()
         {
             return Path.Combine(_environment.ContentRootPath, _options.Value.UploadFolderImages);
         }
