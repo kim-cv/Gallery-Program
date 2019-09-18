@@ -125,8 +125,7 @@ namespace Gallery.API.Test
                 .ReturnsAsync((Guid imageId, bool thumb, int? thumbWidth, int? thumbHeight, bool? keepAspectRatio) =>
                 {
                     ImageEntity entity = ImageEntities.FirstOrDefault(tmp => tmp.Id == imageId);
-
-                    return new byte[0];
+                    return new byte[entity.SizeInBytes];
                 });
 
             mock
@@ -137,7 +136,7 @@ namespace Gallery.API.Test
 
                     IEnumerable<byte[]> imgData = imageEntities.Select(tmpEntity =>
                     {
-                        return new byte[0];
+                        return new byte[tmpEntity.SizeInBytes];
                     });
 
                     return imgData;

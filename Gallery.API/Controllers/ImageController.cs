@@ -114,6 +114,10 @@ namespace Gallery.API.Controllers
             }
 
             byte[] image = await _imageService.GetImageAsync(imageId, thumb, thumbWidth, thumbHeight, keepAspectRatio);
+            if (image.Length <= 0)
+            {
+                return NotFound();
+            }
 
             return File(image, "image/jpeg");
         }

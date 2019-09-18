@@ -72,7 +72,15 @@ namespace Gallery.API.Services
         {
             ImageEntity image = await _imageRepository.GetImage(imageId);
 
-            byte[] imgData = await _fileSystemRepository.RetrieveFile(image.Id.ToString(), image.Extension);
+            byte[] imgData;
+            try
+            {
+                imgData = await _fileSystemRepository.RetrieveFile(image.Id.ToString(), image.Extension);
+            }
+            catch (FileNotFoundException ex)
+            {
+                return null;
+            }
 
             if (thumb == true)
             {
@@ -84,18 +92,28 @@ namespace Gallery.API.Services
 
         public async Task<IEnumerable<byte[]>> GetImagesInGalleryAsync(Guid galleryId, Pagination pagination, bool thumb, int? thumbWidth, int? thumbHeight, bool? keepAspectRatio)
         {
+            // Get images meta data from repository
             IEnumerable<ImageEntity> imageEntities = await _imageRepository.GetImages(galleryId, pagination);
 
+            // Get image files
             IEnumerable<Task<byte[]>> tasks = imageEntities.Select(async tmpEntity =>
             {
-                byte[] imgData = await _fileSystemRepository.RetrieveFile(tmpEntity.Id.ToString(), tmpEntity.Extension);
-
-                if (thumb == true)
+                try
                 {
-                    imgData = GenerateThumb(imgData, (int)thumbWidth, (int)thumbHeight, (bool)keepAspectRatio);
-                }
+                    string filename = tmpEntity.Id.ToString();
+                    string fileExtension = tmpEntity.Extension;
 
-                return imgData;
+                    byte[] imgData = await _fileSystemRepository.RetrieveFile(filename, fileExtension);
+                    if (thumb == true)
+                    {
+                        imgData = GenerateThumb(imgData, (int)thumbWidth, (int)thumbHeight, (bool)keepAspectRatio);
+                    }
+                    return imgData;
+                }
+                catch (FileNotFoundException ex)
+                {
+                    return null;
+                }
             });
 
             IEnumerable<byte[]> imgDatas = await Task.WhenAll(tasks);
