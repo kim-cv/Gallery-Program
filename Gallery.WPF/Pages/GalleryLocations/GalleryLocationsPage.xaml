@@ -8,13 +8,85 @@
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="GalleryLocationsPage">
-    <StackPanel>
-        <Button Command="{Binding btnCmdAddGalleryLocation}" Content="Add images folder"></Button>
+
+    <Page.Resources>
+        <Style x:Key="BtnMenuStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border BorderBrush="{x:Null}" BorderThickness="0" Background="{TemplateBinding Background}">
+                            <ContentPresenter 
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center" 
+                                Margin="{TemplateBinding Padding}">
+                            </ContentPresenter>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#46576e"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="False">
+                                <Setter Property="Background" Value="#3a4758"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="#b1b7bf" />
+            <Setter Property="Padding" Value="15,5" />
+            <Setter Property="FontSize" Value="16" />
+        </Style>
+    </Page.Resources>
+
+    <DockPanel>
+
+        <StackPanel
+                DockPanel.Dock="Left"
+                Background="#3a4758"
+                Width="200px">
+            <Button Command="{Binding btnCmdAddGalleryLocation}" Content="Add Folder" Style="{StaticResource BtnMenuStyle}"/>
+        </StackPanel>
 
         <ListView
+              DockPanel.Dock="Right"
               Name="listview_locations"
               ItemsSource="{Binding GalleryLocations}"
-              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+              ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{x:Null}">
+
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Width" Value="100" />
+                    <Setter Property="Height" Value="100" />
+                    <Setter Property="Margin" Value="10,0,0,10" />
+                    <Setter Property="Cursor" Value="Hand"/>
+                    
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                <Border BorderBrush="#dedede" BorderThickness="1" Background="{TemplateBinding Background}" CornerRadius="6">
+                                    <ContentPresenter 
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" 
+                                Margin="{TemplateBinding Padding}">
+                                    </ContentPresenter>
+                                </Border>
+
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#dedede"/>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="False">
+                                        <Setter Property="Background" Value="#ffffff"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListView.ItemContainerStyle>
 
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -32,9 +104,9 @@
 
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Height="50px" Text="{Binding Name}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding Name}"/>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-    </StackPanel>
+    </DockPanel>
 </Page>
