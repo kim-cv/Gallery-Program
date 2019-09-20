@@ -5,6 +5,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+      xmlns:uc="clr-namespace:Gallery.WPF.UserControls"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="GalleryLocationsPage">
@@ -43,12 +44,7 @@
 
     <DockPanel>
 
-        <StackPanel
-                DockPanel.Dock="Left"
-                Background="#3a4758"
-                Width="200px">
-            <Button Command="{Binding btnCmdAddGalleryLocation}" Content="Add Folder" Style="{StaticResource BtnMenuStyle}"/>
-        </StackPanel>
+        <uc:LeftMenu DockPanel.Dock="Left" Width="200px" />
 
         <ListView
               DockPanel.Dock="Right"
