@@ -5,40 +5,45 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
       xmlns:local="clr-namespace:Gallery.WPF.Pages.Gallery"
+      xmlns:uc="clr-namespace:Gallery.WPF.UserControls"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="GalleryPage">
 
-    <Page.Resources>
+    <DockPanel>
 
-    </Page.Resources>
+        <uc:LeftMenu DockPanel.Dock="Left" Width="200px" />
 
-    <ListView
+        <ListView
+              DockPanel.Dock="Right"
               Name="listview_images"
               ItemsSource="{Binding Images}"
               VirtualizingPanel.VirtualizationMode="Recycling"
               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
               ScrollViewer.ScrollChanged="listview_images_ScrollChanged"
-              Background="#121212">
+              Background="#121212"
+              BorderBrush="{x:Null}"
+              BorderThickness="0">
 
-        <ListView.ItemsPanel>
-            <ItemsPanelTemplate>
-                <WrapPanel/>
-            </ItemsPanelTemplate>
-        </ListView.ItemsPanel>
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel/>
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
 
-        <i:Interaction.Triggers>
-            <i:EventTrigger EventName="MouseLeftButtonUp">
-                <i:InvokeCommandAction 
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseLeftButtonUp">
+                    <i:InvokeCommandAction 
                         Command="{Binding btnCmdChooseImage}"
                         CommandParameter="{Binding ElementName=listview_images, Path=SelectedItem}"/>
-            </i:EventTrigger>
-        </i:Interaction.Triggers>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
 
-        <ListView.ItemTemplate>
-            <DataTemplate>
-                <Image Source="{Binding thumb}" Width="100" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="None"/>
-            </DataTemplate>
-        </ListView.ItemTemplate>
-    </ListView>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Image Source="{Binding thumb}" Width="100" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="None"/>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </DockPanel>
 </Page>
