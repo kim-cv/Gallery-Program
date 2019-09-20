@@ -8,12 +8,11 @@ using System.Linq;
 
 namespace Gallery.WPF.Pages.Gallery
 {
-    public class GalleryViewmodel : IViewmodel, INotifyPropertyChanged
+    public class GalleryViewmodel : AbstractLeftMenu, IViewmodel, INotifyPropertyChanged
     {
         // Events & Commands
         public event PropertyChangedEventHandler PropertyChanged;
         public ICommand btnCmdChooseImage { get; set; }
-        public event EventHandlers.NavigateToPageEventHandler OnNavigateToNewPage;
 
         public ObservableCollection<IImageInformation> Images { get; set; } = new ObservableCollection<IImageInformation>();
         private readonly IImageRepository imageRepositoryMediator;
@@ -64,7 +63,7 @@ namespace Gallery.WPF.Pages.Gallery
         private void cmdChooseImage(IImageInformation image)
         {
             imageRepositoryMediator.CurrentLargeImage = image;
-            OnNavigateToNewPage?.Invoke(AVAILABLE_PAGES.ViewImage, imageRepositoryMediator);
+            NavigateToPage(AVAILABLE_PAGES.ViewImage, imageRepositoryMediator);
         }
 
         public void LoadMoreThumbs()
