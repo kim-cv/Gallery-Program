@@ -4,31 +4,40 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Gallery.WPF.Pages.AddGalleryLocation"
+      xmlns:uc="clr-namespace:Gallery.WPF.UserControls"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="AddGalleryLocationPage">
 
-    <StackPanel>
-        <Button Command="{Binding btnCmdChooseLocationPath}" Height="40">Choose folder location</Button>
 
-        <TextBlock Height="40">
+    <DockPanel>
+
+        <uc:LeftMenu DockPanel.Dock="Left" Width="200px" />
+
+        <StackPanel DockPanel.Dock="Right">
+            <Button Command="{Binding btnCmdChooseLocationPath}" Height="40">Choose folder location</Button>
+
+            <TextBlock Height="40">
             <Run Text="Selected path: "/>
             <Run Text="{Binding selectedPath}"/>
-        </TextBlock>
+            </TextBlock>
 
-        <Grid Height="40">
-            <Grid.RowDefinitions>
-                <RowDefinition></RowDefinition>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
+            <Grid Height="40">
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
 
-            <TextBlock VerticalAlignment="Center" Grid.Row="0" Grid.Column="0" Text="Choose name:"/>
-            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding galleryName, Mode=TwoWay}"></TextBox>
-        </Grid>
+                <TextBlock VerticalAlignment="Center" Grid.Row="0" Grid.Column="0" Text="Choose name:"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding galleryName, Mode=TwoWay}"></TextBox>
+            </Grid>
 
-        <Button Height="40" Margin="0,20,0,0" Command="{Binding btnCmdSave}">Save</Button>
-    </StackPanel>
+            <Button Height="40" Margin="0,20,0,0" Command="{Binding btnCmdSave}">Save</Button>
+        </StackPanel>
+
+    </DockPanel>
+    
 </Page>
