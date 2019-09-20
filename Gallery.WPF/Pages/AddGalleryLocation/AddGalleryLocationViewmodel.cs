@@ -6,13 +6,12 @@ using System.Windows.Input;
 
 namespace Gallery.WPF.Pages.AddGalleryLocation
 {
-    public class AddGalleryLocationViewmodel : INotifyPropertyChanged, IViewmodel
+    public class AddGalleryLocationViewmodel : AbstractLeftMenu, IViewmodel, INotifyPropertyChanged
     {
         // Events & Commands
         public event PropertyChangedEventHandler PropertyChanged;
         public ICommand btnCmdChooseLocationPath { get; set; }
         public ICommand btnCmdSave { get; set; }
-        public event EventHandlers.NavigateToPageEventHandler OnNavigateToNewPage;
 
 
         public string selectedPath { get; set; }
@@ -40,7 +39,7 @@ namespace Gallery.WPF.Pages.AddGalleryLocation
         private void SaveGalleryLocation()
         {
             galleryDataSQLiteRepository.AddGalleryLocation(galleryName, selectedPath);
-            OnNavigateToNewPage?.Invoke(AVAILABLE_PAGES.GalleryLocations, null);
+            NavigateToPage(AVAILABLE_PAGES.GalleryLocations, null);
         }
 
         private void OpenFolderDialog()
