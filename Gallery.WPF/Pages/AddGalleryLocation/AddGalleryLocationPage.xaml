@@ -9,33 +9,98 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="AddGalleryLocationPage">
 
+    <Page.Resources>
+        <FontFamily x:Key="FontAwesome">/Fonts/Font_Awesome_5_Free_Solid_900.otf#Font Awesome 5 Free Solid</FontFamily>
+
+        <Style x:Key="BtnStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border BorderBrush="#46576e" BorderThickness="2" CornerRadius="8" Background="{TemplateBinding Background}">
+                            <ContentPresenter 
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center">
+                            </ContentPresenter>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#46576e"/>
+                                <Setter Property="Foreground" Value="#fafafa"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="False">
+                                <Setter Property="Background" Value="#fafafa"/>
+                                <Setter Property="Foreground" Value="#46576e"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="#46576e" />
+            <Setter Property="FontSize" Value="16" />
+        </Style>
+    </Page.Resources>
 
     <DockPanel>
 
         <uc:LeftMenu DockPanel.Dock="Left" Width="200px" />
 
-        <StackPanel DockPanel.Dock="Right">
-            <Button Command="{Binding btnCmdChooseLocationPath}" Height="40">Choose folder location</Button>
+        <StackPanel 
+            DockPanel.Dock="Right"
+            VerticalAlignment="Center">
 
-            <TextBlock Height="40">
-            <Run Text="Selected path: "/>
-            <Run Text="{Binding selectedPath}"/>
-            </TextBlock>
+            <Button 
+                Style="{StaticResource BtnStyle}"
+                Command="{Binding btnCmdChooseLocationPath}" 
+                Width="250"
+                Height="50"                
+                Content="Choose Folder"/>
 
-            <Grid Height="40">
+
+            <TextBlock Margin="0,5,0,30" HorizontalAlignment="Center" Text="{Binding selectedPath}"/>
+
+            <Grid HorizontalAlignment="Center">
                 <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock VerticalAlignment="Center" Grid.Row="0" Grid.Column="0" Text="Choose name:"/>
-                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding galleryName, Mode=TwoWay}"></TextBox>
+                <TextBlock 
+                    Grid.Row="0" 
+                    Grid.Column="0" 
+                    VerticalAlignment="Center" 
+                    FontSize="16"
+                    Text="Gallery name"
+                    Margin="0,0,0,5"/>
+
+                <TextBox 
+                    Grid.Row="1" 
+                    Grid.Column="0" 
+                    Width="250"
+                    Height="30"
+                    HorizontalAlignment="Left"
+                    MaxLines="1"
+                    Text="{Binding galleryName, Mode=TwoWay}"
+                    Margin="0,0,0,40"/>
             </Grid>
 
-            <Button Height="40" Margin="0,20,0,0" Command="{Binding btnCmdSave}">Save</Button>
+            <Button 
+                Style="{StaticResource BtnStyle}"
+                Width="250"
+                Height="40"
+                HorizontalAlignment="Center"
+                Command="{Binding btnCmdSave}">
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock FontFamily="{StaticResource FontAwesome}" Margin="0,0,5,0" Padding="0,4,0,0">&#xf055;</TextBlock>
+                    <TextBlock>Save</TextBlock>
+                </StackPanel>
+            </Button>
         </StackPanel>
 
     </DockPanel>

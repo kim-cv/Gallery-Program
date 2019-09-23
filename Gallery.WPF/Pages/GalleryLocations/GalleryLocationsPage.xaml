@@ -48,9 +48,11 @@
 
         <ListView
               DockPanel.Dock="Right"
+              Padding="15"
               Name="listview_locations"
               ItemsSource="{Binding GalleryLocations}"
-              ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{x:Null}">
+              ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{x:Null}"
+              BorderBrush="{x:Null}">
 
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">

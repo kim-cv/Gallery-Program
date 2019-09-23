@@ -23,7 +23,8 @@
               ScrollViewer.ScrollChanged="listview_images_ScrollChanged"
               Background="#121212"
               BorderBrush="{x:Null}"
-              BorderThickness="0">
+              BorderThickness="0"
+              Padding="15">
 
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>

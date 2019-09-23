@@ -8,6 +8,8 @@
              d:DesignHeight="450" d:DesignWidth="800">
 
     <UserControl.Resources>
+        <FontFamily x:Key="FontAwesome">/Fonts/Font_Awesome_5_Free_Solid_900.otf#Font Awesome 5 Free Solid</FontFamily>
+        
         <Style x:Key="BtnMenuStyle" TargetType="Button">
             <Setter Property="Template">
                 <Setter.Value>
@@ -32,6 +34,7 @@
                 </Setter.Value>
             </Setter>
 
+            <Setter Property="Height" Value="40"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Foreground" Value="#b1b7bf" />
             <Setter Property="Padding" Value="15,5" />
@@ -43,8 +46,24 @@
                 DockPanel.Dock="Left"
                 Background="#3a4758"
                 Width="200px">
-        <Button Command="{Binding btnCmdAddGalleryLocation}" Content="Add Gallery" Style="{StaticResource BtnMenuStyle}"/>
-        <Button Command="{Binding btnCmdViewGalleryLocations}" Content="View Galleries" Style="{StaticResource BtnMenuStyle}"/>
+
+        <Button 
+            Style="{StaticResource BtnMenuStyle}"
+            Command="{Binding btnCmdAddGalleryLocation}">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock FontFamily="{StaticResource FontAwesome}" Margin="0,0,15,0" Padding="0,3,0,0">&#xf055;</TextBlock>
+                <TextBlock>Add Gallery</TextBlock>
+            </StackPanel>
+        </Button>
+
+        <Button 
+            Style="{StaticResource BtnMenuStyle}"
+            Command="{Binding btnCmdViewGalleryLocations}">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock FontFamily="{StaticResource FontAwesome}" Margin="0,0,12,0" Padding="0,3,0,0">&#xf302;</TextBlock>
+                <TextBlock>View Galleries</TextBlock>
+            </StackPanel>
+        </Button>
     </StackPanel>
 
 </UserControl>
