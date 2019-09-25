@@ -21,19 +21,14 @@ namespace Gallery.WPF
             applicationRoamingDataPath = Path.Combine(applicationRoamingDataPath, program_name);
 
 
-            switch (pageType)
+            return pageType switch
             {
-                case AVAILABLE_PAGES.Gallery:
-                    return CreatePageGallery(pageData);
-                case AVAILABLE_PAGES.GalleryLocations:
-                    return CreatePageGalleryLocations(applicationRoamingDataPath);
-                case AVAILABLE_PAGES.AddGalleryLocation:
-                    return CreatePageAddGalleryLocation(applicationRoamingDataPath);
-                case AVAILABLE_PAGES.ViewImage:
-                    return CreatePageViewImage(pageData);
-                default:
-                    return null;
-            }
+                AVAILABLE_PAGES.Gallery => CreatePageGallery(pageData),
+                AVAILABLE_PAGES.GalleryLocations => CreatePageGalleryLocations(applicationRoamingDataPath),
+                AVAILABLE_PAGES.AddGalleryLocation => CreatePageAddGalleryLocation(applicationRoamingDataPath),
+                AVAILABLE_PAGES.ViewImage => CreatePageViewImage(pageData),
+                _ => null,
+            };
         }
 
         private static Page CreatePageViewImage(object pageData)
