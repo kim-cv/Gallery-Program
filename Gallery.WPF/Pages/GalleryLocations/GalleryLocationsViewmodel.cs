@@ -1,5 +1,7 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Windows;
 using System.Windows.Input;
 using Gallery.BL;
 using Gallery.WPF.Interfaces;
@@ -17,7 +19,7 @@ namespace Gallery.WPF.Pages.GalleryLocations
 
         public GalleryLocationsViewmodel(GalleryDataSQLiteRepository _galleryDataSQLiteRepository)
         {
-            if (DesignerProperties.GetIsInDesignMode(new System.Windows.DependencyObject()))
+            if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
             {
                 return;
             }
@@ -29,9 +31,17 @@ namespace Gallery.WPF.Pages.GalleryLocations
             {
                 if (tmpGallery == null)
                 {
-                    return;
+                    ((IViewmodel)this).NavigationErrorPopup("Unable to view gallery.");
                 }
-                NavigateToPage(AVAILABLE_PAGES.Gallery, tmpGallery);
+
+                try
+                {
+                    NavigateToPage(AVAILABLE_PAGES.Gallery, tmpGallery);
+                }
+                catch (Exception ex)
+                {
+                    ((IViewmodel)this).NavigationErrorPopup("Unable to view gallery.");
+                }
             });
         }
     }
