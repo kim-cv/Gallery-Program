@@ -30,27 +30,28 @@ namespace Gallery.BL
 
                 // SQL Command
                 string sqlStatement = $"Select name, path from {table_galleryLocations}";
-                SQLiteCommand command = new SQLiteCommand(sqlStatement, conn);
-
-                // SQL Execute
-                SQLiteDataReader reader = command.ExecuteReader();
-
-                // SQL Read
-                while (reader.Read())
+                using (SQLiteCommand command = new SQLiteCommand(sqlStatement, conn))
                 {
-                    string name = reader.GetString(0);
-                    string path = reader.GetString(1);
+                    // SQL Execute
+                    SQLiteDataReader reader = command.ExecuteReader();
 
-                    GalleryLocation galleryLocation = new GalleryLocation()
+                    // SQL Read
+                    while (reader.Read())
                     {
-                        Name = name,
-                        Path = path
-                    };
+                        string name = reader.GetString(0);
+                        string path = reader.GetString(1);
 
-                    galleryLocations.Add(galleryLocation);
+                        GalleryLocation galleryLocation = new GalleryLocation()
+                        {
+                            Name = name,
+                            Path = path
+                        };
+
+                        galleryLocations.Add(galleryLocation);
+                    }
+
+                    reader.Close();
                 }
-
-                reader.Close();
             }
 
             return galleryLocations;
@@ -64,16 +65,17 @@ namespace Gallery.BL
 
                 // SQL Command
                 string sqlStatement = $"INSERT INTO {table_galleryLocations} (name, path) VALUES (@name, @path)";
-                SQLiteCommand command = new SQLiteCommand(sqlStatement, conn);
+                using (SQLiteCommand command = new SQLiteCommand(sqlStatement, conn))
+                {
+                    // SQL Parameters
+                    var param_name = new SQLiteParameter("@name", DbType.String) { Value = name };
+                    var param_path = new SQLiteParameter("@path", DbType.String) { Value = path };
+                    command.Parameters.Add(param_name);
+                    command.Parameters.Add(param_path);
 
-                // SQL Parameters
-                var param_name = new SQLiteParameter("@name", DbType.String) { Value = name };
-                var param_path = new SQLiteParameter("@path", DbType.String) { Value = path };
-                command.Parameters.Add(param_name);
-                command.Parameters.Add(param_path);
-
-                // SQL Execute
-                command.ExecuteNonQuery();
+                    // SQL Execute
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
@@ -89,8 +91,10 @@ namespace Gallery.BL
                     "path TEXT NOT NULL" +
                     ")";
 
-                SQLiteCommand command = new SQLiteCommand(sqlStatement, conn);
-                command.ExecuteNonQuery();
+                using (SQLiteCommand command = new SQLiteCommand(sqlStatement, conn))
+                {
+                    command.ExecuteNonQuery();
+                }
             }
         }
     }
