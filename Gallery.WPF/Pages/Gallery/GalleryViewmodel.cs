@@ -1,10 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
-using Gallery.WPF.Interfaces;
-using System.Windows;
-using Gallery.Core.Interfaces;
 using System.Linq;
+using System.Windows;
+using Gallery.WPF.Interfaces;
+using Gallery.Core.Interfaces;
 
 namespace Gallery.WPF.Pages.Gallery
 {
