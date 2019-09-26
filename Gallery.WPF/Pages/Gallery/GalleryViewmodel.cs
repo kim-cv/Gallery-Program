@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using Gallery.WPF.Interfaces;
 using Gallery.Core.Interfaces;
+using System.Collections.Generic;
 
 namespace Gallery.WPF.Pages.Gallery
 {
@@ -18,7 +19,7 @@ namespace Gallery.WPF.Pages.Gallery
         private readonly IImageRepository imageRepositoryMediator;
 
         private int numOfCurrentShowingItems = 0;
-        private readonly int numOfNewImagesPerRequest = 20;
+        private readonly int numOfNewImagesPerRequest = 40;
         private bool isCurrentlyLoading = false;
 
 
@@ -75,14 +76,17 @@ namespace Gallery.WPF.Pages.Gallery
             }
 
             isCurrentlyLoading = true;
+
             // Get more images
-            IImageInformation[] newImages = imageRepositoryMediator.RetrieveImages(numOfCurrentShowingItems, numOfNewImagesPerRequest).ToArray();
+            IEnumerable<IImageInformation> newImages = imageRepositoryMediator.RetrieveImages(numOfCurrentShowingItems, numOfNewImagesPerRequest);
+
             foreach (IImageInformation item in newImages)
             {
                 item.RetrieveThumb();
                 Images.Add(item);
             }
-            numOfCurrentShowingItems += newImages.Length;
+
+            numOfCurrentShowingItems += newImages.Count();
             isCurrentlyLoading = false;
         }
     }
