@@ -7,9 +7,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="2.1.1" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.111" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Gallery.BL\Gallery.BL.csproj" />
     <ProjectReference Include="..\Gallery.Core\Gallery.Core.csproj" />
   </ItemGroup>
 
