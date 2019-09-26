@@ -41,11 +41,7 @@ namespace Gallery.BL
                         string name = reader.GetString(0);
                         string path = reader.GetString(1);
 
-                        GalleryLocation galleryLocation = new GalleryLocation()
-                        {
-                            Name = name,
-                            Path = path
-                        };
+                        GalleryLocation galleryLocation = new GalleryLocation(name, path);
 
                         galleryLocations.Add(galleryLocation);
                     }
