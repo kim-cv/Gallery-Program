@@ -6,13 +6,7 @@ namespace Gallery.API.Models
     {
         public static GalleryDTO ToGalleryDto(this GalleryEntity galleryEntity, int numberOfImages)
         {
-            return new GalleryDTO()
-            {
-                Id = galleryEntity.Id,
-                ownerId = galleryEntity.fk_owner,
-                Name = galleryEntity.Name,
-                NumberOfImages = numberOfImages
-            };
+            return new GalleryDTO(galleryEntity.Id, galleryEntity.fk_owner, galleryEntity.Name, numberOfImages);
         }
     }
 }

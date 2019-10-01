@@ -5,9 +5,15 @@ namespace Gallery.API.Models
     public class UserLoginDTO
     {
         [Required]
-        public string username { get; set; }
+        public string Username { get; set; }
 
         [Required]
-        public string password { get; set; }
+        public string Password { get; set; }
+
+        public UserLoginDTO(string username, string password)
+        {
+            Username = username;
+            Password = password;
+        }
     }
 }

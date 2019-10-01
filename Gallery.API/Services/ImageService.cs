@@ -49,7 +49,7 @@ namespace Gallery.API.Services
                 throw new Exception();
             }
 
-            IFormFile formFile = imageCreationDTO.formFile;
+            IFormFile formFile = imageCreationDTO.FormFile;
             if (formFile.Length > 0)
             {
                 string extension = Path.GetExtension(formFile.FileName);

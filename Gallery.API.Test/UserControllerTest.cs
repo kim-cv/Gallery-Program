@@ -38,10 +38,7 @@ namespace Gallery.API.Test
         {
             // Arrange
             var controller = new UserController(UserService.Object);
-            UserLoginDTO userLoginDTO = new UserLoginDTO() {
-                username = UserEntities.First().Username,
-                password = UserEntities.First().Password
-            };
+            UserLoginDTO userLoginDTO = new UserLoginDTO(UserEntities.First().Username, UserEntities.First().Password);
 
             // Act
             IActionResult response = await controller.RequestTokenAsync(userLoginDTO);
@@ -53,8 +50,8 @@ namespace Gallery.API.Test
             Assert.IsNotNull(result.Value);
             Assert.IsInstanceOfType(result.Value, typeof(UserLoginResponseDTO));
             UserLoginResponseDTO loginDTO = result.Value as UserLoginResponseDTO;
-            Assert.IsNotNull(loginDTO.token);
-            Assert.IsInstanceOfType(loginDTO.token, typeof(string));
+            Assert.IsNotNull(loginDTO.Token);
+            Assert.IsInstanceOfType(loginDTO.Token, typeof(string));
         }
 
         [TestMethod]
@@ -62,11 +59,7 @@ namespace Gallery.API.Test
         {
             // Arrange
             var controller = new UserController(UserService.Object);
-            UserLoginDTO userLoginDTO = new UserLoginDTO()
-            {
-                username = UserEntities.First().Username,
-                password = "WrongPassword1"
-            };
+            UserLoginDTO userLoginDTO = new UserLoginDTO(UserEntities.First().Username, "WrongPassword1");
 
             // Act
             IActionResult response = await controller.RequestTokenAsync(userLoginDTO);
@@ -82,11 +75,7 @@ namespace Gallery.API.Test
         {
             // Arrange
             var controller = new UserController(UserService.Object);
-            UserLoginDTO userLoginDTO = new UserLoginDTO()
-            {
-                username = "NotExistingUsername1",
-                password = "NotExistingPassword1"
-            };
+            UserLoginDTO userLoginDTO = new UserLoginDTO("NotExistingUsername1", "NotExistingPassword1");
 
             // Act
             IActionResult response = await controller.RequestTokenAsync(userLoginDTO);
@@ -166,11 +155,7 @@ namespace Gallery.API.Test
         {
             // Arrange
             var controller = new UserController(UserService.Object);
-            UserCreationDTO newUser = new UserCreationDTO()
-            {
-                Username = "CreateUserUsername",
-                Password = "CreateUserPassword"
-            };
+            UserCreationDTO newUser = new UserCreationDTO("CreateUserUsername", "CreateUserPassword");
 
             // Act
             ActionResult<UserDTO> response = await controller.CreateUser(newUser);
@@ -197,11 +182,7 @@ namespace Gallery.API.Test
             };
             UserEntities.Add(existingUser);
             var controller = new UserController(UserService.Object);
-            UserCreationDTO newUser = new UserCreationDTO()
-            {
-                Username = "CreateUserUsernameUsed",
-                Password = "Password"
-            };
+            UserCreationDTO newUser = new UserCreationDTO("CreateUserUsernameUsed", "Password");
 
             // Act
             ActionResult<UserDTO> response = await controller.CreateUser(newUser);

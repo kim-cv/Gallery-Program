@@ -200,9 +200,9 @@ namespace Gallery.API.Test
                 .Setup(service => service.LoginAsync(It.IsAny<UserLoginDTO>()))
                 .ReturnsAsync((UserLoginDTO userLoginDTO) =>
                 {
-                    UserEntity entity = UserEntities.First(tmp => tmp.Username == userLoginDTO.username);
+                    UserEntity entity = UserEntities.First(tmp => tmp.Username == userLoginDTO.Username);
                     
-                    if (userLoginDTO.password != entity.Password)
+                    if (userLoginDTO.Password != entity.Password)
                     {
                         throw new Exception("Wrong Password");
                     }

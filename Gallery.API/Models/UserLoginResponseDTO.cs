@@ -6,6 +6,11 @@ namespace Gallery.API.Models
     public class UserLoginResponseDTO
     {
         [Required]
-        public string token { get; set; }
+        public string Token { get; set; }
+
+        public UserLoginResponseDTO(string token)
+        {
+            Token = token;
+        }
     }
 }

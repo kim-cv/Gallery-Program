@@ -6,5 +6,11 @@ namespace Gallery.API.Models
     {
         public Guid Id { get; set; }
         public string Username { get; set; }
+
+        public UserDTO(Guid id, string username)
+        {
+            Id = id;
+            Username = username;
+        }
     }
 }

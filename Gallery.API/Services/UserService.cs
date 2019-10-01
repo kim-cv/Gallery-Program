@@ -63,9 +63,9 @@ namespace Gallery.API.Services
 
         public async Task<string> LoginAsync(UserLoginDTO userLoginDTO)
         {
-            UserEntity userEntity = _userRepository.GetUser(userLoginDTO.username);
+            UserEntity userEntity = _userRepository.GetUser(userLoginDTO.Username);
 
-            string hashedPassword = _authService.HashPassword(userLoginDTO.password, userEntity.Salt);
+            string hashedPassword = _authService.HashPassword(userLoginDTO.Password, userEntity.Salt);
 
             if (userEntity.Password != hashedPassword)
             {

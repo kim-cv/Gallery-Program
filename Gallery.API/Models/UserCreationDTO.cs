@@ -9,5 +9,11 @@ namespace Gallery.API.Models
 
         [Required]
         public string Password { get; set; }
+
+        public UserCreationDTO(string username, string password)
+        {
+            Username = username;
+            Password = password;
+        }
     }
 }

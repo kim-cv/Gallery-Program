@@ -6,5 +6,10 @@ namespace Gallery.API.Models
     {
         [Required]
         public string Name { get; set; }
+
+        public GalleryPutDTO(string name)
+        {
+            Name = name;
+        }
     }
 }

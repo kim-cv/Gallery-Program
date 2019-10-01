@@ -228,11 +228,7 @@ namespace Gallery.API.Test
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
 
             Guid galleryId = GalleryEntities[0].Id;
-            ImageCreationDTO newItem = new ImageCreationDTO()
-            {
-                Name = "CreatedTestName",
-                formFile = TestFormFile()
-            };
+            ImageCreationDTO newItem = new ImageCreationDTO("CreatedTestName", TestFormFile());
 
             // Act
             ActionResult<ImageDTO> response = await controller.CreateImage(galleryId, newItem);
@@ -255,11 +251,7 @@ namespace Gallery.API.Test
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
 
             Guid galleryId = Guid.NewGuid();
-            ImageCreationDTO newItem = new ImageCreationDTO()
-            {
-                Name = "CreatedTestName",
-                formFile = TestFormFile()
-            };
+            ImageCreationDTO newItem = new ImageCreationDTO("CreatedTestName", TestFormFile());
 
             // Act
             ActionResult<ImageDTO> response = await controller.CreateImage(galleryId, newItem);
@@ -278,11 +270,7 @@ namespace Gallery.API.Test
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[1].Id.ToString());
 
             Guid galleryId = GalleryEntities[0].Id;
-            ImageCreationDTO newItem = new ImageCreationDTO()
-            {
-                Name = "CreatedTestName",
-                formFile = TestFormFile()
-            };
+            ImageCreationDTO newItem = new ImageCreationDTO("CreatedTestName", TestFormFile());
 
             // Act
             ActionResult<ImageDTO> response = await controller.CreateImage(galleryId, newItem);

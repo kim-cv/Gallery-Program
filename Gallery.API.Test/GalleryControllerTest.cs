@@ -142,10 +142,7 @@ namespace Gallery.API.Test
             var controller = new GalleryController(GalleryService.Object);
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[1].Id.ToString());
 
-            GalleryCreationDTO newGalleryItem = new GalleryCreationDTO()
-            {
-                Name = "CreatedTestName"
-            };
+            GalleryCreationDTO newGalleryItem = new GalleryCreationDTO("CreatedTestName");
 
             // Act
             ActionResult<GalleryDTO> response = await controller.CreateGallery(newGalleryItem);
@@ -178,10 +175,7 @@ namespace Gallery.API.Test
             GalleryEntities.Add(newGalleryEntity);
 
             // Act
-            GalleryPutDTO galleryPutDto = new GalleryPutDTO()
-            {
-                Name = "UpdatedTestGalleryName"
-            };
+            GalleryPutDTO galleryPutDto = new GalleryPutDTO("UpdatedTestGalleryName");
             ActionResult<GalleryDTO> response = await controller.PutGallery(newGalleryEntity.Id, galleryPutDto);
 
             // Assert
@@ -212,10 +206,7 @@ namespace Gallery.API.Test
             GalleryEntities.Add(newGalleryEntity);
 
             // Act
-            GalleryPutDTO galleryPutDto = new GalleryPutDTO()
-            {
-                Name = "UpdatedTestGalleryName"
-            };
+            GalleryPutDTO galleryPutDto = new GalleryPutDTO("UpdatedTestGalleryName");
             ActionResult<GalleryDTO> response = await controller.PutGallery(newGalleryEntity.Id, galleryPutDto);
 
             // Assert
@@ -232,10 +223,7 @@ namespace Gallery.API.Test
             controller.ControllerContext = APIControllerUtils.CreateApiControllerContext(UserEntities[0].Id.ToString());
 
             // Act
-            GalleryPutDTO galleryPutDto = new GalleryPutDTO()
-            {
-                Name = "UpdatedTestGalleryName"
-            };
+            GalleryPutDTO galleryPutDto = new GalleryPutDTO("UpdatedTestGalleryName");
             ActionResult<GalleryDTO> response = await controller.PutGallery(Guid.NewGuid(), galleryPutDto);
 
             // Assert

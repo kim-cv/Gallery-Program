@@ -10,7 +10,7 @@ namespace Gallery.API.Models
             return new GalleryEntity()
             {
                 Id = galleryDto.Id,
-                fk_owner = galleryDto.ownerId,
+                fk_owner = galleryDto.OwnerId,
                 Name = galleryDto.Name
             };
         }

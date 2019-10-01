@@ -24,7 +24,7 @@ namespace Gallery.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> RequestTokenAsync(UserLoginDTO userLoginDTO)
         {
-            if (await _userService.DoesUserExist(userLoginDTO.username) == false)
+            if (await _userService.DoesUserExist(userLoginDTO.Username) == false)
             {
                 return NotFound("User not found");
             }
@@ -32,7 +32,7 @@ namespace Gallery.API.Controllers
             try
             {
                 string jwtToken = await _userService.LoginAsync(userLoginDTO);
-                return Ok(new UserLoginResponseDTO(){ token = jwtToken });
+                return Ok(new UserLoginResponseDTO(jwtToken));
             }
             catch (Exception ex)
             {

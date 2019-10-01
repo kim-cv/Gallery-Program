@@ -6,11 +6,7 @@ namespace Gallery.API.Models
     {
         public static UserDTO ToUserDto(this UserEntity userEntity)
         {
-            return new UserDTO()
-            {
-                Id = userEntity.Id,
-                Username = userEntity.Username
-            };
+            return new UserDTO(userEntity.Id, userEntity.Username);
         }
     }
 }
