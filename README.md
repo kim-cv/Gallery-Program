@@ -4,6 +4,8 @@ I started this project becayse I want to keep myself up to date on .NET.
 
 This solution consist of multiple projects including some unittest, in general its an WPF gallery application and a ASP.net API and both is using .NET Core 3.0.
 
+![showcase](https://github.com/kim-cv/Gallery-Program/blob/master/showcase.gif)
+
 WPF uses the following
 - Patterns: MVVM, Repository, Dependency Injection.
 - Local SQLite database.
@@ -21,6 +23,3 @@ API uses the following
 - Load configuration from appsettings.json
 - JSON validation
 - Image to thumb creation
-
-
-
