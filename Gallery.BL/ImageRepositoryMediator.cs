@@ -83,6 +83,14 @@ namespace Gallery.BL
             return tmpImageInformations;
         }
 
+        public IEnumerable<IImageInformation> RetrieveImagesUpTo(IImageInformation image)
+        {
+            int index = fileInfos.FindIndex(tmp => tmp.FullName == image.fileInfo.FullName);
+            int from = 0;
+            int to = index + 1;
+            return RetrieveImages(from, to);
+        }
+
         public IImageInformation CurrentLargeImage { get; set; }
         public IImageInformation NextImage()
         {

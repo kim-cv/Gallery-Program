@@ -11,5 +11,6 @@ namespace Gallery.Core.Interfaces
         IImageInformation NextImage();
         IImageInformation PreviousImage();
         IEnumerable<IImageInformation> RetrieveImages(int from, int to);
+        IEnumerable<IImageInformation> RetrieveImagesUpTo(IImageInformation image);
     }
 }

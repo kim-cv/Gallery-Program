@@ -13,6 +13,22 @@ namespace Gallery.WPF.Pages.Gallery
             DataContext = viewModel;
 
             viewModel.OnNavigateToNewPage += NavigateToPage;
+
+            Loaded += GalleryPage_Loaded;
+        }
+
+        private void GalleryPage_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if (viewModel.numPreviouslyLoadedImages > 0)
+            {
+                int index = viewModel.numPreviouslyLoadedImages - 1;
+
+                // Get UI item from index
+                ListViewItem item = listview_images.ItemContainerGenerator.ContainerFromIndex(index) as ListViewItem;
+
+                // Scroll untill item is in view
+                item.BringIntoView();
+            }
         }
 
         private void NavigateToPage(AVAILABLE_PAGES pageType, object pageData)

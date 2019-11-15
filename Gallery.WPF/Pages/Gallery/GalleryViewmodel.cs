@@ -21,6 +21,7 @@ namespace Gallery.WPF.Pages.Gallery
         private int numOfCurrentShowingItems = 0;
         private readonly int numOfNewImagesPerRequest = 40;
         private bool isCurrentlyLoading = false;
+        public int numPreviouslyLoadedImages = 0;
 
 
         public GalleryViewmodel(IImageRepository _imageRepositoryMediator)
@@ -36,6 +37,20 @@ namespace Gallery.WPF.Pages.Gallery
             });
 
             imageRepositoryMediator = _imageRepositoryMediator;
+
+            // Scroll to previous image
+            if (imageRepositoryMediator.CurrentLargeImage != null)
+            {
+                var returnedFromBigImage = imageRepositoryMediator.CurrentLargeImage;
+                var imagesPreviouslyLoaded = imageRepositoryMediator.RetrieveImagesUpTo(returnedFromBigImage);
+                foreach (IImageInformation item in imagesPreviouslyLoaded)
+                {
+                    item.RetrieveThumb();
+                    Images.Add(item);
+                }
+                numOfCurrentShowingItems += imagesPreviouslyLoaded.Count();
+                numPreviouslyLoadedImages = imagesPreviouslyLoaded.Count();
+            }
 
             //_imageRepositoryMediator.OnNewImage += OnNewImage;
             //imageRepositoryMediator.RetrieveImagesAsThumbs();
