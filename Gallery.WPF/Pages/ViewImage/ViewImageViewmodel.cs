@@ -16,9 +16,9 @@ namespace Gallery.WPF.Pages.ViewImage
         public ICommand btnCmdNextImage { get; set; }
 
         public IImageInformation image { get; set; }
-        private IImageRepository imageRepository { get; }
+        private IImageRepositoryCache imageRepository { get; }
 
-        public ViewImageViewmodel(IImageRepository _imageRepository)
+        public ViewImageViewmodel(IImageRepositoryCache _imageRepository)
         {
             if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
             {

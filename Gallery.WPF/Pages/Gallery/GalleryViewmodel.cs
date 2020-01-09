@@ -16,7 +16,7 @@ namespace Gallery.WPF.Pages.Gallery
         public ICommand btnCmdChooseImage { get; set; }
 
         public ObservableCollection<IImageInformation> Images { get; set; } = new ObservableCollection<IImageInformation>();
-        private readonly IImageRepository imageRepositoryMediator;
+        private readonly IImageRepositoryCache imageRepositoryCache;
 
         private int numOfCurrentShowingItems = 0;
         private readonly int numOfNewImagesPerRequest = 40;
@@ -24,7 +24,7 @@ namespace Gallery.WPF.Pages.Gallery
         public int numPreviouslyLoadedImages = 0;
 
 
-        public GalleryViewmodel(IImageRepository _imageRepositoryMediator)
+        public GalleryViewmodel(IImageRepositoryCache _imageRepositoryCache)
         {
             if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
             {
@@ -36,13 +36,13 @@ namespace Gallery.WPF.Pages.Gallery
                 cmdChooseImage(tmpImage);
             });
 
-            imageRepositoryMediator = _imageRepositoryMediator;
+            imageRepositoryCache = _imageRepositoryCache;
 
             // Scroll to previous image
-            if (imageRepositoryMediator.CurrentLargeImage != null)
+            if (imageRepositoryCache.CurrentLargeImage != null)
             {
-                var returnedFromBigImage = imageRepositoryMediator.CurrentLargeImage;
-                var imagesPreviouslyLoaded = imageRepositoryMediator.RetrieveImagesUpTo(returnedFromBigImage);
+                var returnedFromBigImage = imageRepositoryCache.CurrentLargeImage;
+                var imagesPreviouslyLoaded = imageRepositoryCache.RetrieveImagesUpTo(returnedFromBigImage);
                 foreach (IImageInformation item in imagesPreviouslyLoaded)
                 {
                     item.RetrieveThumb();
@@ -78,8 +78,10 @@ namespace Gallery.WPF.Pages.Gallery
 
         private void cmdChooseImage(IImageInformation image)
         {
-            imageRepositoryMediator.CurrentLargeImage = image;
-            NavigateToPage(AVAILABLE_PAGES.ViewImage, imageRepositoryMediator);
+            if (image == null) return;
+
+            imageRepositoryCache.CurrentLargeImage = image;
+            NavigateToPage(AVAILABLE_PAGES.ViewImage, imageRepositoryCache);
         }
 
         public void LoadMoreThumbs()
@@ -93,7 +95,7 @@ namespace Gallery.WPF.Pages.Gallery
             isCurrentlyLoading = true;
 
             // Get more images
-            IEnumerable<IImageInformation> newImages = imageRepositoryMediator.RetrieveImages(numOfCurrentShowingItems, numOfNewImagesPerRequest);
+            IEnumerable<IImageInformation> newImages = imageRepositoryCache.RetrieveImages(numOfCurrentShowingItems, numOfNewImagesPerRequest);
 
             foreach (IImageInformation item in newImages)
             {

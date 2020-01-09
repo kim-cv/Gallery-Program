@@ -38,7 +38,7 @@ namespace Gallery.WPF
             //}
 
             //IImageInformation imageInformation = (IImageInformation)pageData;
-            IImageRepository imageRepository = (IImageRepository)pageData;
+            IImageRepositoryCache imageRepository = (IImageRepositoryCache)pageData;
             ViewImageViewmodel viewImageViewmodel = new ViewImageViewmodel(imageRepository);
             return new ViewImagePage(viewImageViewmodel);
         }
@@ -55,15 +55,15 @@ namespace Gallery.WPF
                 GalleryLocation galleryLocation = (GalleryLocation)pageData;
                 string imagesFolder = galleryLocation.Path;
                 FilesystemRepository filesystemRepository = new FilesystemRepository(imagesFolder);
-                IImageRepository imageRepositoryMediator = new ImageRepositoryMediator(filesystemRepository);
-                GalleryViewmodel galleryViewmodel = new GalleryViewmodel(imageRepositoryMediator);
+                IImageRepositoryCache imageRepository = new ImageRepositoryCache(filesystemRepository);
+                GalleryViewmodel galleryViewmodel = new GalleryViewmodel(imageRepository);
                 return new GalleryPage(galleryViewmodel);
             }
 
             if (pageData is IImageRepository)
             {
-                IImageRepository imageRepositoryMediator = (IImageRepository)pageData;
-                GalleryViewmodel galleryViewmodel = new GalleryViewmodel(imageRepositoryMediator);
+                IImageRepositoryCache imageRepository = (IImageRepositoryCache)pageData;
+                GalleryViewmodel galleryViewmodel = new GalleryViewmodel(imageRepository);
                 return new GalleryPage(galleryViewmodel);
             }
 

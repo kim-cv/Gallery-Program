@@ -1,5 +1,4 @@
 ﻿using Gallery.Core.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,8 +9,8 @@ namespace Gallery.BL
     {
         public event NewImageEventHandler OnNewImage;
 
-        private readonly List<IImageFileRepository> imageRepositories = new List<IImageFileRepository>();
-        private readonly List<FileInfo> fileInfos = new List<FileInfo>();
+        protected readonly List<IImageFileRepository> imageRepositories = new List<IImageFileRepository>();
+        protected readonly List<FileInfo> fileInfos = new List<FileInfo>();
 
         public ImageRepositoryMediator(IImageFileRepository _imageRepository)
         {
@@ -76,68 +75,19 @@ namespace Gallery.BL
         //    }
         //}
 
-        public IEnumerable<IImageInformation> RetrieveImages(int from, int to)
+        public virtual IEnumerable<IImageInformation> RetrieveImages(int from, int to)
         {
             IEnumerable<FileInfo> tmpFileInfos = fileInfos.Skip(from).Take(to);
             IEnumerable<IImageInformation> tmpImageInformations = tmpFileInfos.Select(tmpFileInfo => new ImageInformation("testUid", tmpFileInfo));
             return tmpImageInformations;
         }
 
-        public IEnumerable<IImageInformation> RetrieveImagesUpTo(IImageInformation image)
+        public virtual IEnumerable<IImageInformation> RetrieveImagesUpTo(IImageInformation image)
         {
             int index = fileInfos.FindIndex(tmp => tmp.FullName == image.fileInfo.FullName);
             int from = 0;
             int to = index + 1;
             return RetrieveImages(from, to);
-        }
-
-        public IImageInformation CurrentLargeImage { get; set; }
-        public IImageInformation NextImage()
-        {
-            int currentIndex = fileInfos.FindIndex(tmpFileInfo => tmpFileInfo == CurrentLargeImage.fileInfo);
-            if (currentIndex == -1)
-            {
-                return null;
-            }
-
-            int nextIndex = currentIndex += 1;
-            FileInfo nextFileInfo;
-            try
-            {
-                nextFileInfo = fileInfos[nextIndex];
-            }
-            catch (ArgumentOutOfRangeException ex)
-            {
-                return null;
-            }
-
-            IImageInformation nextImage = new ImageInformation("testUid", nextFileInfo);
-            CurrentLargeImage = nextImage;
-            return nextImage;
-        }
-
-        public IImageInformation PreviousImage()
-        {
-            int currentIndex = fileInfos.FindIndex(tmpFileInfo => tmpFileInfo == CurrentLargeImage.fileInfo);
-            if (currentIndex == -1)
-            {
-                return null;
-            }
-
-            int previousIndex = currentIndex -= 1;
-            FileInfo previousFileInfo;
-            try
-            {
-                previousFileInfo = fileInfos[previousIndex];
-            }
-            catch (ArgumentOutOfRangeException ex)
-            {
-                return null;
-            }
-
-            IImageInformation previousImage = new ImageInformation("testUid", previousFileInfo);
-            CurrentLargeImage = previousImage;
-            return previousImage;
         }
     }
 }

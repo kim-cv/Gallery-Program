@@ -29,14 +29,20 @@ namespace Gallery.BL
 
         public async Task RetrieveThumb()
         {
-            thumb = await ImageController.FileInfoToThumbnail(fileInfo);
-            NotifyPropertyChanged("thumb");
+            if (thumb == null)
+            {
+                thumb = await ImageController.FileInfoToThumbnail(fileInfo);
+                NotifyPropertyChanged("thumb");
+            }
         }
 
         public async Task RetrieveFullImage()
         {
-            fullImage = await ImageController.FileInfoToBitmapSource(fileInfo);
-            NotifyPropertyChanged("fullImage");
+            if (fullImage == null)
+            {
+                fullImage = await ImageController.FileInfoToBitmapSource(fileInfo);
+                NotifyPropertyChanged("fullImage");
+            }
         }
     }
 }
